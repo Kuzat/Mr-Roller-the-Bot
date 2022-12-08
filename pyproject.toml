@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "mr-roller-the-bot"
+version = "0.1.0"
+description = "A discord bot for daily dice roller game"
+authors = ["Vegard Bjørsvik <vegardbjr@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "roller_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+"discord.py" = "^2.1.0"
+SQLAlchemy = "^1.4.44"
+pydantic = "^1.10.2"
+python-dotenv = "^0.21.0"
+
+[tool.poetry.scripts]
+bot = "roller_bot.main:main"
+
+[tool.poetry.group.dev.dependencies]
+black = {version = "^22.10.0", allow-prereleases = true}
+autopep8 = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
