@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import importlib.metadata
 import random
 from typing import List, Optional, Tuple
 import discord
@@ -10,7 +11,7 @@ from roller_bot.models.user import User, UserTotalRolls
 
 
 class RollerBot:
-    def __init__(self, command_prefix: str, intents: discord.Intents, db_path: str):
+    def __init__(self, command_prefix: str, intents: discord.Intents, db_path: str) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
@@ -21,6 +22,11 @@ class RollerBot:
 
         # DEBUG MODE
         self.hack_mode: bool = False
+
+        # Add presence on ready
+        @self.bot.event
+        async def on_ready() -> None:
+            await self.bot.change_presence(activity=discord.Game(name=f'RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) - !help to get started'))
 
         @self.bot.command(brief="Users that have not rolled today.", description="Gets a list of users that have not rolled today.")
         async def today(ctx: commands.Context) -> None:
