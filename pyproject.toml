@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mr-roller-the-bot"
-version = "0.2.0"
+version = "0.3.0"
 description = "A discord bot for daily dice roller game"
 authors = ["Vegard Bjørsvik <vegardbjr@gmail.com>"]
 license = "MIT"
@@ -15,6 +15,7 @@ pydantic = "^1.10.2"
 python-dotenv = "^0.21.0"
 
 [tool.poetry.scripts]
+bot-dev = "roller_bot.main:main(debug_mode=True)"
 bot = "roller_bot.main:main"
 
 [tool.poetry.group.dev.dependencies]

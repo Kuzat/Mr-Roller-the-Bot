@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 
 
 # Run the main bot function
-def main():
+def main(debug_mode: bool = False):
+    print('Debug mode:', debug_mode)
     # Load the environment variables from the .env file
     load_dotenv()
 
@@ -22,7 +23,7 @@ def main():
 
     # bot = commands.Bot(command_prefix='!', intents=intents)
     bot: RollerBot = RollerBot(
-        command_prefix='!', intents=intents, db_path='rolls.db')
+        command_prefix='!', intents=intents, db_path='rolls.db', debug_mode=debug_mode)
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')

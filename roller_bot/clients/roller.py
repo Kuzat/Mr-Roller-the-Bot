@@ -8,10 +8,11 @@ from discord.ext import commands
 from roller_bot.database import RollDatabase
 from roller_bot.models.roll import Roll, RollOrm
 from roller_bot.models.user import User, UserTotalRolls
+from roller_bot.clients.check import Check
 
 
 class RollerBot:
-    def __init__(self, command_prefix: str, intents: discord.Intents, db_path: str) -> None:
+    def __init__(self, command_prefix: str, intents: discord.Intents, db_path: str, debug_mode: bool = False) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
@@ -21,6 +22,7 @@ class RollerBot:
         self.db = RollDatabase(db_path)
 
         # DEBUG MODE
+        self.debug_mode: bool = debug_mode
         self.hack_mode: bool = False
 
         # Add presence on ready
@@ -86,9 +88,9 @@ class RollerBot:
             await ctx.send(f'Your longest streak is of 6s is {longest_streak}.')
 
         @self.bot.command()
+        @commands.check_any(Check.is_me(), Check.is_guild_owner())
+        @Check.is_debug_mode(self.debug_mode)
         async def hack(ctx: commands.Context) -> None:
-            if ctx.author.id != 119502664126955523:
-                return
             self.hack_mode = not self.hack_mode
             await ctx.send(f'Hack mode is now {"on" if self.hack_mode else "off"}.')
 
