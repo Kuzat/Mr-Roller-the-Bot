@@ -65,6 +65,8 @@ class RollerBot:
                 user = self.bot.get_user(user_total_rolls.user.id)
                 if user:
                     user_total_rolls.user.mention = user.mention
+                streak = self.db.get_longest_streak(user_total_rolls.user.id)
+            
             leaderboard_str: str = '\n'.join(map(lambda x: str(x), top_rollers))
             await ctx.send(f'Leaderboard:\n{leaderboard_str}')
 

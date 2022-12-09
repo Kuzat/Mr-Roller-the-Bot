@@ -52,12 +52,19 @@ class RollDatabase:
         return total_rolls if total_rolls else None
 
     def get_top_total_rolls(self) -> List[UserTotalRolls]:
-        top_rolls: List[tuple[int, int]] = (self.session.execute(
-            select(RollOrm.user_id, func.sum(RollOrm.roll))
+        top_rolls: List[tuple[int, int, int, float]] = (self.session.execute(
+            select(RollOrm.user_id, func.count(RollOrm.id), func.sum(RollOrm.roll), func.avg(RollOrm.roll))
             .group_by(RollOrm.user_id)
             .order_by(func.sum(RollOrm.roll).desc())
+            .limit(5)
         ).all())  # type: ignore
-        return [UserTotalRolls(user=User(id=top_roll[0]), total_rolls=top_roll[1]) for top_roll in top_rolls]
+        return [UserTotalRolls(
+          user=User(id=top_roll[0]),
+          number_of_rolls=top_roll[1],
+          total_rolls=top_roll[2],
+          average_rolls=top_roll[3],
+          streak=self.get_longest_streak(top_roll[0])
+          ) for top_roll in top_rolls]
 
     def get_users_to_roll(self, date: date) -> List[int]:
         unique_users: List[int] = (self.session.execute(
