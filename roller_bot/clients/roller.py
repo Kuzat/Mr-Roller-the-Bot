@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 import random
-from typing import Optional
+from typing import List, Optional, Tuple
 import discord
 from discord.ext import commands
 
 from roller_bot.database import RollDatabase
 from roller_bot.models.roll import Roll, RollOrm
+from roller_bot.models.user import User, UserTotalRolls
 
 
 class RollerBot:
@@ -59,7 +60,13 @@ class RollerBot:
 
         @self.bot.command(brief="NOT IMPLEMENTED YET: Displays the leaderboard", description="NOT IMPLEMENTED YET: Displays the leaderboard")
         async def leaderboard(ctx: commands.Context) -> None:
-            await ctx.send('The leaderboard is not implemented yet.')    
+            top_rollers: List[UserTotalRolls] = self.db.get_top_total_rolls()
+            for user_total_rolls in top_rollers:
+                user = self.bot.get_user(user_total_rolls.user.id)
+                if user:
+                    user_total_rolls.user.mention = user.mention
+            leaderboard_str: str = '\n'.join(map(lambda x: str(x), top_rollers))
+            await ctx.send(f'Leaderboard:\n{leaderboard_str}')
 
         @self.bot.command(brief="Displays your longest streak of 6s", description="Displays your longest streak of 6s")
         async def streak(ctx: commands.Context) -> None:

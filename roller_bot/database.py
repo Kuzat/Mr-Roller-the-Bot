@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 
 from roller_bot.models.roll import Base, Roll, RollOrm
+from roller_bot.models.user import User, UserTotalRolls
 
 
 class RollDatabase:
@@ -49,6 +50,14 @@ class RollDatabase:
                             .scalar()
                             )
         return total_rolls if total_rolls else None
+
+    def get_top_total_rolls(self) -> list[UserTotalRolls]:
+        top_rolls: list[tuple[int, int]] = (self.session.execute(
+            select(RollOrm.user_id, func.sum(RollOrm.roll))
+            .group_by(RollOrm.user_id)
+            .order_by(func.sum(RollOrm.roll).desc())
+        ).all())  # type: ignore
+        return [UserTotalRolls(user=User(id=top_roll[0]), total_rolls=top_roll[1]) for top_roll in top_rolls]
 
     def get_users_to_roll(self, date: date) -> list[int]:
         unique_users: list[int] = (self.session.execute(
