@@ -19,6 +19,9 @@ class RollerBot:
         # set up the database
         self.db = RollDatabase(db_path)
 
+        # DEBUG MODE
+        self.hack_mode: bool = False
+
         @self.bot.command(brief="Users that have not rolled today.", description="Gets a list of users that have not rolled today.")
         async def today(ctx: commands.Context) -> None:
             users_not_rolled: list[int] = self.db.get_users_to_roll(
@@ -36,7 +39,7 @@ class RollerBot:
 
             latest_roll_today: Optional[Roll] = self.db.get_latest_roll(
                 user_id=user_id, date=datetime.now().date())
-            if latest_roll_today is None or latest_roll_today.roll == 6:
+            if latest_roll_today is None or latest_roll_today.roll == 6 or self.hack_mode:
                 # Roll the dice
                 roll: int = RollOrm(
                     user_id=user_id, date=datetime.now().date(), roll=random.randint(1, 6))
@@ -58,14 +61,13 @@ class RollerBot:
             total: Optional[int] = self.db.get_total_rolls(user_id=user_id)
             await ctx.send(f'Your total amount rolled is {total}.')
 
-        @self.bot.command(brief="NOT IMPLEMENTED YET: Displays the leaderboard", description="NOT IMPLEMENTED YET: Displays the leaderboard")
+        @self.bot.command(brief="Displays the leaderboard", description="Displays the leaderboard. The leaderboard is sorted by total amount rolled.")
         async def leaderboard(ctx: commands.Context) -> None:
             top_rollers: List[UserTotalRolls] = self.db.get_top_total_rolls()
             for user_total_rolls in top_rollers:
                 user = self.bot.get_user(user_total_rolls.user.id)
                 if user:
                     user_total_rolls.user.mention = user.mention
-                streak = self.db.get_longest_streak(user_total_rolls.user.id)
             
             leaderboard_str: str = '\n'.join(map(lambda x: str(x), top_rollers))
             await ctx.send(f'Leaderboard:\n{leaderboard_str}')
@@ -76,6 +78,13 @@ class RollerBot:
             longest_streak: int = self.db.get_longest_streak(user_id=user_id)
             
             await ctx.send(f'Your longest streak is of 6s is {longest_streak}.')
+
+        @self.bot.command()
+        async def hack(ctx: commands.Context) -> None:
+            if ctx.author.id != 119502664126955523:
+                return
+            self.hack_mode = not self.hack_mode
+            await ctx.send(f'Hack mode is now {"on" if self.hack_mode else "off"}.')
 
     def run(self, token) -> None:
         self.bot.run(token)
