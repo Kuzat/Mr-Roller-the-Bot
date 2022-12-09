@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 
@@ -22,8 +22,8 @@ class RollDatabase:
         self.session.add(roll)
         self.session.commit()
 
-    def get_rolls(self, user_id: int) -> list[Roll]:
-        rolls: list[RollOrm] = (self.session
+    def get_rolls(self, user_id: int) -> List[Roll]:
+        rolls: List[RollOrm] = (self.session
                                 .query(RollOrm)
                                 .filter(RollOrm.user_id == user_id)
                                 .order_by(RollOrm.id.desc())
@@ -51,21 +51,21 @@ class RollDatabase:
                             )
         return total_rolls if total_rolls else None
 
-    def get_top_total_rolls(self) -> list[UserTotalRolls]:
-        top_rolls: list[tuple[int, int]] = (self.session.execute(
+    def get_top_total_rolls(self) -> List[UserTotalRolls]:
+        top_rolls: List[tuple[int, int]] = (self.session.execute(
             select(RollOrm.user_id, func.sum(RollOrm.roll))
             .group_by(RollOrm.user_id)
             .order_by(func.sum(RollOrm.roll).desc())
         ).all())  # type: ignore
         return [UserTotalRolls(user=User(id=top_roll[0]), total_rolls=top_roll[1]) for top_roll in top_rolls]
 
-    def get_users_to_roll(self, date: date) -> list[int]:
-        unique_users: list[int] = (self.session.execute(
+    def get_users_to_roll(self, date: date) -> List[int]:
+        unique_users: List[int] = (self.session.execute(
             select(RollOrm.user_id)
             .distinct()
         ).scalars().all())
 
-        rolled_users_for_date: list[int] = (self.session.execute(
+        rolled_users_for_date: List[int] = (self.session.execute(
             select(RollOrm.user_id)
             .distinct()
             .where(RollOrm.date == date)
@@ -74,7 +74,7 @@ class RollDatabase:
         return [user for user in unique_users if user not in rolled_users_for_date]
 
     def get_longest_streak(self, user_id: int) -> int:
-        all_rolls: list[Roll] = self.get_rolls(user_id)
+        all_rolls: List[Roll] = self.get_rolls(user_id)
         longest_streak: int = 0
         internal_streak: int = 0
         for index, roll in  enumerate(all_rolls):
