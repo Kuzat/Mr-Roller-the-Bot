@@ -87,7 +87,9 @@ class RollDatabase:
         for index, roll in  enumerate(all_rolls):
             if index == 0:
                 continue
-            if all_rolls[index-1].roll == 6 and roll.roll == 6:
+            if all_rolls[index-1].roll != 6 and roll.roll == 6:
+                internal_streak = 1
+            elif all_rolls[index-1].roll == 6 and roll.roll == 6:
                 internal_streak += 1
             else:
                 internal_streak = 0
