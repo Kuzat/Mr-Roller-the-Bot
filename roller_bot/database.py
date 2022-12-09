@@ -21,10 +21,10 @@ class RollDatabase:
         self.session.add(roll)
         self.session.commit()
 
-    def get_rolls(self, user_id: int, date: date) -> list[Roll]:
+    def get_rolls(self, user_id: int) -> list[Roll]:
         rolls: list[RollOrm] = (self.session
                                 .query(RollOrm)
-                                .filter(RollOrm.user_id == user_id, RollOrm.date == date)
+                                .filter(RollOrm.user_id == user_id)
                                 .order_by(RollOrm.id.desc())
                                 .all()
                                 )
@@ -63,3 +63,18 @@ class RollDatabase:
         ).scalars().all())
 
         return [user for user in unique_users if user not in rolled_users_for_date]
+
+    def get_longest_streak(self, user_id: int) -> int:
+        all_rolls: list[Roll] = self.get_rolls(user_id)
+        longest_streak: int = 0
+        internal_streak: int = 0
+        for index, roll in  enumerate(all_rolls):
+            if index == 0:
+                continue
+            if all_rolls[index-1].roll == 6 and roll.roll == 6:
+                internal_streak += 1
+            else:
+                internal_streak = 0
+            if internal_streak > longest_streak:
+                longest_streak = internal_streak
+        return longest_streak

@@ -18,7 +18,7 @@ class RollerBot:
         # set up the database
         self.db = RollDatabase(db_path)
 
-        @self.bot.command()
+        @self.bot.command(brief="Users that have not rolled today.", description="Gets a list of users that have not rolled today.")
         async def today(ctx: commands.Context) -> None:
             users_not_rolled: list[int] = self.db.get_users_to_roll(
                 date=datetime.now().date())
@@ -29,7 +29,7 @@ class RollerBot:
                     user_id) for user_id in users_not_rolled]
                 await ctx.send(f'Users that have not rolled today: {", ".join(map(lambda x: x.mention if x else "", user_mentions))}')
 
-        @self.bot.command()
+        @self.bot.command(brief="Rolls the dice.", description="Rolls a dice. If you roll a 6, you can roll again. If you roll a 1-5, you can roll again tomorrow.")
         async def roll(ctx: commands.Context) -> None:
             user_id: int = ctx.author.id
 
@@ -51,5 +51,22 @@ class RollerBot:
                 total: Optional[int] = self.db.get_total_rolls(user_id=user_id)
                 await ctx.send(f'You already rolled a {latest_roll_today.roll} today. Your total amount rolled is {total}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.')
 
-    def run(self, token):
+        @self.bot.command(brief="Displays your total amount rolled", description="Displays your total amount rolled")
+        async def total(ctx: commands.Context) -> None:
+            user_id: int = ctx.author.id
+            total: Optional[int] = self.db.get_total_rolls(user_id=user_id)
+            await ctx.send(f'Your total amount rolled is {total}.')
+
+        @self.bot.command(brief="NOT IMPLEMENTED YET: Displays the leaderboard", description="NOT IMPLEMENTED YET: Displays the leaderboard")
+        async def leaderboard(ctx: commands.Context) -> None:
+            await ctx.send('The leaderboard is not implemented yet.')    
+
+        @self.bot.command(brief="Displays your longest streak of 6s", description="Displays your longest streak of 6s")
+        async def streak(ctx: commands.Context) -> None:
+            user_id: int = ctx.author.id
+            longest_streak: int = self.db.get_longest_streak(user_id=user_id)
+            
+            await ctx.send(f'Your longest streak is of 6s is {longest_streak}.')
+
+    def run(self, token) -> None:
         self.bot.run(token)
