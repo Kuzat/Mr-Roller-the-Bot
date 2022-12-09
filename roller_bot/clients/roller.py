@@ -28,7 +28,7 @@ class RollerBot:
         # Add presence on ready
         @self.bot.event
         async def on_ready() -> None:
-            await self.bot.change_presence(activity=discord.Game(name=f'RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) - !help to get started'))
+            await self.bot.change_presence(activity=discord.Game(name=f'{"DEBUG:" if self.debug_mode else ""} RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) - !help to get started'))
 
         @self.bot.command(brief="Users that have not rolled today.", description="Gets a list of users that have not rolled today.")
         async def today(ctx: commands.Context) -> None:
