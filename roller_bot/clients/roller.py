@@ -85,7 +85,7 @@ class RollerBot:
             user_id: int = ctx.author.id
             longest_streak: int = self.db.get_longest_streak(user_id=user_id)
             
-            await ctx.send(f'Your longest streak is of 6s is {longest_streak}.')
+            await ctx.send(f'Your longest streak of 6s is {longest_streak}.')
 
         @self.bot.command()
         @commands.check_any(Check.is_me(), Check.is_guild_owner())
