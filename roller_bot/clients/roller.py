@@ -25,6 +25,12 @@ class RollerBot:
         self.debug_mode: bool = debug_mode
         self.hack_mode: bool = False
 
+        # Check that the bot only responds to the correct channel
+        # #dice-lounge channel id 1049385097058590823
+        @self.bot.check
+        async def check_channel(ctx: commands.Context) -> bool:
+            return ctx.message.channel.id == 1049385097058590823
+
         # Add presence on ready
         @self.bot.event
         async def on_ready() -> None:
