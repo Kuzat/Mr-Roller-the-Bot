@@ -1,9 +1,7 @@
-from datetime import date
 from typing import List, Optional
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 
-from roller_bot.models.roll import Roll
 from roller_bot.models.user import User
 from roller_bot.models.base import Base
 

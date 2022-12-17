@@ -61,7 +61,7 @@ def main(debug_mode: bool = False):
     if debug_mode:
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-        db_path = ':memory:'
+        db_path = 'rolls_migrated.db'
 
     # Load the environment variables from the .env file
     load_dotenv()

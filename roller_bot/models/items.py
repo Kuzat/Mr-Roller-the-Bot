@@ -1,4 +1,3 @@
-from email.policy import default
 from sqlalchemy import Column, Date, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from roller_bot.models.base import Base
