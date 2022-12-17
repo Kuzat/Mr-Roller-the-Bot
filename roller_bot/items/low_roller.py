@@ -11,7 +11,7 @@ class LowRoller(Dice):
     def __init__(self):
         self.name: str = "Low Roller Dice"
         self.description: str = "A dice that will roll a number between 1 and 5, but will let you roll again if you roll a 1 or 2."
-        self.cost: int = 25
+        self.cost: int = 40
         self.user_input: bool = False
 
     def __repr__(self) -> str:
