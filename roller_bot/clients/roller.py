@@ -68,7 +68,7 @@ class RollerBot:
                 await ctx.send('You do not have any active dice.')
                 raise commands.errors.UserInputError
 
-            if user.latest_roll and user.latest_roll.date == datetime.now().date() and active_dice.roll_again(user.latest_roll.roll) and not self.hack_mode:
+            if user.latest_roll and user.latest_roll.date == datetime.now().date() and not active_dice.roll_again(user.latest_roll.roll) and not self.hack_mode:
                 await ctx.send(f'You already rolled a {user.latest_roll.roll} today. Your total amount rolled is {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.')
                 return
              
@@ -232,6 +232,7 @@ class RollerBot:
 
             # Add new item to user
             user.items.append(Items(item_id=item.id, user_id=user.id, quantity=1, purchased_at=datetime.now()))
+            user.roll_credit -= item.cost # type: ignore
             self.db.commit()
 
             await ctx.send(f'You purchased {item.inventory_str()} for {item.cost} roll credits. Equip it with !equip {item.id}.')
