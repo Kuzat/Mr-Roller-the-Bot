@@ -1,10 +1,10 @@
 import os
 from typing import Optional
-import discord
 from dotenv import load_dotenv
 from roller_bot.clients.roller import RollerBot
 from roller_bot.database import RollDatabase
 from datetime import datetime
+from roller_bot.items.dice import DiceRoll
 
 from roller_bot.models.user import User
 import logging
@@ -22,12 +22,12 @@ def dev():
     user2 = User.new_user(4321, datetime.now())
 
     # Add roll to the user
-    user.add_roll(6)
-    user.add_roll(5)
+    user.add_roll(DiceRoll(base=6))
+    user.add_roll(DiceRoll(base=5))
 
-    user2.add_roll(6)
-    user2.add_roll(6)
-    user2.add_roll(3)
+    user2.add_roll(DiceRoll(base=6))
+    user2.add_roll(DiceRoll(base=6))
+    user2.add_roll(DiceRoll(base=3))
 
     # Add user to the database
     session.add(user)
@@ -57,23 +57,18 @@ def dev():
 def main(debug_mode: bool = False):
     print('Debug mode:', debug_mode)
     # enable sqlalchemy logging in debug mode
-    db_path = 'rolls.db'
+    db_path = 'rolls_v1.db'
     if debug_mode:
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-        db_path = 'rolls_migrated.db'
+        db_path = 'rolls_v1.db'
 
     # Load the environment variables from the .env file
     load_dotenv()
 
-    # Start the discord bot with the specified intents
-    intents = discord.Intents.default()
-    intents.message_content = True
-    intents.members = True
-
-    # bot = commands.Bot(command_prefix='!', intents=intents)
+    # Start bot
     bot: RollerBot = RollerBot(
-        command_prefix='!', intents=intents, db_path=db_path, debug_mode=debug_mode)
+        command_prefix='!', db_path=db_path, debug_mode=debug_mode)
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')

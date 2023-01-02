@@ -1,7 +1,8 @@
 
 class Item:
+    id: int = -1
+
     def __init__(self) -> None:
-        self.id: int = 0
         self.name: str = ""
         self.description: str = ""
         self.cost: int = 0

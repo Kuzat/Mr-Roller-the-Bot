@@ -133,3 +133,6 @@ dmypy.json
 
 # database
 **/*.db
+
+# idea
+.idea/
