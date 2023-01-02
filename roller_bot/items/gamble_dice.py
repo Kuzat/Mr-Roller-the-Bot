@@ -1,3 +1,4 @@
+import random
 from typing import Optional
 from roller_bot.items.dice import Dice, DiceRoll
 
@@ -16,7 +17,11 @@ class GambleDice(Dice):
         return f'GambleDice(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
     def roll(self, guess: Optional[int] = None) -> DiceRoll:
-        roll = super().roll()
+        roll = random.randint(1, 6)
         if roll == guess:
-            return roll.copy(update={'bonus': roll.base})
-        return roll
+            return DiceRoll(
+                base=roll,
+                bonus=roll,
+                can_roll_again=self.roll_again(roll)
+            )
+        return DiceRoll(base=roll, bonus=0, can_roll_again=self.roll_again(roll))

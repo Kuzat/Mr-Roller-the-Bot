@@ -26,21 +26,21 @@ class User(Base):
     mention: Optional[str] = None
 
     def __repr__(self) -> str:
-        return f'User(id={self.id}, streak={self.streak}, roll_credit={self.roll_credit}, created_at={self.created_at}, number_of_rolls={len(self.rolls)})'
+        return f'User(id={self.id}, streak={self.streak}, roll_credit={self.roll_credit}, created_at={self.created_at}, luck_bonus={self.luck_bonus}, active_dice={self.active_dice})'
 
     def __str__(self) -> str:
         return f'{self.mention if self.mention else self.id}: {self.total_rolls} Score, {len(self.rolls)} {"Rolls" if len(self.rolls) > 1 else "Roll"}, {self.average_rolls:.2f} Average, {self.streak} Streak'
 
-    def add_roll(self, roll: DiceRoll) -> None:
+    def add_roll(self, user_roll: DiceRoll) -> None:
         roll: Roll = Roll(
             user_id=self.id,
             date=datetime.now().date(),
-            roll=roll.total,
-            can_roll_again=roll.can_roll_again
+            roll=user_roll.total,
+            can_roll_again=user_roll.can_roll_again
         )
 
         # increase roll credit by roll value
-        self.roll_credit += roll_value  # type: ignore
+        self.roll_credit += user_roll.total  # type: ignore
 
         self.rolls.append(roll)
 

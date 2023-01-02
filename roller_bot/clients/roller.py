@@ -43,11 +43,13 @@ class RollerBot:
         @self.bot.command(brief="Users that have not rolled today.",
                           description="Gets a list of users that have not rolled today.")
         async def today(ctx: commands.Context) -> None:
-            users: List[User] = User.users_not_rolled_today(self.db.session, datetime.now().date())
+            users: List[User] = User.users_not_rolled_today(
+                self.db.session, datetime.now().date())
             if len(users) == 0:
                 await ctx.send('Everyone has rolled today! If you have not rolled before, roll with !roll.')
             else:
-                user_mentions = [self.bot.get_user(user.id) for user in users]  # type: ignore
+                user_mentions = [self.bot.get_user(
+                    user.id) for user in users]  # type: ignore
                 await ctx.send(
                     f'Users that have not rolled today: {", ".join(map(lambda x: x.mention if x else "", user_mentions))}')
 
@@ -170,7 +172,7 @@ class RollerBot:
                 return
 
             # TODO: Should make this a safe operation in cases of None
-            items_string = '\n'.join(map(lambda x: dice_from_id(x.item_id).inventory_str(user.active_dice == x.item_id),
+            items_string = '\n'.join(map(lambda x: dice_from_id(x.item_id).inventory_str(user.active_dice == x.item_id),  # type: ignore
                                          user.items))  # type: ignore
             await ctx.send('Your items:\n' + items_string)
 
@@ -249,7 +251,8 @@ class RollerBot:
                 return
 
             # Add new item to user
-            user.items.append(Items(item_id=item.id, user_id=user.id, quantity=1, purchased_at=datetime.now()))
+            user.items.append(Items(item_id=item.id, user_id=user.id,
+                              quantity=1, purchased_at=datetime.now()))
             user.roll_credit -= item.cost  # type: ignore
             self.db.commit()
 
