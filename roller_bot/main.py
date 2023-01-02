@@ -1,6 +1,5 @@
 import os
 from typing import Optional
-import discord
 from dotenv import load_dotenv
 from roller_bot.clients.roller import RollerBot
 from roller_bot.database import RollDatabase
@@ -66,14 +65,9 @@ def main(debug_mode: bool = False):
     # Load the environment variables from the .env file
     load_dotenv()
 
-    # Start the discord bot with the specified intents
-    intents = discord.Intents.default()
-    intents.message_content = True
-    intents.members = True
-
-    # bot = commands.Bot(command_prefix='!', intents=intents)
+    # Start bot
     bot: RollerBot = RollerBot(
-        command_prefix='!', intents=intents, db_path=db_path, debug_mode=debug_mode)
+        command_prefix='!', db_path=db_path, debug_mode=debug_mode)
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')

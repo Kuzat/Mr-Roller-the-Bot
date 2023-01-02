@@ -6,10 +6,21 @@ from pydantic import BaseModel
 from roller_bot.items.item import Item
 
 
+class DiceRoll(BaseModel):
+    base: int
+    bonus: int
+    can_roll_again: bool = False
+
+    @property
+    def total(self) -> int:
+        return self.base + self.bonus
+
+
 class Dice(Item):
     id = 0
 
     def __init__(self):
+        super().__init__()
         self.name: str = "Regular Dice"
         self.description: str = "A good dice that rolls."
         self.user_input: bool = False
@@ -22,5 +33,10 @@ class Dice(Item):
     def roll_again(self, last_roll: int) -> bool:
         return last_roll == 6
 
-    def roll(self, guess: Optional[int] = None) -> int:
-        return random.randint(1, 6)
+    def roll(self, guess: Optional[int] = None) -> DiceRoll:
+        roll = random.randint(1, 6)
+        return DiceRoll(
+            base=roll,
+            bonus=0,
+            can_roll_again=self.roll_again(roll)
+        )

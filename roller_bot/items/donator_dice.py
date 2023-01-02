@@ -1,12 +1,13 @@
 import random
 from typing import Optional
-from roller_bot.items.dice import Dice
+from roller_bot.items.dice import Dice, DiceRoll
 
 
 class DonatorDice(Dice):
     id = 2
 
     def __init__(self):
+        super().__init__()
         self.name: str = "Donator Dice"
         self.description: str = "A dice for rick donators. Rolls a number between 2 and 6."
         self.cost: int = 200
@@ -15,5 +16,10 @@ class DonatorDice(Dice):
     def __repr__(self) -> str:
         return f'DonatorDice(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
-    def roll(self, guess: Optional[int] = None) -> int:
-        return random.randint(2, 6)
+    def roll(self, guess: Optional[int] = None) -> DiceRoll:
+        roll = random.randint(2, 6)
+        return DiceRoll(
+            base=roll,
+            bonus=0,
+            can_roll_again=self.roll_again(roll)
+        )

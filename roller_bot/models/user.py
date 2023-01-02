@@ -1,10 +1,10 @@
 from datetime import date, datetime
-from email.policy import default
 from typing import List, Optional
 from sqlalchemy import Column, DateTime, Float, Integer, func, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from roller_bot.items import dice
+from roller_bot.items.dice import DiceRoll
 from roller_bot.models.base import Base
 from roller_bot.models.items import Items
 from roller_bot.models.roll import Roll
@@ -31,9 +31,13 @@ class User(Base):
     def __str__(self) -> str:
         return f'{self.mention if self.mention else self.id}: {self.total_rolls} Score, {len(self.rolls)} {"Rolls" if len(self.rolls) > 1 else "Roll"}, {self.average_rolls:.2f} Average, {self.streak} Streak'
 
-    def add_roll(self, roll_value: int) -> None:
-        roll: Roll = Roll(user_id=self.id,
-                          date=datetime.now().date(), roll=roll_value)
+    def add_roll(self, roll: DiceRoll) -> None:
+        roll: Roll = Roll(
+            user_id=self.id,
+            date=datetime.now().date(),
+            roll=roll.total,
+            can_roll_again=roll.can_roll_again
+        )
 
         # increase roll credit by roll value
         self.roll_credit += roll_value  # type: ignore
@@ -80,7 +84,7 @@ class User(Base):
 
     @hybrid_property
     def average_rolls(self) -> float:  # type: ignore
-        return self.total_rolls / len(self.rolls) if self.rolls else 0 # type: ignore
+        return self.total_rolls / len(self.rolls) if self.rolls else 0  # type: ignore
 
     @average_rolls.expression
     def average_rolls(cls):
