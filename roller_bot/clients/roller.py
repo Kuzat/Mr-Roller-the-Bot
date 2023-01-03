@@ -46,7 +46,7 @@ class RollerBot:
         @self.bot.command(
                 brief="Users that have not rolled today.",
                 description="Gets a list of users that have not rolled today."
-                )
+        )
         async def today(ctx: commands.Context) -> None:
             users: List[User] = User.users_not_rolled_today(
                     self.db.session, datetime.now().date()
@@ -64,7 +64,7 @@ class RollerBot:
         @self.bot.command(
                 brief="Rolls the dice.",
                 description="Rolls a dice. If you roll a 6, you can roll again. If you roll a 1-5, you can roll again tomorrow."
-                )
+        )
         async def roll(ctx: commands.Context) -> None:
             user_id: int = ctx.author.id
 
@@ -148,7 +148,7 @@ class RollerBot:
         @self.bot.command(
                 brief="Displays the leaderboard",
                 description="Displays the leaderboard. The leaderboard is sorted by total amount rolled."
-                )
+        )
         async def leaderboard(ctx: commands.Context) -> None:
             top_rollers = User.top(self.db.session, 5)
             for user in top_rollers:
@@ -174,7 +174,7 @@ class RollerBot:
         @self.bot.command(
                 brief="Displays the amount of roll credits you have",
                 description="Displays the amount of roll credits you have. Used to buy items."
-                )
+        )
         async def credits(ctx: commands.Context) -> None:
             user_id: int = ctx.author.id
 
@@ -198,17 +198,17 @@ class RollerBot:
 
             # TODO: Should make this a safe operation in cases of None
             items_string = '\n'.join(
-                map(
-                    lambda x: dice_from_id(x.item_id).inventory_str(user.active_dice == x.item_id),  # type: ignore
-                    user.items
+                    map(
+                            lambda x: dice_from_id(x.item_id).inventory_str(user.active_dice == x.item_id),  # type: ignore
+                            user.items
                     )
-                )  # type: ignore
+            )  # type: ignore
             await ctx.send('Your items:\n' + items_string)
 
         @self.bot.command(
                 brief="Change your active dice",
                 description="Change your active dice. You can only have one active dice at a time."
-                )
+        )
         async def equip(ctx: commands.Context, item_id: int) -> None:
             user_id = ctx.author.id
 
@@ -242,7 +242,7 @@ class RollerBot:
         @self.bot.command(
                 brief="Displays the shop",
                 description="Displays the shop. You can buy items with roll credits. Use the !buy {item_id} command to buy an item."
-                )
+        )
         async def shop(ctx: commands.Context) -> None:
             user_id = ctx.author.id
 
@@ -250,9 +250,12 @@ class RollerBot:
 
             all_dice = dice_data.values()
 
-            # Filter out the dice that the user already owns
+            # Filter out the dice that the user already owns and are not buyable
             if user is not None:
-                all_dice = filter(lambda dice: not any(map(lambda x: x.item_id == dice.id, user.items)), all_dice)
+                all_dice = filter(
+                        lambda x: not any(map(lambda y: y.item_id == x.id, user.items)) and x.buyable,  # type: ignore
+                        all_dice
+                )
 
             items_string = '\n'.join(map(lambda items: items.shop_str(), all_dice))
 
@@ -261,7 +264,7 @@ class RollerBot:
         @self.bot.command(
                 brief="Buys an item from the shop using the item id",
                 description="Buys an item from the shop. You can buy items with roll credits. Use the !shop command to see the shop."
-                )
+        )
         async def buy(ctx: commands.Context, item_id: int) -> None:
             user_id = ctx.author.id
 
@@ -276,8 +279,13 @@ class RollerBot:
                 await ctx.send('That item does not exist.')
                 return
 
-            # Check if the user does not already own the item
-            if any(map(lambda x: x.item_id == item_id, user.items)):
+            # Check if the item is buyable
+            if not item.buyable:
+                await ctx.send('You cannot buy that item.')
+                return
+
+            # Check if the user does not already own the item unless you can own multiple of the same item
+            if not item.own_multiple and any(map(lambda x: x.item_id == item_id, user.items)):
                 await ctx.send('You already own that item.')
                 return
 
@@ -285,13 +293,22 @@ class RollerBot:
                 await ctx.send('You do not have enough roll credits to buy this item.')
                 return
 
-            # Add new item to user
-            user.items.append(
-                Items(
-                    item_id=item.id, user_id=user.id,
-                    quantity=1, purchased_at=datetime.now()
-                    )
+            # Add new item to user if they do not already own it
+            if not any(map(lambda x: x.item_id == item_id, user.items)):
+                user.items.append(
+                        Items(
+                                item_id=item.id, user_id=user.id,
+                                quantity=1, purchased_at=datetime.now()
+                        )
                 )
+            elif item.own_multiple:
+                # If they can own multiple of the same item, increment the quantity
+                for user_item in user.items:
+                    if user_item.item_id == item_id:
+                        user_item.quantity += 1
+                        break
+
+            # Remove the cost of the item from the user's roll credits
             user.roll_credit -= item.cost  # type: ignore
             self.db.commit()
 
