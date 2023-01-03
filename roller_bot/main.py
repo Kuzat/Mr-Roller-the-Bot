@@ -57,11 +57,11 @@ def dev():
 def main(debug_mode: bool = False):
     print('Debug mode:', debug_mode)
     # enable sqlalchemy logging in debug mode
-    db_path = 'rolls_v1.db'
+    db_path = 'rolls_v2.db'
     if debug_mode:
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-        db_path = 'rolls_v1.db'
+        db_path = 'rolls_v2.db'
 
     # Load the environment variables from the .env file
     load_dotenv()

@@ -3,7 +3,6 @@ from typing import List, Optional
 from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
-from roller_bot.items import dice
 from roller_bot.items.dice import DiceRoll
 from roller_bot.models.base import Base
 from roller_bot.models.items import Items
@@ -114,7 +113,7 @@ class User(Base):
     def new_user(user_id: int, date: datetime):
         user = User(id=user_id, created_at=date)
         # Add a default dice to the user's items
-        dice_id = dice.Dice.id
+        dice_id = 0
         user.items.append(
                 Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=date)
         )
