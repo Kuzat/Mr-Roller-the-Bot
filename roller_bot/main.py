@@ -35,33 +35,33 @@ def dev():
     session.commit()
 
     # Query the user from the database
-    userQuery: Optional[User] = session.query(User).first()
-    print(f"user: {userQuery}")
+    user_query: Optional[User] = session.query(User).first()
+    print(f"user: {user_query}")
 
-    if userQuery:
-        print(f"rolls: {userQuery.rolls}")
-        print(f"total rolls: {userQuery.total_rolls}")
-        print(f"latest roll: {userQuery.latest_roll}")
+    if user_query:
+        print(f"rolls: {user_query.rolls}")
+        print(f"total rolls: {user_query.total_rolls}")
+        print(f"latest roll: {user_query.latest_roll}")
 
     # Query for the user with the highest total rolls
-    totalUserQuery = (
+    total_user_query = (
         session.query(User)
         .order_by(User.total_rolls.desc())
         .first()
     )
-    if totalUserQuery:
-        print(f"totalUserQuery: {totalUserQuery.total_rolls}")
+    if total_user_query:
+        print(f"totalUserQuery: {total_user_query.total_rolls}")
 
 
 # Run the main bot function
 def main(debug_mode: bool = False):
     print('Debug mode:', debug_mode)
     # enable sqlalchemy logging in debug mode
-    db_path = 'rolls_v1.db'
+    db_path = 'rolls_v2.db'
     if debug_mode:
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-        db_path = 'rolls_v1.db'
+        db_path = 'rolls_v2.db'
 
     # Load the environment variables from the .env file
     load_dotenv()

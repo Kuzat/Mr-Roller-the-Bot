@@ -10,6 +10,7 @@ class Items(Base):
     user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
     item_id: Column = Column(Integer, nullable=False)
     quantity: Column = Column(Integer, nullable=False, default=1)
+    health: Column = Column(Integer, nullable=False, default=100)
     purchased_at: Column = Column(Date, nullable=False)
 
     user = relationship("User", back_populates="items")
