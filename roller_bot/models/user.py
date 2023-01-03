@@ -100,7 +100,15 @@ class User(Base):
     def can_daily_roll(self) -> bool:
         return self.latest_roll.date != datetime.now().date() if self.latest_roll else True
 
-    # TODO: Add a method to check if a user has a specific item or items
+    def has_item(self, item_id: int) -> bool:
+        return any([item.item_id == item_id for item in self.items])
+
+    # TODO: Add a method to get a specific item from the user's inventory
+    def get_item(self, item_id: int) -> Optional[Items]:
+        for item in self.items:
+            if item.item_id == item_id:
+                return item
+        return None
 
     @staticmethod
     def new_user(user_id: int, date: datetime):

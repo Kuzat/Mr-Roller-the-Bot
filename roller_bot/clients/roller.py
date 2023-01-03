@@ -219,7 +219,7 @@ class RollerBot:
                 return
 
             # Check if the user owns the item with that item id
-            if not any(map(lambda x: x.item_id == item_id, user.items)):
+            if not user.has_item(item_id):
                 await ctx.send('You do not own that item.')
                 return
 
@@ -253,7 +253,7 @@ class RollerBot:
             # Filter out the dice that the user already owns and are not buyable
             if user is not None:
                 all_dice = filter(
-                        lambda x: not any(map(lambda y: y.item_id == x.id, user.items)) and x.buyable,  # type: ignore
+                        lambda x: not user.has_item(x) and x.buyable,  # type: ignore
                         all_dice
                 )
 
@@ -285,8 +285,9 @@ class RollerBot:
                 return
 
             # Check if the user does not already own the item unless you can own multiple of the same item
-            if not item.own_multiple and any(map(lambda x: x.item_id == item_id, user.items)):
-                await ctx.send('You already own that item.')
+            user_owned_item = user.get_item(item_id)
+            if not item.own_multiple and user_owned_item:
+                await ctx.send('You already own that item and cannot own multiple of that item.')
                 return
 
             if user.roll_credit < item.cost:
@@ -294,19 +295,16 @@ class RollerBot:
                 return
 
             # Add new item to user if they do not already own it
-            if not any(map(lambda x: x.item_id == item_id, user.items)):
+            if not user_owned_item:
                 user.items.append(
                         Items(
                                 item_id=item.id, user_id=user.id,
                                 quantity=1, purchased_at=datetime.now()
                         )
                 )
-            elif item.own_multiple:
+            elif item.own_multiple and user_owned_item:
                 # If they can own multiple of the same item, increment the quantity
-                for user_item in user.items:
-                    if user_item.item_id == item_id:
-                        user_item.quantity += 1
-                        break
+                user_owned_item.quantity += 1
 
             # Remove the cost of the item from the user's roll credits
             user.roll_credit -= item.cost  # type: ignore
@@ -335,7 +333,8 @@ class RollerBot:
                 return
 
             # Check if the user owns the item and the quantity is greater than 0
-            if not any(map(lambda x: x.item_id == item_id and x.quantity > 0, user.items)):
+            user_owned_item = user.get_item(item_id)
+            if not user_owned_item or user_owned_item.quantity <= 0:
                 await ctx.send('You do not own that item.')
                 return
 

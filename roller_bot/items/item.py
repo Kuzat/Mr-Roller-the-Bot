@@ -26,14 +26,13 @@ class Item:
     def remove_dead(self, user: User) -> bool:
         if self.health > 0:
             return False
-        if self.id not in user.items:
+        user_owned_item = user.get_item(self.id)
+        if not user_owned_item:
             return False
 
         # Get the item from items and decrease the quantity by 1
-        for item in user.items:
-            if item.id == self.id:
-                item.quantity -= 1
-                return True
+        user_owned_item.quantity -= 1
+        return True
 
     def use(self, user: User) -> str:
         """
