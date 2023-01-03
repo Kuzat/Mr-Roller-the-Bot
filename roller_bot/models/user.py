@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from typing import List, Optional
-from sqlalchemy import Column, DateTime, Float, Integer, func, select
+from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 from roller_bot.items import dice
@@ -18,10 +18,12 @@ class User(Base):
     created_at: Column = Column(DateTime, nullable=False)
     luck_bonus: Column = Column(Float, nullable=False, default=1.0)
     active_dice: Column = Column(Integer, nullable=False, default=0)
+    can_roll_again: Column = Column(Boolean, nullable=False, default=False)
 
     items: List[Items] = relationship("Items", back_populates="user")
     rolls: List[Roll] = relationship(
-        "Roll", order_by=Roll.id, back_populates="user")
+            "Roll", order_by=Roll.id, back_populates="user"
+    )
 
     mention: Optional[str] = None
 
@@ -33,10 +35,10 @@ class User(Base):
 
     def add_roll(self, user_roll: DiceRoll) -> None:
         roll: Roll = Roll(
-            user_id=self.id,
-            date=datetime.now().date(),
-            roll=user_roll.total,
-            can_roll_again=user_roll.can_roll_again
+                user_id=self.id,
+                date=datetime.now().date(),
+                roll=user_roll.total,
+                can_roll_again=user_roll.can_roll_again
         )
 
         # increase roll credit by roll value
@@ -94,6 +96,10 @@ class User(Base):
             label('average_rolls')
         )
 
+    @property
+    def can_daily_roll(self) -> bool:
+        return self.latest_roll.date != datetime.now().date() if self.latest_roll else True
+
     # TODO: Add a method to check if a user has a specific item or items
 
     @staticmethod
@@ -102,7 +108,8 @@ class User(Base):
         # Add a default dice to the user's items
         dice_id = dice.Dice.id
         user.items.append(
-            Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=date))
+                Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=date)
+        )
         user.active_dice = dice_id  # type: ignore
         return user
 
