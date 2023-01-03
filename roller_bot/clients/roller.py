@@ -299,7 +299,10 @@ class RollerBot:
                     f'You purchased {item.inventory_str()} for {item.cost} roll credits. Equip it with !equip {item.id}.'
             )
 
-        @self.bot.command()
+        @self.bot.command(
+                breif="Uses an item from your inventory",
+                description="Uses an item from your inventory. You can only use items that are not dice."
+        )
         async def use(ctx: commands.Context, item_id: int) -> None:
             user_id = ctx.author.id
 
