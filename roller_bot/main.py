@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from roller_bot.clients.roller import RollerBot
 from roller_bot.database import RollDatabase
 from datetime import datetime
-from roller_bot.items.dice import DiceRoll
 
+from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.user import User
 import logging
 

@@ -1,6 +1,7 @@
 import random
 from typing import Optional
-from roller_bot.items.dice import Dice, DiceRoll
+from roller_bot.items.dice import Dice
+from roller_bot.models.pydantic.dice_roll import DiceRoll
 
 
 class LowRoller(Dice):

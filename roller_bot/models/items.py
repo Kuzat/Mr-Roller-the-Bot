@@ -1,12 +1,15 @@
 from sqlalchemy import Column, Date, ForeignKey, Integer
 from sqlalchemy.orm import relationship
+
 from roller_bot.models.base import Base
 
 
 class Items(Base):
     __tablename__: str = 'items'
-    id: Column = Column(Integer, primary_key=True,
-                        autoincrement=True, nullable=False)
+    id: Column = Column(
+        Integer, primary_key=True,
+        autoincrement=True, nullable=False
+        )
     user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
     item_id: Column = Column(Integer, nullable=False)
     quantity: Column = Column(Integer, nullable=False, default=1)
