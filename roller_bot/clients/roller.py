@@ -138,11 +138,11 @@ class RollerBot:
             # Send the roll to the user
             if roll.can_roll_again:
                 await ctx.send(
-                    f'You rolled a {roll}. Your total amount rolled is {user.total_rolls}. Roll again with !roll.'
+                    f'You rolled a {roll} with the {active_dice.name}. Your total amount rolled is {user.total_rolls}. Roll again with !roll.'
                 )
             else:
                 await ctx.send(
-                    f'You rolled a {roll}. Your total amount rolled is {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
+                    f'You rolled a {roll} with the {active_dice.name}. Your total amount rolled is {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
                 )
 
         @self.bot.command(brief="Displays your total amount rolled", description="Displays your total amount rolled")
