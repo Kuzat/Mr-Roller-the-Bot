@@ -1,29 +1,9 @@
 import random
 from typing import Optional
 
-from pydantic import BaseModel
 
 from roller_bot.items.item import Item
-
-
-class DiceRoll(BaseModel):
-    base: int
-    bonus: int = 0
-    can_roll_again: bool = False
-
-    @property
-    def total(self) -> int:
-        return self.base + self.bonus
-
-    def __repr__(self) -> str:
-        if self.bonus > 0:
-            return f'{self.base} + {self.bonus} bonus = {self.total}'
-        return f'{self.total}'
-
-    def __str__(self) -> str:
-        if self.bonus > 0:
-            return f'{self.base} + {self.bonus} bonus = {self.total}'
-        return f'{self.total}'
+from roller_bot.models.pydantic.dice_roll import DiceRoll
 
 
 class Dice(Item):

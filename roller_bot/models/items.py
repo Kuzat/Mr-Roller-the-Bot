@@ -1,17 +1,15 @@
-import functools
-
 from sqlalchemy import Column, Date, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from roller_bot.items.item import Item
-from roller_bot.items.utils import item_from_id
 from roller_bot.models.base import Base
 
 
 class Items(Base):
     __tablename__: str = 'items'
-    id: Column = Column(Integer, primary_key=True,
-                        autoincrement=True, nullable=False)
+    id: Column = Column(
+        Integer, primary_key=True,
+        autoincrement=True, nullable=False
+        )
     user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
     item_id: Column = Column(Integer, nullable=False)
     quantity: Column = Column(Integer, nullable=False, default=1)
@@ -22,7 +20,3 @@ class Items(Base):
 
     def __repr__(self) -> str:
         return f'Items(id={self.id}, user_id={self.user_id}, item_id={self.item_id}, quantity={self.quantity})'
-
-    @functools.cached_property
-    def item_definition(self) -> Item:
-        return item_from_id(self.item_id)

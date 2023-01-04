@@ -3,9 +3,9 @@ from typing import List, Optional
 from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
-from roller_bot.items.dice import DiceRoll
 from roller_bot.models.base import Base
 from roller_bot.models.items import Items
+from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.roll import Roll
 
 

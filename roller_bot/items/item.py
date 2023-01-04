@@ -1,4 +1,4 @@
-from roller_bot.models.items import Items
+from roller_bot.models.user import User
 
 
 class Item:
@@ -14,6 +14,8 @@ class Item:
         self.own_multiple: bool = False
         self.buyable: bool = True
 
+        self.quantity: int = 1
+
     def __str__(self) -> str:
         return f'Item(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
@@ -23,14 +25,14 @@ class Item:
     def shop_str(self) -> str:
         return f'({self.id}) - {self.name}: {self.description} - Cost: {self.cost}'
 
-    def use(self, item: Items) -> str:
+    def use(self, user: User) -> str:
         """
         !!Need to commit the db session after this as it might have side effects
 
         Check if health is less or equal to 0 and if so, remove it from the inventory
         and return a message
 
-        :param item: A database item
+        :param user: a user
         :return: a message
         """
         pass

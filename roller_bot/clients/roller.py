@@ -6,9 +6,11 @@ import discord
 from discord.ext import commands
 
 from roller_bot.database import RollDatabase
+from roller_bot.items.item import Item
 from roller_bot.items.utils import dice_from_id, dice_data, item_from_id
-from roller_bot.items.dice import Dice, DiceRoll
+from roller_bot.items.dice import Dice
 from roller_bot.models.items import Items
+from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.user import User
 from roller_bot.clients.check import Check
 from roller_bot.utils.list_helpers import split
@@ -211,28 +213,36 @@ class RollerBot:
 
             # TODO: Should make this a safe operation in cases of None
             user_items: List[Items] = list(filter(lambda x: x.quantity > 0, user.items))
+            user_item_definitions: List[Item] = []
+            for item in user_items:
+                item_definition = item_from_id(item.item_id)
+                if item_definition is not None:
+                    item_definition.quantity = item.quantity
+                    user_item_definitions.append(item_definition)
 
             # split into two lists, one for dices and one for items
-            dices, items = split(lambda x: isinstance(x.item_definition, Dice), user_items)
+            dices, items = split(lambda x: isinstance(x, Dice), user_item_definitions)
 
             dices_string = "\n".join(
-                map(
-                    lambda dice: dice.item_definition.inventory_str(user.active_dice == dice.item_definition.item_id, dice.quantity),
-                    dices
+                    map(
+                            lambda dice: dice.inventory_str(user.active_dice == dice.id, dice.quantity),
+                            dices
                     )
-                )
-            items_string = "\n".join(
-                map(
-                    lambda item: item.item_definition.inventory_str(user.active_dice == item.item_definition.item_id, item.quantity),
-                    items
-                    )
-                )
-            await ctx.send(
-                    'Dices: equip with !equip {id}\n'
-                    f'```{dices_string}```\n'
-                    'Items: use with !use {id}\n'
-                    f'```{items_string}```'
             )
+            items_string = "\n".join(
+                    map(
+                            lambda item: item.inventory_str(user.active_dice == item.id, item.quantity),
+                            items
+                    )
+            )
+
+            message_dice = ('Dice: equip with !equip {id}\n'
+                            f'```{dices_string}```\n') if dices_string else ''
+
+            message_items = ('Items: use with !use {id}\n'
+                             f'```{items_string}```') if items_string else ''
+
+            await ctx.send(message_dice + message_items)
 
         @self.bot.command(
                 brief="Change your active dice",
