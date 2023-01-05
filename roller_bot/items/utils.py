@@ -1,6 +1,9 @@
 from typing import Dict, Optional
 
+from roller_bot.items.dice.damaged.cracked_d10_dice import CrackedD10Dice
+from roller_bot.items.dice.damaged.cracked_d12_dice import CrackedD12Dice
 from roller_bot.items.dice.damaged.cracked_d20_dice import CrackedD20Dice
+from roller_bot.items.dice.damaged.cracked_d8_dice import CrackedD8Dice
 from roller_bot.items.dice.regular_dice import RegularDice
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
@@ -15,7 +18,10 @@ dice_data: Dict[int, Dice] = {
     GambleDice.id: GambleDice(),
     DonatorDice.id: DonatorDice(),
     LowRollerDice.id: LowRollerDice(),
-    CrackedD20Dice.id: CrackedD20Dice()
+    CrackedD20Dice.id: CrackedD20Dice(),
+    CrackedD12Dice.id: CrackedD12Dice(),
+    CrackedD10Dice.id: CrackedD10Dice(),
+    CrackedD8Dice.id: CrackedD8Dice()
 }
 
 item_data: Dict[int, Item] = {

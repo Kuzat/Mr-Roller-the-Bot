@@ -6,13 +6,13 @@ from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.user import User
 
 
-class CrackedD20Dice(Dice):
-    id = 6
+class CrackedD12Dice(Dice):
+    id = 7
 
     def __init__(self):
         super().__init__()
-        self.name: str = "D20 Dice"
-        self.description: str = "A cracked 20 sided dice that breaks easily."
+        self.name: str = "D12 Dice"
+        self.description: str = "A cracked 12 sided dice that breaks easily."
         self.cost: int = 0
         self.start_health: int = 100
         self.use_cost: int = 100
@@ -24,11 +24,11 @@ class CrackedD20Dice(Dice):
         return f'{self.__class__.__name__}(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
     def roll_again(self, last_roll: int) -> bool:
-        return last_roll == 20
+        return last_roll == 12
 
     def roll(self, guess: Optional[int] = None, user: Optional[User] = None) -> DiceRoll:
         # Check that we have the dice in our inventory
-        roll = random.randint(1, 20)
+        roll = random.randint(1, 12)
         return DiceRoll(
             base=roll,
             bonus=0,
