@@ -1,4 +1,6 @@
 from typing import Dict, Optional
+
+from roller_bot.items.daily_streak_token import DailyStreakToken
 from roller_bot.items.dice import Dice
 from roller_bot.items.donator_dice import DonatorDice
 from roller_bot.items.gamble_dice import GambleDice
@@ -16,6 +18,7 @@ dice_data: Dict[int, Dice] = {
 item_data: Dict[int, Item] = {
     **dice_data,
     RerollToken.id: RerollToken(),
+    DailyStreakToken.id: DailyStreakToken()
 }
 
 

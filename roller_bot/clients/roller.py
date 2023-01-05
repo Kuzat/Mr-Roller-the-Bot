@@ -134,6 +134,20 @@ class RollerBot:
             ):
                 user.can_roll_again = False
 
+            # Check for any bonuses active for the user and add them to the roll bonus
+            for item_id in user.bonuses:
+                item: Item = item_from_id(item_id)
+                if item is None:
+                    print(f'Item with id {item_id} not found')
+                    continue
+                bonus = item.bonus(user)
+                if not bonus.active:
+                    await ctx.send(bonus.message)
+                    continue
+
+                roll.bonus += bonus.value
+                await ctx.send(bonus.message)
+
             # Add the roll to the user and commit
             user.add_roll(roll)
             self.db.commit()

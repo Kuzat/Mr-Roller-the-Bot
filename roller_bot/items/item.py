@@ -1,3 +1,4 @@
+from roller_bot.models.pydantic.bonus_value import BonusValue
 from roller_bot.models.user import User
 
 
@@ -25,6 +26,16 @@ class Item:
     def shop_str(self) -> str:
         return f'({self.id}) - {self.name}: {self.description} - Cost: {self.cost}'
 
+    def bonus(self, user: User) -> BonusValue:
+        """
+        !!Need to commit the db session after this as it might have side effects
+        Calculates the bonus value and check if the bonus is still active
+
+        :param user: a user
+        :return: a BonusValue
+        """
+        return BonusValue(value=0, active=False, message="Items has no bonus")
+
     def use(self, user: User) -> str:
         """
         !!Need to commit the db session after this as it might have side effects
@@ -35,4 +46,4 @@ class Item:
         :param user: a user
         :return: a message
         """
-        pass
+        return "Item has no use"

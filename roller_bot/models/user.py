@@ -1,9 +1,11 @@
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.hybrid import hybrid_property
 from roller_bot.models.base import Base
+from roller_bot.models.bonus import Bonus
 from roller_bot.models.items import Items
 from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.roll import Roll
@@ -23,6 +25,7 @@ class User(Base):
     rolls: List[Roll] = relationship(
             "Roll", order_by=Roll.id, back_populates="user"
     )
+    bonuses: Dict[int, Bonus] = relationship("Bonus", collection_class=attribute_mapped_collection("item_id"), back_populates="user")
 
     mention: Optional[str] = None
 
@@ -71,6 +74,15 @@ class User(Base):
             label('latest_roll')
         )
 
+    def get_roll_on_date(self, roll_date: date) -> Optional[Roll]:
+        for roll in self.rolls:
+            if roll.date == roll_date:
+                return roll
+            elif roll.date < roll_date:
+                # Exit early if we've passed the date
+                return None
+        return None
+
     @hybrid_property
     def total_rolls(self) -> int:  # type: ignore
         return sum([roll.roll for roll in self.rolls])  # type: ignore
@@ -102,7 +114,6 @@ class User(Base):
     def has_item(self, item_id: int) -> bool:
         return any([item.item_id == item_id for item in self.items])
 
-    # TODO: Add a method to get a specific item from the user's inventory
     def get_item(self, item_id: int) -> Optional[Items]:
         for item in self.items:
             if item.item_id == item_id:
