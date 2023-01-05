@@ -5,8 +5,6 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from roller_bot.database import RollDatabase
-from roller_bot.items.dice import Dice
-from roller_bot.models.items import Items
 from roller_bot.models.roll import Roll
 from roller_bot.models.user import User
 
@@ -47,7 +45,7 @@ def migrate():
             roll_date = datetime.strptime(row['date'], '%Y-%m-%d').date()
             roll = Roll(id=row['id'], user_id=row['user_id'], date=roll_date, roll=row['roll'])
             user.rolls.append(roll)
-        
+
         # Need to find date of first roll
         first_roll_date = user.rolls[0].date
         user.created_at = first_roll_date

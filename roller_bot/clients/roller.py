@@ -1,16 +1,15 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import importlib.metadata
 from typing import List, Optional
 import discord
 from discord.ext import commands
 
 from roller_bot.database import RollDatabase
-from roller_bot.items.item import Item
+from roller_bot.items.models.dice import Dice
+from roller_bot.items.models.item import Item
 from roller_bot.items.utils import dice_from_id, dice_data, item_from_id
-from roller_bot.items.dice import Dice
 from roller_bot.models.items import Items
-from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.user import User
 from roller_bot.clients.check import Check
 from roller_bot.utils.list_helpers import split
@@ -91,76 +90,18 @@ class RollerBot:
                 user = User.new_user(user_id, datetime.now())
                 self.db.add_user(user)
 
-            # Check if the user has rolled today
-            # If the user has not rolled today get active dice and roll
-            active_dice = dice_from_id(user.active_dice)  # type: ignore
+            # Get the users active dice
+            active_dice = dice_from_id(user.active_dice)
             if active_dice is None:
                 await ctx.send('You do not have any active dice.')
                 raise commands.errors.UserInputError
 
-            if (
-                    not user.can_daily_roll and
-                    not user.latest_roll.can_roll_again and
-                    not user.can_roll_again and
-                    not self.hack_mode
-            ):
-                await ctx.send(
-                        f'You already rolled a {user.latest_roll.roll} today. Your total amount rolled is'
-                        f' {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
-                )
-                return
-
-            # Check if the dice require user input
-            if active_dice.user_input:
-                await ctx.send(active_dice.description)
-
-                def check(m: discord.Message) -> bool:
-                    return m.author.id == ctx.author.id and m.content.isdigit() and 1 <= int(m.content) <= 6
-
-                try:
-                    guess = await self.bot.wait_for('message', check=check, timeout=60)
-                except commands.errors.CommandError:
-                    await ctx.send('You did not enter a number between 1 and 6 in time. Try again.')
-                    raise commands.errors.UserInputError
-                roll: DiceRoll = active_dice.roll(int(guess.content))
-            else:
-                roll: DiceRoll = active_dice.roll()
-
-            # Reset User can_roll_again only if daily roll and last roll again is false
-            if (
-                    not user.can_daily_roll and
-                    not user.latest_roll.can_roll_again and
-                    user.can_roll_again
-            ):
-                user.can_roll_again = False
-
-            # Check for any bonuses active for the user and add them to the roll bonus
-            for item_id in user.bonuses:
-                item: Item = item_from_id(item_id)
-                if item is None:
-                    print(f'Item with id {item_id} not found')
-                    continue
-                bonus = item.bonus(user)
-                if not bonus.active:
-                    await ctx.send(bonus.message)
-                    continue
-
-                roll.bonus += bonus.value
-                await ctx.send(bonus.message)
-
-            # Add the roll to the user and commit
-            user.add_roll(roll)
+            # Use the dice
+            message: str = await active_dice.use(user, ctx, self.bot)
             self.db.commit()
 
             # Send the roll to the user
-            if roll.can_roll_again:
-                await ctx.send(
-                        f'You rolled a {roll} with the {active_dice.name}. Your total amount rolled is {user.total_rolls}. Roll again with !roll.'
-                )
-            else:
-                await ctx.send(
-                        f'You rolled a {roll} with the {active_dice.name}. Your total amount rolled is {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
-                )
+            await ctx.send(message)
 
         @self.bot.command(brief="Displays your total amount rolled", description="Displays your total amount rolled")
         async def total(ctx: commands.Context) -> None:
@@ -392,12 +333,12 @@ class RollerBot:
                 return
 
             # Check if the item is not a die
-            if isinstance(item, Dice):
-                await ctx.send('To use a die, use the !roll command.')
-                return
+            # if isinstance(item, Dice):
+            #     await ctx.send('To use a die, use the !roll command.')
+            #     return
 
             # Use the item
-            message = item.use(user)
+            message = await item.use(user, ctx, self.bot)
             self.db.commit()
             await ctx.send(message)
 

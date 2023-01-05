@@ -1,4 +1,6 @@
-from roller_bot.items.item import Item
+from discord.ext import commands
+
+from roller_bot.items.models.item import Item
 from roller_bot.models.user import User
 
 
@@ -18,7 +20,7 @@ class RerollToken(Item):
     def __repr__(self) -> str:
         return f'RerollToken(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
-    def use(self, user: User) -> str:
+    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
         # Get item from user
         item = user.get_item(self.id)
         if item is None:

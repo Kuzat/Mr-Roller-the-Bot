@@ -5,6 +5,8 @@ class DiceRoll(BaseModel):
     base: int
     bonus: int = 0
     can_roll_again: bool = False
+    message: str = None
+    active: bool = True
 
     @property
     def total(self) -> int:

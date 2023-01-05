@@ -5,7 +5,6 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from roller_bot.database import RollDatabase
-from roller_bot.items.dice import Dice
 from roller_bot.models.items import Items
 from roller_bot.models.roll import Roll
 from roller_bot.models.user import User

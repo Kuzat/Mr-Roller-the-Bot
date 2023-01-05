@@ -1,3 +1,4 @@
+from discord.ext import commands
 from roller_bot.models.pydantic.bonus_value import BonusValue
 from roller_bot.models.user import User
 
@@ -36,13 +37,15 @@ class Item:
         """
         return BonusValue(value=0, active=False, message="Items has no bonus")
 
-    def use(self, user: User) -> str:
+    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
         """
         !!Need to commit the db session after this as it might have side effects
 
         Check if health is less or equal to 0 and if so, remove it from the inventory
         and return a message
 
+        :param bot: The discord bot
+        :param ctx: The discord context
         :param user: a user
         :return: a message
         """

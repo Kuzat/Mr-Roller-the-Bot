@@ -1,12 +1,11 @@
 import random
 from typing import Optional
 
-
-from roller_bot.items.item import Item
+from roller_bot.items.models.dice import Dice
 from roller_bot.models.pydantic.dice_roll import DiceRoll
 
 
-class Dice(Item):
+class RegularDice(Dice):
     id = 0
 
     def __init__(self):
@@ -26,7 +25,7 @@ class Dice(Item):
     def roll(self, guess: Optional[int] = None) -> DiceRoll:
         roll = random.randint(1, 6)
         return DiceRoll(
-            base=roll,
-            bonus=0,
-            can_roll_again=self.roll_again(roll)
+                base=roll,
+                bonus=0,
+                can_roll_again=self.roll_again(roll)
         )

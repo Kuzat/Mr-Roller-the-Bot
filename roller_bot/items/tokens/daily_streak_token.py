@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 
-from roller_bot.items.item import Item
+from discord.ext import commands
+
+from roller_bot.items.models.item import Item
 from roller_bot.models.bonus import Bonus
 from roller_bot.models.pydantic.bonus_value import BonusValue
 from roller_bot.models.user import User
@@ -54,7 +56,7 @@ class DailyStreakToken(Item):
         # Return the bonus value
         return BonusValue(value=bonus.bonus_value, active=True, message=f"You have a {bonus.bonus_value} bonus from your Daily Streak Token.")
 
-    def use(self, user: User) -> str:
+    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
         # Get item from user
         item = user.get_item(self.id)
         if item is None:

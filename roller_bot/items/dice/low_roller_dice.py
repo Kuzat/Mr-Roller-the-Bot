@@ -1,10 +1,11 @@
 import random
 from typing import Optional
-from roller_bot.items.dice import Dice
+
+from roller_bot.items.models.dice import Dice
 from roller_bot.models.pydantic.dice_roll import DiceRoll
 
 
-class LowRoller(Dice):
+class LowRollerDice(Dice):
     id = 3
 
     def __init__(self):
