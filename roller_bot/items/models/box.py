@@ -1,3 +1,4 @@
+import asyncio
 import random
 from functools import reduce
 from typing import List
@@ -57,6 +58,9 @@ class Box(Item):
 
         # Flavor message
         await ctx.send(f"You open the {self.name} and look inside...")
+
+        async with ctx.typing():
+            await asyncio.sleep(2)
 
         # Get the box item
         box_item = self.get_box_item()
