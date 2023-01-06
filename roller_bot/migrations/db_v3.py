@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import logging
 
@@ -11,14 +10,23 @@ from roller_bot.models.user import User
 
 
 def migrate():
+    """
+    Migrate the database from version 2 to version 3
+    New in v3:
+    - Added the bonus table to the database
+    - Added a relationship between the user and the bonus table
+        - Should not need to do any migration for this
+
+    :return:
+    """
     logging.basicConfig()
     logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
-    db = RollDatabase('rolls_v1.db')
+    db = RollDatabase('rolls_v3.db')
     session = db.session
 
     # Load old database data into new database
-    old_engine = create_engine('sqlite:///rolls_v0.db')
+    old_engine = create_engine('sqlite:///rolls_v2.db')
     Session = sessionmaker(bind=old_engine)
     old_session = Session()
 
@@ -29,7 +37,7 @@ def migrate():
         print(f"user: {row}")
         # Create a user for each unique user_id
         user = User(**row)
-        user.created_at = datetime.strptime(row['created_at'], '%Y-%m-%d %H:%M:%S.%f') # type: ignore
+        user.created_at = datetime.strptime(row['created_at'], '%Y-%m-%d %H:%M:%S.%f')  # type: ignore
         print(user)
         # Add the users to the new database
         session.add(user)
@@ -41,7 +49,7 @@ def migrate():
         print(f"item: {row}")
         # Create a user for each unique user_id
         item = Items(**row)
-        item.purchased_at = datetime.strptime(row['purchased_at'], '%Y-%m-%d').date() # type: ignore
+        item.purchased_at = datetime.strptime(row['purchased_at'], '%Y-%m-%d').date()  # type: ignore
         print(item)
         # Add the users to the new database
         session.add(item)
@@ -53,8 +61,7 @@ def migrate():
         print(f"roll: {row}")
         # Create a user for each unique user_id
         roll = Roll(**row)
-        roll.can_roll_again = False # type: ignore
-        roll.date = datetime.strptime(row['date'], '%Y-%m-%d').date() # type: ignore
+        roll.date = datetime.strptime(row['date'], '%Y-%m-%d').date()  # type: ignore
         print(roll)
         # Add the users to the new database
         session.add(roll)

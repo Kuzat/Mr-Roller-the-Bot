@@ -1,5 +1,8 @@
+import importlib
 import os
 from typing import Optional
+
+import click as click
 from dotenv import load_dotenv
 from roller_bot.clients.roller import RollerBot
 from roller_bot.database import RollDatabase
@@ -53,22 +56,36 @@ def dev():
         print(f"totalUserQuery: {total_user_query.total_rolls}")
 
 
+@click.command()
+@click.argument('db_version', type=int)
+def migrate(db_version: int):
+    # Get the migrate command from migration module and run it
+    db_migration = importlib.import_module(f'roller_bot.migrations.db_v{db_version}')
+    db_migration.migrate()
+
+
 # Run the main bot function
-def main(debug_mode: bool = False):
-    print('Debug mode:', debug_mode)
+@click.command()
+@click.option('--debug', is_flag=True)
+@click.option('--db-version', type=int, default=3)
+def main(debug: bool, db_version: int):
+    print('Debug mode:', debug)
     # enable sqlalchemy logging in debug mode
-    db_path = 'rolls_v2.db'
-    if debug_mode:
+    db_path = f'rolls_v{db_version}.db'
+    if debug:
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-        db_path = 'rolls_v2.db'
+        db_path = f'rolls_v{db_version}.db'
+
+    print(f"Running with database {db_path}")
 
     # Load the environment variables from the .env file
     load_dotenv()
 
     # Start bot
     bot: RollerBot = RollerBot(
-        command_prefix='!', db_path=db_path, debug_mode=debug_mode)
+            command_prefix='!', db_path=db_path, debug_mode=debug
+    )
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')

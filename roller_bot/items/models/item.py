@@ -1,3 +1,5 @@
+from discord.ext import commands
+from roller_bot.models.pydantic.bonus_value import BonusValue
 from roller_bot.models.user import User
 
 
@@ -25,14 +27,26 @@ class Item:
     def shop_str(self) -> str:
         return f'({self.id}) - {self.name}: {self.description} - Cost: {self.cost}'
 
-    def use(self, user: User) -> str:
+    def bonus(self, user: User) -> BonusValue:
+        """
+        !!Need to commit the db session after this as it might have side effects
+        Calculates the bonus value and check if the bonus is still active
+
+        :param user: a user
+        :return: a BonusValue
+        """
+        return BonusValue(value=0, active=False, message="Items has no bonus")
+
+    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
         """
         !!Need to commit the db session after this as it might have side effects
 
         Check if health is less or equal to 0 and if so, remove it from the inventory
         and return a message
 
+        :param bot: The discord bot
+        :param ctx: The discord context
         :param user: a user
         :return: a message
         """
-        pass
+        return "Item has no use"

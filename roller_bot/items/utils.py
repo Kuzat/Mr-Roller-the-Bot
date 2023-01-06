@@ -1,21 +1,35 @@
 from typing import Dict, Optional
-from roller_bot.items.dice import Dice
-from roller_bot.items.donator_dice import DonatorDice
-from roller_bot.items.gamble_dice import GambleDice
-from roller_bot.items.item import Item
-from roller_bot.items.low_roller import LowRoller
-from roller_bot.items.reroll_token import RerollToken
+
+from roller_bot.items.dice.box.old_pizza_box import OldPizzaBox
+from roller_bot.items.dice.damaged.cracked_d10_dice import CrackedD10Dice
+from roller_bot.items.dice.damaged.cracked_d12_dice import CrackedD12Dice
+from roller_bot.items.dice.damaged.cracked_d20_dice import CrackedD20Dice
+from roller_bot.items.dice.damaged.cracked_d8_dice import CrackedD8Dice
+from roller_bot.items.dice.regular_dice import RegularDice
+from roller_bot.items.models.dice import Dice
+from roller_bot.items.models.item import Item
+from roller_bot.items.tokens.daily_streak_token import DailyStreakToken
+from roller_bot.items.dice.donator_dice import DonatorDice
+from roller_bot.items.dice.gamble_dice import GambleDice
+from roller_bot.items.dice.low_roller_dice import LowRollerDice
+from roller_bot.items.tokens.reroll_token import RerollToken
 
 dice_data: Dict[int, Dice] = {
-    Dice.id: Dice(),
+    RegularDice.id: RegularDice(),
     GambleDice.id: GambleDice(),
     DonatorDice.id: DonatorDice(),
-    LowRoller.id: LowRoller()
+    LowRollerDice.id: LowRollerDice(),
+    CrackedD20Dice.id: CrackedD20Dice(),
+    CrackedD12Dice.id: CrackedD12Dice(),
+    CrackedD10Dice.id: CrackedD10Dice(),
+    CrackedD8Dice.id: CrackedD8Dice()
 }
 
 item_data: Dict[int, Item] = {
     **dice_data,
     RerollToken.id: RerollToken(),
+    DailyStreakToken.id: DailyStreakToken(),
+    OldPizzaBox.id: OldPizzaBox()
 }
 
 

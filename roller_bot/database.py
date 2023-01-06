@@ -1,5 +1,5 @@
-from typing import List, Optional
-from sqlalchemy import create_engine, func, select
+from typing import Optional
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from roller_bot.models.user import User
