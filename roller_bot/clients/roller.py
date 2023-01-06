@@ -5,6 +5,7 @@ from typing import List, Optional
 import discord
 from discord.ext import commands
 
+from roller_bot.clients.admin_commands import AdminCommands
 from roller_bot.database import RollDatabase
 from roller_bot.items.models.box import Box
 from roller_bot.items.models.dice import Dice
@@ -17,6 +18,20 @@ from roller_bot.utils.list_helpers import split
 
 
 class RollerBot:
+    @staticmethod
+    def get_home_channel(bot: commands.Bot) -> discord.TextChannel:
+        channel_id = os.getenv('DISCORD_CHANNEL_ID')
+        if not channel_id:
+            print('environment variable DISCORD_CHANNEL_ID not set')
+            raise Exception('environment variable DISCORD_CHANNEL_ID not set')
+
+        channel = bot.get_channel(int(channel_id))
+        if not channel:
+            print(f'channel with id {channel_id} not found')
+            raise Exception(f'channel with id {channel_id} not found')
+
+        return channel
+
     def __init__(self, command_prefix: str, db_path: str, debug_mode: bool = False) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
@@ -28,7 +43,8 @@ class RollerBot:
 
         # DEBUG MODE
         self.debug_mode: bool = debug_mode
-        self.hack_mode: bool = False
+
+        self.home_channel = discord.TextChannel
 
         # Check that the bot only responds to the correct channel
         # #dice-lounge channel id 1049385097058590823
@@ -36,7 +52,10 @@ class RollerBot:
         async def check_channel(ctx: commands.Context) -> bool:
             if debug_mode:
                 return True
-            return ctx.message.channel.id == 1049385097058590823
+            # Also allow the dm commands channel
+            if isinstance(ctx.channel, discord.channel.DMChannel) and ctx.message.author.id == 119502664126955523:
+                return True
+            return ctx.message.channel.id == self.home_channel.id
 
         # Add presence on ready
         @self.bot.event
@@ -47,16 +66,11 @@ class RollerBot:
                     )
             )
             # Send online message to the channel
-            channel_id = os.getenv('DISCORD_CHANNEL_ID')
-            if not channel_id:
-                print('environment variable DISCORD_CHANNEL_ID not set')
-                return
+            self.home_channel = RollerBot.get_home_channel(self.bot)
 
-            channel = self.bot.get_channel(int(channel_id))
-            if not channel:
-                print(f'channel with id {channel_id} not found')
-                return
-            await channel.send(f'{"DEBUG:" if self.debug_mode else ""} RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) is online')
+            await self.home_channel.send(
+                    f'{"DEBUG:" if self.debug_mode else ""} RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) is online'
+            )
 
         @self.bot.command(
                 brief="Users that have not rolled today.",
@@ -343,7 +357,10 @@ class RollerBot:
             self.db.commit()
             await ctx.send(message)
 
-        @self.bot.command()
+        @self.bot.command(
+                brief="Displays the probabilities of items inside a box",
+                description="Displays the probabilities of items inside a box. Only works for boxes."
+        )
         async def probabilities(ctx: commands.Context, box_id: int) -> None:
             item = item_from_id(box_id)
             if not isinstance(item, Box):
@@ -352,12 +369,58 @@ class RollerBot:
 
             await ctx.send(item.probabilities)
 
+        # ADMIN COMMANDS
         @self.bot.command()
-        @commands.check_any(Check.is_me(), Check.is_guild_owner())
-        @Check.is_debug_mode(self.debug_mode)
-        async def hack(ctx: commands.Context) -> None:
-            self.hack_mode = not self.hack_mode
-            await ctx.send(f'Hack mode is now {"on" if self.hack_mode else "off"}.')
+        @commands.dm_only()
+        @commands.check_any(Check.is_me())
+        async def add_item(ctx: commands.Context, user_id: int, item_id: int, quantity: int) -> None:
+            user = self.db.get_user(user_id=user_id)
+
+            if user is None:
+                await ctx.send('Not a valid user.')
+                return
+
+            await AdminCommands.add_item(ctx, user, item_id, quantity)
+            self.db.commit()
+
+        @self.bot.command()
+        @commands.dm_only()
+        @commands.check_any(Check.is_me())
+        async def remove_item(ctx: commands.Context, user_id: int, item_id: int, quantity: int) -> None:
+            user = self.db.get_user(user_id=user_id)
+
+            if user is None:
+                await ctx.send('Not a valid user.')
+                return
+
+            await AdminCommands.remove_item(ctx, user, item_id, quantity)
+            self.db.commit()
+
+        @self.bot.command()
+        @commands.dm_only()
+        @commands.check_any(Check.is_me())
+        async def add_credit(ctx: commands.Context, user_id: int, amount: int) -> None:
+            user = self.db.get_user(user_id=user_id)
+
+            if user is None:
+                await ctx.send('Not a valid user.')
+                return
+
+            await AdminCommands.add_credit(ctx, user, amount)
+            self.db.commit()
+
+        @self.bot.command()
+        @commands.dm_only()
+        @commands.check_any(Check.is_me())
+        async def remove_credit(ctx: commands.Context, user_id: int, amount: int) -> None:
+            user = self.db.get_user(user_id=user_id)
+
+            if user is None:
+                await ctx.send('Not a valid user.')
+                return
+
+            await AdminCommands.remove_credit(ctx, user, amount)
+            self.db.commit()
 
     def run(self, token) -> None:
         self.bot.run(token)
