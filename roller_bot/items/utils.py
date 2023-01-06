@@ -1,5 +1,6 @@
 from typing import Dict, Optional
 
+from roller_bot.items.dice.box.old_pizza_box import OldPizzaBox
 from roller_bot.items.dice.damaged.cracked_d10_dice import CrackedD10Dice
 from roller_bot.items.dice.damaged.cracked_d12_dice import CrackedD12Dice
 from roller_bot.items.dice.damaged.cracked_d20_dice import CrackedD20Dice
@@ -27,7 +28,8 @@ dice_data: Dict[int, Dice] = {
 item_data: Dict[int, Item] = {
     **dice_data,
     RerollToken.id: RerollToken(),
-    DailyStreakToken.id: DailyStreakToken()
+    DailyStreakToken.id: DailyStreakToken(),
+    OldPizzaBox.id: OldPizzaBox()
 }
 
 
