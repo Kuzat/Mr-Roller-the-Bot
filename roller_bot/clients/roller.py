@@ -18,6 +18,8 @@ from roller_bot.utils.list_helpers import split
 
 
 class RollerBot:
+    home_channel: discord.TextChannel
+
     @staticmethod
     def get_home_channel(bot: commands.Bot) -> discord.TextChannel:
         channel_id = os.getenv('DISCORD_CHANNEL_ID')
@@ -43,8 +45,6 @@ class RollerBot:
 
         # DEBUG MODE
         self.debug_mode: bool = debug_mode
-
-        self.home_channel = discord.TextChannel
 
         # Check that the bot only responds to the correct channel
         # #dice-lounge channel id 1049385097058590823
@@ -385,53 +385,66 @@ class RollerBot:
         @self.bot.command()
         @commands.dm_only()
         @commands.check_any(Check.is_me())
-        async def add_item(ctx: commands.Context, member: discord.User, item_id: int, quantity: int) -> None:
+        async def add_item(ctx: commands.Context, member: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
             user = self.db.get_user(user_id=member.id)
 
             if user is None:
                 await ctx.send('Not a valid user.')
                 return
 
-            await AdminCommands.add_item(ctx, user, item_id, quantity)
+            await AdminCommands.add_item(ctx, user, item_id, quantity, self.home_channel, hidden)
             self.db.commit()
 
         @self.bot.command()
         @commands.dm_only()
         @commands.check_any(Check.is_me())
-        async def remove_item(ctx: commands.Context, member: discord.User, item_id: int, quantity: int) -> None:
+        async def remove_item(ctx: commands.Context, member: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
             user = self.db.get_user(user_id=member.id)
 
             if user is None:
                 await ctx.send('Not a valid user.')
                 return
 
-            await AdminCommands.remove_item(ctx, user, item_id, quantity)
+            await AdminCommands.remove_item(ctx, user, item_id, quantity, self.home_channel, hidden)
             self.db.commit()
 
         @self.bot.command()
         @commands.dm_only()
         @commands.check_any(Check.is_me())
-        async def add_credit(ctx: commands.Context, member: discord.User, amount: int) -> None:
+        async def add_credit(ctx: commands.Context, member: discord.User, amount: int, hidden: Optional[bool] = False) -> None:
             user = self.db.get_user(user_id=member.id)
 
             if user is None:
                 await ctx.send('Not a valid user.')
                 return
 
-            await AdminCommands.add_credit(ctx, user, amount)
+            await AdminCommands.add_credit(ctx, user, amount, self.home_channel, hidden)
             self.db.commit()
 
         @self.bot.command()
         @commands.dm_only()
         @commands.check_any(Check.is_me())
-        async def remove_credit(ctx: commands.Context, member: discord.User, amount: int) -> None:
+        async def remove_credit(ctx: commands.Context, member: discord.User, amount: int, hidden: Optional[bool] = False) -> None:
             user = self.db.get_user(user_id=member.id)
 
             if user is None:
                 await ctx.send('Not a valid user.')
                 return
 
-            await AdminCommands.remove_credit(ctx, user, amount)
+            await AdminCommands.remove_credit(ctx, user, amount, self.home_channel, hidden)
+            self.db.commit()
+
+        @self.bot.command()
+        @commands.dm_only()
+        @commands.check_any(Check.is_me())
+        async def user_info(ctx: commands.Context, member: discord.User, hidden: Optional[bool] = True) -> None:
+            user = self.db.get_user(user_id=member.id)
+
+            if user is None:
+                await ctx.send('Not a valid user.')
+                return
+
+            await AdminCommands.user_info(ctx, user, self.home_channel, hidden)
             self.db.commit()
 
     def run(self, token) -> None:
