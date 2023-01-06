@@ -11,7 +11,7 @@ class CrackedD8Dice(Dice):
 
     def __init__(self):
         super().__init__()
-        self.name: str = "D8 Dice"
+        self.name: str = "Cracked D8 Dice"
         self.description: str = "A cracked 8 sided dice that breaks easily."
         self.cost: int = 0
         self.start_health: int = 100
