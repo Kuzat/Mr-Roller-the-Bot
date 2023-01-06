@@ -58,31 +58,31 @@ class DailyStreakToken(Item):
 
     async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
         # Get item from user
-        item = user.get_item(self.id)
-        if item is None:
+        user_item = user.get_item(self.id)
+        if user_item is None:
             return f"You don't have a {self.name} in your inventory."
 
         # Check if we already have a streak bonus active
-        if user.bonuses.get(item.id):
+        if user.bonuses.get(self.id):
             return f"You already have a {self.name} bonus active."
 
         # Add the bonus to the user
         daily_bonus = Bonus(
                 user_id=user.id,
-                item_id=item.id,
+                item_id=self.id,
                 bonus_value=self.start_bonus_value,
                 started_at=datetime.now().date(),
         )
         user.bonuses[daily_bonus.item_id] = daily_bonus
 
         # Remove the health from the item
-        item.health -= self.use_cost
+        user_item.health -= self.use_cost
 
         # Check and remove the item if health is 0 or less
-        if item.health <= 0:
+        if user_item.health <= 0:
             # remove quantity and reset health to start_health
-            item.quantity -= 1
-            item.health = self.start_health
+            user_item.quantity -= 1
+            user_item.health = self.start_health
             return f"Your {self.name} broke and was removed from your inventory. You will now get a bonus as long as you keep your daily rolling streak going."
 
         return "You will now get a bonus as long as you keep your daily rolling streak going."
