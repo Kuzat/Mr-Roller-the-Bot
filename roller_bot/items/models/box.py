@@ -28,13 +28,16 @@ class Box(Item):
     def __repr__(self):
         return f'Box(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
+    @property
     def probabilities(self) -> str:
-        total_weight = reduce(lambda x, y: x.weight + y.weight, self.box_items, 0)
-        print(total_weight)
+        total_weight = reduce(lambda x, y: x + y.weight, self.box_items, 0)
+        longest_name = reduce(lambda x, y: max(x, len(y.name)), self.box_items, 0)
+
+        spacing_length = longest_name + 2
 
         message = "Probabilities:\n```"
         for item in self.box_items:
-            message += f"{item.name}: {item.weight / total_weight}\n"
+            message += f"{item.name + ':':{spacing_length}}{round((item.weight / total_weight) * 100, ndigits=2):6} %\n"
         message += "```"
 
         return message
@@ -44,7 +47,7 @@ class Box(Item):
                 population=self.box_items,
                 weights=list(map(lambda x: x.weight, self.box_items)),
                 k=1
-        )
+        )[0]
 
     async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
         # Get the item from the user
@@ -59,7 +62,7 @@ class Box(Item):
         box_item = self.get_box_item()
 
         # Show the text of the item
-        await ctx.send(box_item.description)
+        await ctx.send(box_item.description + " You add the item to your inventory, view it with !items.")
 
         # Claim the box item
         await box_item.claim(user, ctx)
@@ -73,4 +76,3 @@ class Box(Item):
             return f"You throw away the opened {self.name}."
 
         return "You put the {self.name} back in your inventory."
-

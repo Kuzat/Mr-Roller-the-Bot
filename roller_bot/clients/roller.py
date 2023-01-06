@@ -6,9 +6,10 @@ import discord
 from discord.ext import commands
 
 from roller_bot.database import RollDatabase
+from roller_bot.items.models.box import Box
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
-from roller_bot.items.utils import dice_from_id, dice_data, item_from_id
+from roller_bot.items.utils import dice_from_id, item_data, item_from_id
 from roller_bot.models.items import Items
 from roller_bot.models.user import User
 from roller_bot.clients.check import Check
@@ -242,7 +243,7 @@ class RollerBot:
 
             user = self.db.get_user(user_id=user_id)
 
-            all_dice = dice_data.values()
+            all_dice = item_data.values()
 
             # Filter out the dice that the user already owns and are not buyable
             if user is not None:
@@ -253,7 +254,7 @@ class RollerBot:
 
             items_string = '\n'.join(map(lambda items: items.shop_str(), all_dice))
 
-            await ctx.send('```Shop:\n' + items_string + '\n\nUse the !buy {item_id} command to buy an item.```')
+            await ctx.send('Shop:\n```' + items_string + '\n\nUse the !buy {item_id} command to buy an item.```')
 
         @self.bot.command(
                 brief="Buys an item from the shop using the item id",
@@ -305,7 +306,7 @@ class RollerBot:
             self.db.commit()
 
             await ctx.send(
-                    f'You purchased {item.inventory_str()} for {item.cost} roll credits. Equip it with !equip {item.id}.'
+                    f'You purchased {item.inventory_str()} for {item.cost} roll credits. See your items with !items.'
             )
 
         @self.bot.command(
@@ -341,6 +342,15 @@ class RollerBot:
             message = await item.use(user, ctx, self.bot)
             self.db.commit()
             await ctx.send(message)
+
+        @self.bot.command()
+        async def probabilities(ctx: commands.Context, box_id: int) -> None:
+            item = item_from_id(box_id)
+            if not isinstance(item, Box):
+                await ctx.send('You can only view probabilities for boxes.')
+                return
+
+            await ctx.send(item.probabilities)
 
         @self.bot.command()
         @commands.check_any(Check.is_me(), Check.is_guild_owner())
