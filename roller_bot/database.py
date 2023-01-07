@@ -27,3 +27,7 @@ class RollDatabase:
     def add_user(self, user: User) -> None:
         self.session.add(user)
         self.session.commit()
+
+    def get_all_users(self) -> list[User]:
+        users = self.session.query(User).all()
+        return users

@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import importlib.metadata
 from typing import List, Optional
 import discord
@@ -14,6 +14,7 @@ from roller_bot.items.utils import dice_from_id, item_data, item_from_id
 from roller_bot.models.items import Items
 from roller_bot.models.user import User
 from roller_bot.clients.check import Check
+from roller_bot.utils.enrichments import add_discord_mention
 from roller_bot.utils.list_helpers import split
 
 
@@ -89,6 +90,38 @@ class RollerBot:
                 await ctx.send(
                         f'Users that have not rolled today: {", ".join(map(lambda x: x.mention if x else "", user_mentions))}'
                 )
+
+            await rolls(ctx, str(datetime.now().date()))
+
+        @self.bot.command()
+        async def yesterday(ctx: commands.Context) -> None:
+            await rolls(ctx, str(datetime.now().date() - timedelta(days=1)))
+
+        @self.bot.command()
+        async def rolls(ctx: commands.Context, rolls_date: str) -> None:
+            # parse the date string
+            try:
+                rolls_date = datetime.strptime(rolls_date, '%Y-%m-%d').date()
+            except ValueError:
+                await ctx.send('Invalid date format. Use YYYY-MM-DD')
+                return
+
+            users: List[User] = self.db.get_all_users()
+
+            message = f'Users that rolled on {rolls_date}:\n'
+
+            # Get the rolls for each user rolls_date
+            for user in users:
+                user = add_discord_mention(self.bot, user)
+                user_rolls = user.get_all_rolls(rolls_date)
+                if len(user_rolls) == 0:
+                    message = f'{user.mention} has not rolled yesterday.'
+                else:
+                    rolls_string = '\n'.join(map(lambda x: str(x), user_rolls))
+                    message = f'{user.mention} rolled: ```\n{rolls_string}\n```'
+
+            await ctx.send(message)
+
 
         @self.bot.command(
                 brief="Rolls the dice.",
