@@ -115,10 +115,10 @@ class RollerBot:
                 user = add_discord_mention(self.bot, user)
                 user_rolls = user.get_all_rolls(rolls_date)
                 if len(user_rolls) == 0:
-                    message = f'{user.mention} has not rolled yesterday.'
+                    message += f'{user.mention} has not rolled yesterday.'
                 else:
                     rolls_string = '\n'.join(map(lambda x: str(x), user_rolls))
-                    message = f'{user.mention} rolled: ```\n{rolls_string}\n```'
+                    message += f'{user.mention} rolled: ```\n{rolls_string}\n```'
 
             await ctx.send(message)
 
