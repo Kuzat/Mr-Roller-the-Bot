@@ -69,7 +69,9 @@ class Dice(Item):
         roll = self.roll(await self.get_user_input(ctx, bot))
 
         # Check for any bonuses active for the user and add them to the roll bonus
-        for item_id in user.bonuses:
+        # copy the bonuses so we don't change the original
+        bonuses = user.bonuses.copy()
+        for item_id in bonuses:
             bonus_item: Item = bonus_item_from_id(item_id)
             if bonus_item is None:
                 print(f'Item with id {item_id} not found')

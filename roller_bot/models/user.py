@@ -78,9 +78,6 @@ class User(Base):
         for roll in self.rolls:
             if roll.date == roll_date:
                 return roll
-            elif roll.date < roll_date:
-                # Exit early if we've passed the date
-                return None
         return None
 
     @hybrid_property

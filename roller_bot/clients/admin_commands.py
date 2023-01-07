@@ -153,21 +153,29 @@ class AdminCommands:
             # split into two lists, one for dices and one for items
             dices, items = split(lambda x: isinstance(x, Dice), user_item_definitions)
 
-            user_info += "Dices:\n```"
-            user_info += "\n".join(
-                    map(
-                            lambda dice: dice.inventory_str(user.active_dice == dice.id, dice.quantity),
-                            dices
-                    )
-            )
-            user_info += "```\nItems:\n```"
-            user_info += "\n".join(
-                    map(
-                            lambda item: item.inventory_str(user.active_dice == item.id, item.quantity),
-                            items
-                    )
-            )
-            user_info += "```"
+            if dices:
+                user_info += "Dices:\n```"
+                user_info += "\n".join(
+                        map(
+                                lambda dice: dice.inventory_str(user.active_dice == dice.id, dice.quantity),
+                                dices
+                        )
+                )
+                user_info += "```\n"
+            if items:
+                user_info += "Items:\n```"
+                user_info += "\n".join(
+                        map(
+                                lambda item: item.inventory_str(user.active_dice == item.id, item.quantity),
+                                items
+                        )
+                )
+                user_info += "```"
+
+            if user.bonuses:
+                user_info += "Bonuses:\n```"
+                user_info += "\n".join(map(lambda x: str(x), user.bonuses.values()))
+                user_info += "```"
 
         await ctx.send(user_info)
 

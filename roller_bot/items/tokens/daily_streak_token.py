@@ -37,7 +37,6 @@ class DailyStreakToken(Item):
         :param user: a user
         :return: the bonus value
         """
-        today = datetime.now().date()
         # Get the bonus from the user
         bonus = user.bonuses.get(self.id)
         if bonus is None:
@@ -45,13 +44,14 @@ class DailyStreakToken(Item):
 
         # Check if we lost the streak
         # Check that they have not a roll from yesterday, and it is not the first day of the bonus
-        if bonus.started_at != datetime.now().date() and user.get_roll_on_date(today - timedelta(days=1)) is None:
+        print(user.get_roll_on_date(datetime.now().date() - timedelta(days=1)))
+        if bonus.started_at != datetime.now().date() and user.get_roll_on_date(datetime.now().date() - timedelta(days=1)) is None:
             # Remove the bonus from the user
             user.bonuses.pop(self.id)
             return BonusValue(value=0, active=False, message="You missed a day and your Daily Streak Token bonus has ended.")
 
         # Update the bonus value
-        bonus.bonus_value = min((today - bonus.started_at).days, self.max_bonus_value)
+        bonus.bonus_value = min((datetime.now().date() - bonus.started_at).days, self.max_bonus_value)
 
         # Return the bonus value
         return BonusValue(value=bonus.bonus_value, active=True, message=f"You have a {bonus.bonus_value} bonus from your Daily Streak Token.")

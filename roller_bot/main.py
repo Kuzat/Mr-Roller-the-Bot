@@ -67,7 +67,7 @@ def migrate(db_version: int):
 # Run the main bot function
 @click.command()
 @click.option('--debug', is_flag=True)
-@click.option('--db-version', type=int, default=3)
+@click.option('--db-version', type=int, default=4)
 def main(debug: bool, db_version: int):
     print('Debug mode:', debug)
     # enable sqlalchemy logging in debug mode
