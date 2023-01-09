@@ -1,3 +1,5 @@
+import discord
+
 from typing import Optional
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -20,8 +22,13 @@ class RollDatabase:
     def commit(self) -> None:
         self.session.commit()
 
-    def get_user(self, user_id: int) -> Optional[User]:
-        user: Optional[User] = self.session.query(User).get(user_id)
+    def get_user(self, requested_user: int | discord.User) -> Optional[User]:
+        if isinstance(requested_user, discord.User):
+            user = self.session.query(User).get(requested_user.id)
+            user.mention = requested_user.mention
+        else:
+            user = self.session.query(User).get(requested_user)
+
         return user
 
     def add_user(self, user: User) -> None:

@@ -2,8 +2,11 @@ import importlib
 import os
 from typing import Optional
 
+import discord
 import click as click
 from dotenv import load_dotenv
+
+from roller_bot.clients.database_bot import DatabaseBot
 from roller_bot.clients.roller import RollerBot
 from roller_bot.database import RollDatabase
 from datetime import datetime
@@ -11,6 +14,8 @@ from datetime import datetime
 from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.user import User
 import logging
+
+from roller_bot.utils.asyncs import coro
 
 
 def dev():
@@ -68,7 +73,8 @@ def migrate(db_version: int):
 @click.command()
 @click.option('--debug', is_flag=True)
 @click.option('--db-version', type=int, default=4)
-def main(debug: bool, db_version: int):
+@coro
+async def main(debug: bool, db_version: int):
     print('Debug mode:', debug)
     # enable sqlalchemy logging in debug mode
     db_path = f'rolls_v{db_version}.db'
@@ -82,14 +88,22 @@ def main(debug: bool, db_version: int):
     # Load the environment variables from the .env file
     load_dotenv()
 
-    # Start bot
-    bot: RollerBot = RollerBot(
-            command_prefix='!', db_path=db_path, debug_mode=debug
-    )
+    # Define the bot
+    # bot: RollerBot = RollerBot(
+    #         command_prefix='!', db_path=db_path, debug_mode=debug
+    # )
+    intents = discord.Intents.default()
+    intents.message_content = True
+    intents.members = True
+    bot = DatabaseBot(command_prefix="!", intents=intents, db_path=db_path)
+
+    # Load extensions
+    await bot.load_extension('roller_bot.cogs.sync_commands')
+    await bot.load_extension('roller_bot.cogs.admin_commands')
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')
     if token:
-        bot.run(token)
+        await bot.run(token)
     else:
         raise ValueError('No token was found in the environment variables')

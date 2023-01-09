@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timedelta
 import importlib.metadata
@@ -415,57 +416,7 @@ class RollerBot:
             await ctx.send(item.probabilities)
 
         # ADMIN COMMANDS
-        @self.bot.command()
-        @commands.dm_only()
-        @commands.check_any(Check.is_me())
-        async def add_item(ctx: commands.Context, member: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
-            user = self.db.get_user(user_id=member.id)
 
-            if user is None:
-                await ctx.send('Not a valid user.')
-                return
-
-            await AdminCommands.add_item(ctx, user, item_id, quantity, self.home_channel, hidden)
-            self.db.commit()
-
-        @self.bot.command()
-        @commands.dm_only()
-        @commands.check_any(Check.is_me())
-        async def remove_item(ctx: commands.Context, member: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
-            user = self.db.get_user(user_id=member.id)
-
-            if user is None:
-                await ctx.send('Not a valid user.')
-                return
-
-            await AdminCommands.remove_item(ctx, user, item_id, quantity, self.home_channel, hidden)
-            self.db.commit()
-
-        @self.bot.command()
-        @commands.dm_only()
-        @commands.check_any(Check.is_me())
-        async def add_credit(ctx: commands.Context, member: discord.User, amount: int, hidden: Optional[bool] = False) -> None:
-            user = self.db.get_user(user_id=member.id)
-
-            if user is None:
-                await ctx.send('Not a valid user.')
-                return
-
-            await AdminCommands.add_credit(ctx, user, amount, self.home_channel, hidden)
-            self.db.commit()
-
-        @self.bot.command()
-        @commands.dm_only()
-        @commands.check_any(Check.is_me())
-        async def remove_credit(ctx: commands.Context, member: discord.User, amount: int, hidden: Optional[bool] = False) -> None:
-            user = self.db.get_user(user_id=member.id)
-
-            if user is None:
-                await ctx.send('Not a valid user.')
-                return
-
-            await AdminCommands.remove_credit(ctx, user, amount, self.home_channel, hidden)
-            self.db.commit()
 
         @self.bot.command()
         @commands.dm_only()
@@ -480,5 +431,12 @@ class RollerBot:
             await AdminCommands.user_info(ctx, user, self.home_channel, hidden)
             self.db.commit()
 
-    def run(self, token) -> None:
-        self.bot.run(token)
+    async def start(self, token) -> None:
+        """Custom start method to allow for already running in an event loop."""
+        discord.utils.setup_logging(
+                handler=discord.utils.MISSING,
+                formatter=discord.utils.MISSING,
+                level=discord.utils.MISSING,
+                root=False,
+        )
+        await self.bot.start(token, reconnect=True)
