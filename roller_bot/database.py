@@ -23,11 +23,11 @@ class RollDatabase:
         self.session.commit()
 
     def get_user(self, requested_user: int | discord.User) -> Optional[User]:
-        if isinstance(requested_user, discord.User):
+        if isinstance(requested_user, int):
+            user = self.session.query(User).get(requested_user)
+        else:
             user = self.session.query(User).get(requested_user.id)
             user.mention = requested_user.mention
-        else:
-            user = self.session.query(User).get(requested_user)
 
         return user
 
