@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from roller_bot.checks.admin import AdminChecks
 from roller_bot.clients.admin_commands import AdminCommands
 from roller_bot.clients.check import Check
 from roller_bot.clients.database_bot import DatabaseBot
@@ -17,8 +18,11 @@ class Admin(commands.GroupCog, name="admin"):
     item = app_commands.Group(name="item", description="Admin item commands")
     credit = app_commands.Group(name="credit", description="Admin credit commands")
 
+    async def cog_app_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
+        await interaction.response.send_message(f"Error: {str(error)}", ephemeral=True, delete_after=60)
+
     @item.command()
-    @commands.check_any(Check.is_me())
+    @AdminChecks.is_bot_owner()
     async def add(self, interaction: discord.Interaction, discord_user: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 
@@ -30,7 +34,7 @@ class Admin(commands.GroupCog, name="admin"):
         self.bot.db.commit()
 
     @item.command()
-    @commands.check_any(Check.is_me())
+    @AdminChecks.is_bot_owner()
     async def remove(self, interaction: discord.Interaction, discord_user: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 
@@ -42,7 +46,7 @@ class Admin(commands.GroupCog, name="admin"):
         self.bot.db.commit()
 
     @credit.command()
-    @commands.check_any(Check.is_me())
+    @AdminChecks.is_bot_owner()
     async def add(self, interaction: discord.Interaction, discord_user: discord.User, amount: int, hidden: Optional[bool] = False) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 
@@ -54,7 +58,7 @@ class Admin(commands.GroupCog, name="admin"):
         self.bot.db.commit()
 
     @credit.command()
-    @commands.check_any(Check.is_me())
+    @AdminChecks.is_bot_owner()
     async def remove(self, interaction: discord.Interaction, discord_user: discord.User, amount: int, hidden: Optional[bool] = False) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 
@@ -66,7 +70,7 @@ class Admin(commands.GroupCog, name="admin"):
         self.bot.db.commit()
 
     @app_commands.command()
-    @commands.check_any(Check.is_me())
+    @AdminChecks.is_bot_owner()
     async def user_info(self, interaction: discord.Interaction, discord_user: discord.User, hidden: Optional[bool] = True) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 

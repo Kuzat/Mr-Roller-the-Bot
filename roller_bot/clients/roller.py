@@ -59,70 +59,6 @@ class RollerBot:
                 return True
             return ctx.message.channel.id == self.home_channel.id
 
-        # Add presence on ready
-        @self.bot.event
-        async def on_ready() -> None:
-            await self.bot.change_presence(
-                    activity=discord.Game(
-                            name=f'{"DEBUG:" if self.debug_mode else ""} RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) - !help to get started'
-                    )
-            )
-            # Send online message to the channel
-            self.home_channel = RollerBot.get_home_channel(self.bot)
-
-            await self.home_channel.send(
-                    f'{"DEBUG:" if self.debug_mode else ""} RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) is online'
-            )
-
-        @self.bot.command(
-                brief="Users that have not rolled today.",
-                description="Gets a list of users that have not rolled today."
-        )
-        async def today(ctx: commands.Context) -> None:
-            users: List[User] = User.users_not_rolled_today(
-                    self.db.session, datetime.now().date()
-            )
-            if len(users) == 0:
-                await ctx.send('Everyone has rolled today! If you have not rolled before, roll with !roll.')
-            else:
-                user_mentions = [self.bot.get_user(
-                        user.id
-                ) for user in users]  # type: ignore
-                await ctx.send(
-                        f'Users that have not rolled today: {", ".join(map(lambda x: x.mention if x else "", user_mentions))}'
-                )
-
-            await rolls(ctx, str(datetime.now().date()))
-
-        @self.bot.command()
-        async def yesterday(ctx: commands.Context) -> None:
-            await rolls(ctx, str(datetime.now().date() - timedelta(days=1)))
-
-        @self.bot.command()
-        async def rolls(ctx: commands.Context, rolls_date: str) -> None:
-            # parse the date string
-            try:
-                rolls_date = datetime.strptime(rolls_date, '%Y-%m-%d').date()
-            except ValueError:
-                await ctx.send('Invalid date format. Use YYYY-MM-DD')
-                return
-
-            users: List[User] = self.db.get_all_users()
-
-            message = f'Users that rolled on {rolls_date}:\n'
-
-            # Get the rolls for each user rolls_date
-            for user in users:
-                user = add_discord_mention(self.bot, user)
-                user_rolls = user.get_all_rolls(rolls_date)
-                if len(user_rolls) == 0:
-                    message += f'{user.mention} has not rolled yesterday.'
-                else:
-                    rolls_string = '\n'.join(map(lambda x: str(x), user_rolls))
-                    message += f'{user.mention} rolled: ```\n{rolls_string}\n```'
-
-            await ctx.send(message)
-
 
         @self.bot.command(
                 brief="Rolls the dice.",
@@ -163,20 +99,6 @@ class RollerBot:
                 return
 
             await ctx.send(f'Your total amount rolled is {user.total_rolls}.')
-
-        @self.bot.command(
-                brief="Displays the leaderboard",
-                description="Displays the leaderboard. The leaderboard is sorted by total amount rolled."
-        )
-        async def leaderboard(ctx: commands.Context) -> None:
-            top_rollers = User.top(self.db.session, 5)
-            for user in top_rollers:
-                discord_user = self.bot.get_user(user.id)
-                if discord_user:
-                    user.mention = discord_user.mention
-
-            leaderboard_str: str = '\n'.join(map(lambda x: str(x), top_rollers))
-            await ctx.send(f'Leaderboard:\n{leaderboard_str}')
 
         @self.bot.command(brief="Displays your longest streak of 6s", description="Displays your longest streak of 6s")
         async def streak(ctx: commands.Context) -> None:
@@ -401,35 +323,6 @@ class RollerBot:
             message = await item.use(user, ctx, self.bot)
             self.db.commit()
             await ctx.send(message)
-
-        @self.bot.command(
-                brief="The probabilities of items inside a box. !probabilities {box_id}",
-                description="Displays the probabilities of items inside a box. Only works for boxes."
-        )
-        async def probabilities(ctx: commands.Context, box_id: int = commands.parameter(description="The id of the box you want to check probabilities.")) \
-                -> None:
-            item = item_from_id(box_id)
-            if not isinstance(item, Box):
-                await ctx.send('You can only view probabilities for boxes.')
-                return
-
-            await ctx.send(item.probabilities)
-
-        # ADMIN COMMANDS
-
-
-        @self.bot.command()
-        @commands.dm_only()
-        @commands.check_any(Check.is_me())
-        async def user_info(ctx: commands.Context, member: discord.User, hidden: Optional[bool] = True) -> None:
-            user = self.db.get_user(user_id=member.id)
-
-            if user is None:
-                await ctx.send('Not a valid user.')
-                return
-
-            await AdminCommands.user_info(ctx, user, self.home_channel, hidden)
-            self.db.commit()
 
     async def start(self, token) -> None:
         """Custom start method to allow for already running in an event loop."""

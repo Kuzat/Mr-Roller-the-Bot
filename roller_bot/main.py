@@ -95,11 +95,14 @@ async def main(debug: bool, db_version: int):
     intents = discord.Intents.default()
     intents.message_content = True
     intents.members = True
-    bot = DatabaseBot(command_prefix="!", intents=intents, db_path=db_path)
+    bot = DatabaseBot(command_prefix="!", intents=intents, db_path=db_path, debug=debug)
 
     # Load extensions
     await bot.load_extension('roller_bot.cogs.sync_commands')
     await bot.load_extension('roller_bot.cogs.admin_commands')
+
+    await bot.load_extension('roller_bot.cogs.events')
+    await bot.load_extension('roller_bot.cogs.info_commands')
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')

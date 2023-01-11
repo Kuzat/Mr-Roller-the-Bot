@@ -11,10 +11,12 @@ from roller_bot.database import RollDatabase
 
 class DatabaseBot(commands.Bot):
     db: RollDatabase
+    debug: bool
 
-    def __init__(self, db_path=None, *args, **kwargs):
+    def __init__(self, db_path=None, debug: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = RollDatabase(db_path)
+        self.debug = debug
 
     @functools.cached_property
     def home_channel(self) -> discord.TextChannel:
@@ -29,6 +31,20 @@ class DatabaseBot(commands.Bot):
             raise Exception(f'channel with id {channel_id} not found')
 
         return channel
+
+    @functools.cached_property
+    def home_guild(self) -> discord.Guild:
+        return self.home_channel.guild
+
+    @staticmethod
+    @functools.cache
+    def home_guild_id():
+        guild_id = os.getenv('DISCORD_GUILD_ID')
+        if not guild_id:
+            print('environment variable DISCORD_GUILD_ID not set')
+            raise Exception('environment variable DISCORD_GUILD_ID not set')
+
+        return int(guild_id)
 
     async def run(
             self,
