@@ -132,8 +132,8 @@ class User(Base):
         return user
 
     @staticmethod
-    def users_not_rolled_today(session, date: date):
-        return session.query(User).filter(User.latest_roll != date).all()
+    def users_not_rolled_today(session, roll_date: date):
+        return session.query(User).filter(User.latest_roll != roll_date).all()
 
     @staticmethod
     def top(session, top_number: int):

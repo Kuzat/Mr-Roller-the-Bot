@@ -8,9 +8,7 @@ from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_from_id
 from roller_bot.models.items import Items
 from roller_bot.models.user import User
-from discord.ext import commands
 
-from roller_bot.utils.enrichments import add_discord_mention
 from roller_bot.utils.list_helpers import split
 
 
@@ -18,23 +16,22 @@ class AdminCommands:
 
     @staticmethod
     async def add_item(
-            ctx: commands.Context,
+            interaction: discord.Interaction,
             user: User,
             item_id: int,
             quantity: int,
-            home_channel: discord.TextChannel,
             hidden: bool = False
     ) -> None:
         # Check if the item exists
         item = item_from_id(item_id)
         if item is None:
-            await ctx.send(f"Item with id {item_id} not found")
+            await interaction.response.send_message(f"Item with id {item_id} not found", ephemeral=hidden)
             return
 
         # Check if the user already has the item unless you can own multiple
         user_item = user.get_item(item_id)
         if user_item and not item.own_multiple and not user_item.quantity == 0:
-            await ctx.send(f"User already has item {item_id}")
+            await interaction.response.send_message(f"User already has item {item_id}", ephemeral=hidden)
             return
 
         # Add the new item to user if the do not already own it
@@ -50,33 +47,29 @@ class AdminCommands:
         else:
             user_item.quantity += quantity
 
-        user = add_discord_mention(ctx.bot, user)
-
-        await ctx.send(f"Added {quantity} of item {item.name} ({item_id}) to user {user.mention} ({user.id})")
-
-        # Send message also to the home channel if it is not hidden
-        if not hidden:
-            await home_channel.send(f"{ctx.author.mention} added {quantity} of item {item.name} ({item_id}) to user {user.mention} ({user.id})")
+        await interaction.response.send_message(
+                f"Added {quantity} of item {item.name} ({item_id}) to user {user.mention} ({user.id})",
+                ephemeral=hidden,
+        )
 
     @staticmethod
     async def remove_item(
-            ctx: commands.Context,
+            interaction: discord.Interaction,
             user: User,
             item_id: int,
             quantity: int,
-            home_channel: discord.TextChannel,
             hidden: bool = False
     ) -> None:
         # Check if the item exists
         item = item_from_id(item_id)
         if item is None:
-            await ctx.send(f"Item with id {item_id} not found")
+            await interaction.response.send_message(f"Item with id {item_id} not found", ephemeral=hidden)
             return
 
         # Check if the user already has the item unless you can own multiple
         user_item = user.get_item(item_id)
         if user_item is None:
-            await ctx.send(f"User does not have item {item_id}")
+            await interaction.response.send_message(f"User does not have item {item_id}", ephemeral=hidden)
             return
 
         # Remove the item from the user
@@ -85,56 +78,36 @@ class AdminCommands:
         else:
             user_item.quantity -= quantity
 
-        user = add_discord_mention(ctx.bot, user)
-
-        await ctx.send(f"Removed {quantity} of item {item.name} ({item_id}) from user {user.mention} ({user.id})")
-
-        # Send message also to the home channel if it is not hidden
-        if not hidden:
-            await home_channel.send(f"{ctx.author.mention} removed {quantity} of item {item.name} ({item_id}) from user {user.mention} ({user.id})")
+        await interaction.response.send_message(f"Removed {quantity} of item {item.name} ({item_id}) from user {user.mention} ({user.id})", ephemeral=hidden)
 
     @staticmethod
     async def add_credit(
-            ctx: commands.Context,
+            interaction: discord.Interaction,
             user: User,
             amount: int,
-            home_channel: discord.TextChannel,
             hidden: bool = False
     ) -> None:
         user.roll_credit += amount
-        user = add_discord_mention(ctx.bot, user)
-        await ctx.send(f"Added {amount} credits to user {user.mention} ({user.id})")
-
-        # Send message also to the home channel if it is not hidden
-        if not hidden:
-            await home_channel.send(f"{ctx.author.mention} added {amount} credits to user {user.mention} ({user.id})")
+        await interaction.response.send_message(f"Added {amount} credits to user {user.mention} ({user.id})", ephemeral=hidden)
 
     @staticmethod
     async def remove_credit(
-            ctx: commands.Context,
+            interaction: discord.Interaction,
             user: User,
             amount: int,
-            home_channel: discord.TextChannel,
             hidden: bool = False
     ) -> None:
         user.roll_credit -= amount
         if user.roll_credit < 0:
             user.roll_credit = 0
-        user = add_discord_mention(ctx.bot, user)
-        await ctx.send(f"Removed {amount} credits from user {user.mention} ({user.id})")
-
-        # Send message also to the home channel if it is not hidden
-        if not hidden:
-            await home_channel.send(f"{ctx.author.mention} removed {amount} credits from user {user.mention} ({user.id})")
+        await interaction.response.send_message(f"Removed {amount} credits from user {user.mention} ({user.id})", ephemeral=hidden)
 
     @staticmethod
     async def user_info(
-            ctx: commands.Context,
+            interaction: discord.Interaction,
             user: User,
-            home_channel: discord.TextChannel,
             hidden: bool = False
     ) -> None:
-        user = add_discord_mention(ctx.bot, user)
 
         user_info = f"User {user.mention} ({user.id}) has {user.roll_credit} credits and items:\n"
 
@@ -177,8 +150,4 @@ class AdminCommands:
                 user_info += "\n".join(map(lambda x: str(x), user.bonuses.values()))
                 user_info += "```"
 
-        await ctx.send(user_info)
-
-        # Send message also to the home channel if it is not hidden
-        if not hidden:
-            await home_channel.send(f"{ctx.author.mention} requested info for user {user.mention} ({user.id})\n{user_info}")
+        await interaction.response.send_message(user_info, ephemeral=hidden)
