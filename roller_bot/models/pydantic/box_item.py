@@ -1,7 +1,5 @@
 from datetime import datetime
-from typing import Callable
 
-from discord.ext import commands
 from pydantic import BaseModel
 
 from roller_bot.models.items import Items
@@ -17,7 +15,7 @@ class BoxItem(BaseModel):
 
     # box_claim: Callable[[User], None]
 
-    async def claim(self, user: User, ctx: commands.Context) -> None:
+    async def claim(self, user: User) -> None:
         # item = item_from_id(self.item_id)
         # if item is None:
         #     await ctx.send(f"Item with id {self.item_id} not found")

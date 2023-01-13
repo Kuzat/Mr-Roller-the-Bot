@@ -1,11 +1,13 @@
 from datetime import datetime, timedelta
 
-from discord.ext import commands
+import discord
 
+from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
 from roller_bot.models.bonus import Bonus
 from roller_bot.models.pydantic.bonus_value import BonusValue
 from roller_bot.models.user import User
+from roller_bot.utils.discord import ResponseMessage
 
 
 class DailyStreakToken(Item):
@@ -51,20 +53,23 @@ class DailyStreakToken(Item):
             return BonusValue(value=0, active=False, message="You missed a day and your Daily Streak Token bonus has ended.")
 
         # Update the bonus value
-        bonus.bonus_value = min((datetime.now().date() - bonus.started_at).days, self.max_bonus_value)
+        bonus.bonus_value = min((datetime.now().date() - bonus.started_at).days, self.max_bonus_value)  # type: ignore
 
         # Return the bonus value
         return BonusValue(value=bonus.bonus_value, active=True, message=f"You have a {bonus.bonus_value} bonus from your Daily Streak Token.")
 
-    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
+    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> ResponseMessage:
+        response = ResponseMessage()
         # Get item from user
         user_item = user.get_item(self.id)
         if user_item is None:
-            return f"You don't have a {self.name} in your inventory."
+            response.send(f"You don't have a {self.name} in your inventory.")
+            return response
 
         # Check if we already have a streak bonus active
         if user.bonuses.get(self.id):
-            return f"You already have a {self.name} bonus active."
+            response.send(f"You already have a {self.name} bonus active.")
+            return response
 
         # Add the bonus to the user
         daily_bonus = Bonus(
@@ -73,7 +78,7 @@ class DailyStreakToken(Item):
                 bonus_value=self.start_bonus_value,
                 started_at=datetime.now().date(),
         )
-        user.bonuses[daily_bonus.item_id] = daily_bonus
+        user.bonuses[daily_bonus.item_id] = daily_bonus  # type: ignore
 
         # Remove the health from the item
         user_item.health -= self.use_cost
@@ -83,6 +88,11 @@ class DailyStreakToken(Item):
             # remove quantity and reset health to start_health
             user_item.quantity -= 1
             user_item.health = self.start_health
-            return f"Your {self.name} broke and was removed from your inventory. You will now get a bonus as long as you keep your daily rolling streak going."
+            response.send(
+                f"Your {self.name} broke and was removed from your inventory. You will now get a bonus as long as you keep your daily rolling "
+                f"streak going."
+                )
+            return response
 
-        return "You will now get a bonus as long as you keep your daily rolling streak going."
+        response.send("You will now get a bonus as long as you keep your daily rolling streak going.")
+        return response

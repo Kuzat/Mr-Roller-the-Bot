@@ -2,12 +2,14 @@ import random
 from datetime import datetime, timedelta
 from typing import Optional
 
+import discord
 from discord.ext import commands
 
 from roller_bot.items.bonus_data import bonus_item_from_id
 from roller_bot.items.models.item import Item
 from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.user import User
+from roller_bot.utils.discord import ResponseMessage
 
 
 class Dice(Item):
@@ -48,11 +50,13 @@ class Dice(Item):
             await ctx.send('You did not enter a number or took too long. Try again.')
             raise commands.errors.UserInputError
 
-    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
+    async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot, user_guess: Optional[int] = None) -> ResponseMessage:
+        response = ResponseMessage()
         # Get item from user
         item = user.get_item(self.id)
         if item is None:
-            return f"You don't have a {self.name} in your inventory."
+            response.send(f"You don't have a {self.name} in your inventory.")
+            return response
 
         # Check if we can roll
         if (
@@ -60,16 +64,17 @@ class Dice(Item):
                 not user.latest_roll.can_roll_again and
                 not user.can_roll_again
         ):
-            return (
+            response.send(
                 f'You already rolled a {user.latest_roll.roll} today. Your total amount rolled is'
                 f' {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
             )
+            return response
 
         # get the roll
-        roll = self.roll(await self.get_user_input(ctx, bot))
+        roll = self.roll(user_guess)
 
         # Check for any bonuses active for the user and add them to the roll bonus
-        # copy the bonuses so we don't change the original
+        # copy the bonuses, so we don't change the original
         bonuses = user.bonuses.copy()
         for item_id in bonuses:
             bonus_item: Item = bonus_item_from_id(item_id)
@@ -78,11 +83,11 @@ class Dice(Item):
                 continue
             bonus = bonus_item.bonus(user)
             if not bonus.active:
-                await ctx.send(bonus.message)
+                response.send(bonus.message)
                 continue
 
             roll.bonus += bonus.value
-            await ctx.send(bonus.message)
+            response.send(bonus.message)
 
         # Add the roll to the user
         user.add_roll(roll)
@@ -107,11 +112,12 @@ class Dice(Item):
             # Check if we have this item as active dice
             if user.active_dice == self.id and item.quantity == 0:
                 user.active_dice = 0
-                await ctx.send(f'Your {self.name} broke and was removed from your inventory. You equip the Regular Dice as you have 0 {self.name} left.')
+                response.send(f'Your {self.name} broke and was removed from your inventory. You equip the Regular Dice as you have 0 {self.name} left.')
             else:
-                await ctx.send(f'Your {self.name} broke and was removed from your inventory. You have {item.quantity} left.')
+                response.send(f'Your {self.name} broke and was removed from your inventory. You have {item.quantity} left.')
 
-        return (
+        response.send(
                 f'You rolled a {roll} with the {self.name}. Your total amount rolled is {user.total_rolls}. ' +
                 (f'Roll again with !roll.' if roll.can_roll_again else f'Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.')
         )
+        return response

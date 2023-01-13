@@ -3,11 +3,13 @@ import random
 from functools import reduce
 from typing import List
 
-from discord.ext import commands
+import discord
 
+from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
 from roller_bot.models.pydantic.box_item import BoxItem
 from roller_bot.models.user import User
+from roller_bot.utils.discord import ResponseMessage
 
 
 class Box(Item):
@@ -50,26 +52,21 @@ class Box(Item):
                 k=1
         )[0]
 
-    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
+    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> ResponseMessage:
+        response = ResponseMessage()
         # Get the item from the user
         item = user.get_item(self.id)
         if item is None:
-            return f"You don't have a {self.name} in your inventory."
-
-        # Flavor message
-        await ctx.send(f"You open the {self.name} and look inside...")
-
-        async with ctx.typing():
-            await asyncio.sleep(2)
+            return response.send(f"You don't have a {self.name} in your inventory.")
 
         # Get the box item
         box_item = self.get_box_item()
 
         # Show the text of the item
-        await ctx.send(box_item.description + " You add the item to your inventory, view it with !items.")
+        response.send(box_item.description + " You add the item to your inventory, view it with !items.")
 
         # Claim the box item
-        await box_item.claim(user, ctx)
+        await box_item.claim(user)
 
         item.health -= self.use_cost
 
@@ -77,6 +74,12 @@ class Box(Item):
         if item.health <= 0:
             item.quantity -= 1
             item.health = self.start_health
-            return f"You throw away the opened {self.name}."
+            response.send(f"You throw away the opened {self.name}.")
+            return response
 
-        return "You put the {self.name} back in your inventory."
+        response.send("You put the {self.name} back in your inventory.")
+
+        # await some time to process
+        await asyncio.sleep(1)
+
+        return response
