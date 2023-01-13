@@ -12,7 +12,7 @@ from roller_bot.models.user import User
 from roller_bot.utils.list_helpers import split
 
 
-class AdminCommands:
+class AdminCommandsBackend:
 
     @staticmethod
     async def add_item(
@@ -118,7 +118,7 @@ class AdminCommands:
             user_items: List[Items] = list(filter(lambda x: x.quantity > 0, user.items))
             user_item_definitions: List[Item] = []
             for item in user_items:
-                item_definition = item_from_id(item.item_id)
+                item_definition = item_from_id(item.item_id)  # type: ignore
                 if item_definition is not None:
                     item_definition.quantity = item.quantity
                     user_item_definitions.append(item_definition)

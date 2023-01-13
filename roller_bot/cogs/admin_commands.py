@@ -5,11 +5,11 @@ from discord import app_commands
 from discord.ext import commands
 
 from roller_bot.checks.admin import AdminChecks
-from roller_bot.clients.admin_commands import AdminCommands
-from roller_bot.clients.check import Check
-from roller_bot.clients.database_bot import DatabaseBot
+from roller_bot.clients.backends.admin_commands_backend import AdminCommandsBackend
+from roller_bot.clients.bots.database_bot import DatabaseBot
 
 
+@app_commands.guilds(DatabaseBot.home_guild_id())
 class Admin(commands.GroupCog, name="admin"):
     def __init__(self, bot: DatabaseBot) -> None:
         self.bot = bot
@@ -30,7 +30,7 @@ class Admin(commands.GroupCog, name="admin"):
             await interaction.response.send_message('Not a valid user.', ephemeral=hidden)
             return
 
-        await AdminCommands.add_item(interaction, user, item_id, quantity, hidden)
+        await AdminCommandsBackend.add_item(interaction, user, item_id, quantity, hidden)
         self.bot.db.commit()
 
     @item.command()
@@ -42,7 +42,7 @@ class Admin(commands.GroupCog, name="admin"):
             await interaction.response.send('Not a valid user.', ephemeral=hidden)
             return
 
-        await AdminCommands.remove_item(interaction, user, item_id, quantity, hidden)
+        await AdminCommandsBackend.remove_item(interaction, user, item_id, quantity, hidden)
         self.bot.db.commit()
 
     @credit.command()
@@ -54,7 +54,7 @@ class Admin(commands.GroupCog, name="admin"):
             await interaction.response.send_message('Not a valid user.', ephemeral=hidden)
             return
 
-        await AdminCommands.add_credit(interaction, user, amount, hidden)
+        await AdminCommandsBackend.add_credit(interaction, user, amount, hidden)
         self.bot.db.commit()
 
     @credit.command()
@@ -66,7 +66,7 @@ class Admin(commands.GroupCog, name="admin"):
             await interaction.response.send_message('Not a valid user.', ephemeral=hidden)
             return
 
-        await AdminCommands.remove_credit(interaction, user, amount, hidden)
+        await AdminCommandsBackend.remove_credit(interaction, user, amount, hidden)
         self.bot.db.commit()
 
     @app_commands.command()
@@ -78,7 +78,7 @@ class Admin(commands.GroupCog, name="admin"):
             await interaction.response.send_message(f"User {discord_user.id} not found", ephemeral=hidden)
             return
 
-        await AdminCommands.user_info(interaction, user, hidden)
+        await AdminCommandsBackend.user_info(interaction, user, hidden)
         self.bot.db.commit()
 
 

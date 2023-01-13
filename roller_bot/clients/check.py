@@ -5,7 +5,7 @@ class Check:
     @staticmethod
     def is_me():
         def predicate(ctx):
-            return ctx.message.author.id != 119502664126955523
+            return ctx.message.author.id == 119502664126955523
 
         return commands.check(predicate)
 

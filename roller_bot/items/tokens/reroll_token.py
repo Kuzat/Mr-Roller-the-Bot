@@ -1,7 +1,9 @@
+import discord
 from discord.ext import commands
 
 from roller_bot.items.models.item import Item
 from roller_bot.models.user import User
+from roller_bot.utils.discord import ResponseMessage
 
 
 class RerollToken(Item):
@@ -20,15 +22,18 @@ class RerollToken(Item):
     def __repr__(self) -> str:
         return f'RerollToken(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
-    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
+    async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot) -> ResponseMessage:
+        response = ResponseMessage()
         # Get item from user
         item = user.get_item(self.id)
         if item is None:
-            return "You don't have a Reroll Token in your inventory."
+            response.send("You don't have a Reroll Token in your inventory.")
+            return response
 
         # Check if we already have a reroll active
         if user.can_roll_again:
-            return "You already have a reroll active."
+            response.send("You already have a reroll active.")
+            return response
 
         # Remove the health from the item
         item.health -= self.use_cost
@@ -41,6 +46,8 @@ class RerollToken(Item):
             # remove quantity and reset health to start_health
             item.quantity -= 1
             item.health = self.start_health
-            return "Your Reroll Token broke and was removed from your inventory. You can now reroll again with !roll"
+            response.send("Your Reroll Token broke and was removed from your inventory. You can now reroll again with /roll")
+            return response
 
-        return "You can now reroll again with !roll"
+        response.send("You can now reroll again with !roll")
+        return response

@@ -1,4 +1,5 @@
 import functools
+import importlib.metadata
 import logging
 import os
 from typing import Optional
@@ -45,6 +46,17 @@ class DatabaseBot(commands.Bot):
             raise Exception('environment variable DISCORD_GUILD_ID not set')
 
         return int(guild_id)
+
+    async def on_ready(self) -> None:
+        print(f'Logged in as {self.user} (ID: {self.user.id})')
+
+        debug_string = "DEBUG:" if self.debug else ""
+
+        game_name = f'{debug_string} RollBot (Version = {importlib.metadata.version("mr-roller-the-bot")}) - /start to get started'
+        await self.change_presence(activity=discord.Game(name=game_name))
+
+        # Send a message to home channel that it is ready
+        await self.home_channel.send(f'{debug_string} RollerBot is ready! (Version = {importlib.metadata.version("mr-roller-the-bot")})')
 
     async def run(
             self,

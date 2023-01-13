@@ -1,7 +1,8 @@
-from typing import Literal, Optional
+from typing import Literal
 
-import discord
 from discord.ext import commands
+
+from roller_bot.clients.check import Check
 
 
 class SyncCommands(commands.Cog):
@@ -10,7 +11,7 @@ class SyncCommands(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @commands.is_owner()
+    @Check.is_me()
     async def sync(
             self,
             ctx: commands.Context,

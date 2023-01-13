@@ -6,8 +6,7 @@ import discord
 import click as click
 from dotenv import load_dotenv
 
-from roller_bot.clients.database_bot import DatabaseBot
-from roller_bot.clients.roller import RollerBot
+from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.database import RollDatabase
 from datetime import datetime
 
@@ -101,8 +100,10 @@ async def main(debug: bool, db_version: int):
     await bot.load_extension('roller_bot.cogs.sync_commands')
     await bot.load_extension('roller_bot.cogs.admin_commands')
 
-    await bot.load_extension('roller_bot.cogs.events')
     await bot.load_extension('roller_bot.cogs.info_commands')
+    await bot.load_extension('roller_bot.cogs.user_commands')
+    await bot.load_extension('roller_bot.cogs.shop_commands')
+    await bot.load_extension('roller_bot.cogs.action_commands')
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')

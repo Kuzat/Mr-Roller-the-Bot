@@ -1,6 +1,8 @@
+import discord
 from discord.ext import commands
 from roller_bot.models.pydantic.bonus_value import BonusValue
 from roller_bot.models.user import User
+from roller_bot.utils.discord import ResponseMessage
 
 
 class Item:
@@ -37,7 +39,7 @@ class Item:
         """
         return BonusValue(value=0, active=False, message="Items has no bonus")
 
-    async def use(self, user: User, ctx: commands.Context, bot: commands.Bot) -> str:
+    async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot) -> ResponseMessage:
         """
         !!Need to commit the db session after this as it might have side effects
 
@@ -45,8 +47,8 @@ class Item:
         and return a message
 
         :param bot: The discord bot
-        :param ctx: The discord context
+        :param interaction: The discord context
         :param user: a user
         :return: a message
         """
-        return "Item has no use"
+        return ResponseMessage("Item has no use")
