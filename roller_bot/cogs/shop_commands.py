@@ -31,6 +31,17 @@ class ShopCommands(commands.GroupCog, name="shop"):
     ) -> None:
         await ShopCommandsBackend.buy_item(interaction, self.bot, item_id, quantity)
 
+    @app_commands.command(
+            description="Sell items back to the shop for credits."
+    )
+    async def sell(
+            self,
+            interaction: discord.Interaction,
+            item_id: int,
+            quantity: Optional[int] = 1
+    ) -> None:
+        await ShopCommandsBackend.sell_item(interaction, self.bot, item_id, quantity)
+
 
 async def setup(bot: DatabaseBot) -> None:
     await bot.add_cog(ShopCommands(bot))

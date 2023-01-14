@@ -21,7 +21,7 @@ class UserCommands(commands.GroupCog, name="user"):
             description="Displays your total amount rolled"
     )
     async def total(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, self.bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
 
         await interaction.response.send_message(f'Your total amount rolled is {user.total_rolls}.', ephemeral=True)
 
@@ -29,7 +29,7 @@ class UserCommands(commands.GroupCog, name="user"):
             description="Displays your longest streak of 6s"
     )
     async def streak(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, self.bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
 
         await interaction.response.send_message(f'Your longest streak of 6s is {user.streak}.', ephemeral=True)
 
@@ -37,7 +37,7 @@ class UserCommands(commands.GroupCog, name="user"):
             description="Displays the amount of roll credits you have. Used to buy items."
     )
     async def credits(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, self.bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
 
         await interaction.response.send_message(f'You have {user.roll_credit} roll credits.', ephemeral=True)
 

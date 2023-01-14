@@ -21,9 +21,13 @@ class NoUserException(AppCommandError):
 class UserCommandsBackend:
 
     @staticmethod
-    async def verify_user(interaction: discord.Interaction, bot: DatabaseBot) -> User:
+    async def verify_interaction_user(interaction: discord.Interaction, bot: DatabaseBot) -> User:
         discord_user: discord.User = interaction.user
 
+        return await UserCommandsBackend.verify_discord_user(interaction, bot, discord_user)
+
+    @staticmethod
+    async def verify_discord_user(interaction: discord.Interaction, bot: DatabaseBot, discord_user: discord.User) -> User:
         user = bot.db.get_user(discord_user)
 
         if user is None:
@@ -34,7 +38,7 @@ class UserCommandsBackend:
 
     @staticmethod
     async def display_user_items(interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         user_items: List[Items] = list(filter(lambda x: x.quantity > 0, user.items))
         user_item_definitions: List[Item] = []

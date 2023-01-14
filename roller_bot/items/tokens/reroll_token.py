@@ -14,6 +14,7 @@ class RerollToken(Item):
         self.name: str = "Reroll Token"
         self.description: str = "A token that allows you to reroll a dice."
         self.cost: int = 0
+        self.sell_cost: int = 5
         self.use_cost: int = 100
 
         self.own_multiple: bool = True

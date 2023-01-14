@@ -13,6 +13,7 @@ class GambleDice(Dice):
         self.name: str = "Gamble Dice"
         self.description: str = "A dice that will double you roll if you guess the correct number. Enter a number between 1 and 6."
         self.cost: int = 50
+        self.sell_cost: int = 25
         self.user_input: bool = True
 
     def __repr__(self) -> str:
