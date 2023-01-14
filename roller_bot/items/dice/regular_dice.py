@@ -15,6 +15,7 @@ class RegularDice(Dice):
         self.user_input: bool = False
 
         self.cost: int = 0
+        self.sellable: bool = False
 
     def __repr__(self) -> str:
         return f'Dice(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'

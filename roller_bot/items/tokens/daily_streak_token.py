@@ -19,6 +19,7 @@ class DailyStreakToken(Item):
         self.description: str = ("A token that gives a bonus as long as you keep your daily rolling streak going. Starts at +1 and goes up to +3."
                                  "The token will break if you miss a day.")
         self.cost: int = 0
+        self.sell_cost: int = 5
         self.start_health: int = 100
         self.use_cost: int = 100
 

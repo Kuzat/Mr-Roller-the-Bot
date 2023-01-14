@@ -13,6 +13,7 @@ class DonatorDice(Dice):
         self.name: str = "Donator Dice"
         self.description: str = "A dice for rick donators. Rolls a number between 2 and 6."
         self.cost: int = 200
+        self.sell_cost: int = 100
         self.user_input: bool = False
 
     def __repr__(self) -> str:

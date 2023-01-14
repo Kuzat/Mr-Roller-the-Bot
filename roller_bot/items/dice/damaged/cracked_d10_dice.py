@@ -14,6 +14,7 @@ class CrackedD10Dice(Dice):
         self.name: str = "Cracked D10 Dice"
         self.description: str = "A cracked 10 sided dice that breaks easily."
         self.cost: int = 0
+        self.sell_cost: int = 2
         self.start_health: int = 100
         self.use_cost: int = random.choice([50, 100])
 
