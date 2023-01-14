@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import discord
 
 from typing import Optional
@@ -38,3 +40,8 @@ class RollDatabase:
     def get_all_users(self) -> list[User]:
         users = self.session.query(User).all()
         return users
+
+    async def backup(self, user: discord.User) -> None:
+        # Send the database file to the user as attachment
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        await user.send(content=f"[{current_time}]: Backup of database {self.db_path}", file=discord.File(self.db_path))

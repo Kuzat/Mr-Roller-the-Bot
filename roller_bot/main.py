@@ -105,6 +105,9 @@ async def main(debug: bool, db_version: int):
     await bot.load_extension('roller_bot.cogs.shop_commands')
     await bot.load_extension('roller_bot.cogs.action_commands')
 
+    # Load backup task
+    await bot.load_extension('roller_bot.cogs.backup_task')
+
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')
     if token:
