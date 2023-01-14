@@ -40,6 +40,20 @@ class ActionCommands(commands.Cog):
     async def roll(self, interaction: discord.Interaction, user_guess: Optional[int] = None) -> None:
         await ActionCommandsBackend.roll_active_dice(interaction, self.bot, user_guess)
 
+    @app_commands.command(
+        description="Open a trade with another user. You must specify the user and item."
+    )
+    @app_commands.guilds(DatabaseBot.home_guild_id())
+    async def trade(
+            self,
+            interaction: discord.Interaction,
+            discord_user: discord.User,
+            item_id: int,
+            price: int,
+            quantity: int = 1
+    ) -> None:
+        await ActionCommandsBackend.trade_item(interaction, self.bot, discord_user, item_id, price, quantity)
+
 
 async def setup(bot: DatabaseBot) -> None:
     await bot.add_cog(ActionCommands(bot))

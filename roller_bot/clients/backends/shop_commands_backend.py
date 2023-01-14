@@ -13,7 +13,7 @@ class ShopCommandsBackend:
 
     @staticmethod
     async def display_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         all_items = item_data.values()
 
@@ -29,7 +29,7 @@ class ShopCommandsBackend:
 
     @staticmethod
     async def buy_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int, quantity: Optional[int] = 1) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         item = item_from_id(item_id)
         if item is None:
@@ -82,7 +82,7 @@ class ShopCommandsBackend:
 
     @staticmethod
     async def sell_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int, quantity: Optional[int] = 1) -> None:
-        user = await UserCommandsBackend.verify_user(interaction, bot)
+        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         item = item_from_id(item_id)
         if item is None:
