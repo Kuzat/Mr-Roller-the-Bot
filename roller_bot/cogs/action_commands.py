@@ -7,6 +7,7 @@ from discord.ext import commands
 from roller_bot.clients.backends.action_commands_backend import ActionCommandsBackend
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.items.models.dice import Dice
 from roller_bot.items.utils import item_from_id
 
 
@@ -29,12 +30,56 @@ class ActionCommands(commands.Cog):
     async def equip(self, interaction: discord.Interaction, item_id: int) -> None:
         await ActionCommandsBackend.equip_item(interaction, self.bot, item_id)
 
+    @equip.autocomplete("item_id")
+    async def equip_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
+        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
+
+        items = []
+        # Enrich with quantity
+        for user_item in user.items:
+            item = item_from_id(user_item.item_id)  # type: ignore
+            item.quantity = user_item.quantity
+            items.append(item)
+
+        # Filter away items with quantity 0 and is a dice
+        items = filter(lambda item: item.quantity > 0 and isinstance(item, Dice), items)
+
+        # Filter out items that match the current string
+        items = filter(lambda item: current.lower() in item.name.lower(), items)
+
+        return [
+            app_commands.Choice(name=item.name, value=item.id)
+            for item in items
+        ]
+
     @app_commands.command(
             description="Uses an item from your inventory. See your items with /user items"
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def use(self, interaction: discord.Interaction, item_id: int, user_guess: Optional[int] = None) -> None:
         await ActionCommandsBackend.use_item(interaction, self.bot, item_id, user_guess)
+
+    @use.autocomplete("item_id")
+    async def use_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
+        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
+
+        items = []
+        # Enrich with quantity
+        for user_item in user.items:
+            item = item_from_id(user_item.item_id)  # type: ignore
+            item.quantity = user_item.quantity
+            items.append(item)
+
+        # Filter away items with quantity 0
+        items = filter(lambda item: item.quantity > 0, items)
+
+        # Filter out items that match the current string
+        items = filter(lambda item: current.lower() in item.name.lower(), items)
+
+        return [
+            app_commands.Choice(name=item.name, value=item.id)
+            for item in items
+        ]
 
     @app_commands.command(
             description="Rolls you equipped dice. See your items with /user items"

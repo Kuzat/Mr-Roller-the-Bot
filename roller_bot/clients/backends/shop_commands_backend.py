@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 import discord
 
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_data, item_from_id
 from roller_bot.models.items import Items
 
@@ -12,7 +13,7 @@ from roller_bot.models.items import Items
 class ShopCommandsBackend:
 
     @staticmethod
-    async def display_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> None:
+    async def get_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> List[Item]:
         user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         all_items = item_data.values()
@@ -22,6 +23,13 @@ class ShopCommandsBackend:
                 lambda x: not user.has_item(x) and x.buyable,  # type: ignore
                 all_items
         )
+
+        return list(buyable_items)
+
+    @staticmethod
+    async def display_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> None:
+        # Filter out the dice that the user already owns and are not buyable
+        buyable_items = await ShopCommandsBackend.get_shop_items(interaction, bot)
 
         items_string = '\n'.join(map(lambda items: items.shop_str(), buyable_items))
 

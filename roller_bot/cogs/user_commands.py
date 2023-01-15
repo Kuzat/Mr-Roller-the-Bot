@@ -13,7 +13,6 @@ class UserCommands(commands.GroupCog, name="user"):
     """
 
     def __init__(self, bot: DatabaseBot) -> None:
-        print("UserCommands init")
         self.bot = bot
         super().__init__()
 

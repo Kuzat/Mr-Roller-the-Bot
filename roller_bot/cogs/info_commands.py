@@ -8,7 +8,7 @@ from discord.ext import commands
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.clients.backends.info_commands_backend import InfoCommandsBackend
 from roller_bot.items.models.box import Box
-from roller_bot.items.utils import item_from_id
+from roller_bot.items.utils import item_data, item_from_id
 from roller_bot.models.user import User
 
 
@@ -99,6 +99,18 @@ class InfoCommands(commands.Cog):
             return
 
         await interaction.response.send_message(item.probabilities)
+
+    @probabilities.autocomplete("box_id")
+    async def equip_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
+        boxes = [item for item in item_data.values() if isinstance(item, Box)]
+
+        # Filter out items that match the current string
+        boxes = filter(lambda item: current.lower() in item.name.lower(), boxes)
+
+        return [
+            app_commands.Choice(name=box.name, value=box.id)
+            for box in boxes
+        ]
 
 
 async def setup(bot: DatabaseBot) -> None:
