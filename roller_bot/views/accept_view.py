@@ -53,6 +53,8 @@ class AcceptView(View):
         self.quantity = quantity
         self.price = price
 
+        self.timeout = 600
+
     @discord.ui.button(label='Accept', style=discord.ButtonStyle.green)
     async def accept_trade(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         # Only other user can accept

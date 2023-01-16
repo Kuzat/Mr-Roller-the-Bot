@@ -118,6 +118,6 @@ class Dice(Item):
 
         response.send(
                 f'You rolled a {roll} with the {self.name}. Your total amount rolled is {user.total_rolls}. ' +
-                (f'Roll again with !roll.' if roll.can_roll_again else f'Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.')
+                (f'Roll again with /roll.' if roll.can_roll_again else f'Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.')
         )
         return response

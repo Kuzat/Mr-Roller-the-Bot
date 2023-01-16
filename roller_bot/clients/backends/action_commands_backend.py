@@ -7,6 +7,7 @@ from roller_bot.checks.trade import TradeChecks
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.trade_embed import TradeEmbed
+from roller_bot.embeds.use_result_embed import UseResultEmbed
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import dice_from_id, item_from_id
@@ -58,12 +59,14 @@ class ActionCommandsBackend:
         # Use the item
         if isinstance(item, Dice):
             message = await item.use(user, interaction, bot, user_guess)
+            user_result_embed = UseResultEmbed(message, interaction.user)
             bot.db.commit()
-            await interaction.response.send_message(message)
+            await interaction.response.send_message(embed=user_result_embed)
         else:
             message = await item.use(user, interaction, bot)
+            user_result_embed = UseResultEmbed(message, interaction.user)
             bot.db.commit()
-            await interaction.response.send_message(message)
+            await interaction.response.send_message(embed=user_result_embed)
 
     @staticmethod
     async def roll_active_dice(interaction: discord.Interaction, bot: DatabaseBot, user_guess: Optional[int] = None) -> None:
@@ -78,9 +81,10 @@ class ActionCommandsBackend:
         # Use the dice
         message = await active_dice.use(user, interaction, bot, user_guess)
         bot.db.commit()
+        user_result_embed = UseResultEmbed(message, interaction.user)
 
         # Send the roll to the user
-        await interaction.response.send_message(message)
+        await interaction.response.send_message(embed=user_result_embed)
 
     @staticmethod
     async def trade_item(
@@ -102,9 +106,9 @@ class ActionCommandsBackend:
         # Check if item exists and get the item
         item: Item = await TradeChecks.verify_item(interaction, item_id)
 
-        user_item = await TradeChecks.verify_trade_item_user(interaction, user, item_id, item, quantity)
+        await TradeChecks.verify_trade_item_user(interaction, user, item_id, item, quantity)
 
-        other_user_item = await TradeChecks.verify_trade_item_other_user(interaction, other_user, item_id, item, quantity, price)
+        await TradeChecks.verify_trade_item_other_user(interaction, other_user, item_id, item, quantity, price)
 
         # Make the embed
         embed = TradeEmbed(user, other_user, item, quantity, price, author=interaction.user)
@@ -127,6 +131,5 @@ class ActionCommandsBackend:
                 content=f"{user.mention} sent a trade request to {other_user.mention}",
                 embed=embed,
                 view=view,
-                delete_after=180
         )
 
