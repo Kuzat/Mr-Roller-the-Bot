@@ -4,4 +4,14 @@ This a discord bot that have a daily dice rolling game. Where you can roll a dic
 ## Instruction
 To run the program you need to first install the dependencies using [poetry](https://python-poetry.org/): `poetry install`. 
 You then need to add a `.env` file with the value `DISCORD_TOKEN` with you token from the [discord developer portal](https://discord.com/developers/applications).
-You should then be able to run the bot using the command: `poetry run bot` 
+You should then be able to run the bot using the command: `poetry run bot`
+
+## After merge to deploy to ec2 server
+1. ssh into the server
+2. `cd Mr-Roller-the-Bot`
+3. `ps -ef | grep python`
+4. `kill <PID>`
+5. `poetry run backup`
+6. `git pull`
+7. `poetry install`
+8. `nohup poetry run bot &`

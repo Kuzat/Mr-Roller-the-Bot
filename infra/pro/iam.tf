@@ -8,11 +8,12 @@ resource "aws_iam_policy" "ec2_policy" {
       {
         Effect : "Allow",
         Action : [
-          "s3:GetObject",
-          "s3:List*",
-          "s3:PutObject"
+          "s3:*"
         ],
-        Resource : aws_s3_bucket.backup_bucket.arn
+        Resource : [
+          aws_s3_bucket.backup_bucket.arn,
+          "${aws_s3_bucket.backup_bucket.arn}/*"
+        ]
       }
     ]
   })
