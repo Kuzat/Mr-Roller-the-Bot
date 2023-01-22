@@ -1,4 +1,3 @@
-import datetime
 from typing import Optional
 
 import discord
@@ -17,10 +16,10 @@ class BackupTask(commands.Cog):
     def cog_unload(self):
         self.backup_task.cancel()
 
-    @tasks.loop(time=datetime.time(hour=0, minute=0, second=0, tzinfo=datetime.datetime.now().astimezone().tzinfo))
+    @tasks.loop(minutes=60)
     async def backup_task(self):
         if self.bot_owner:
-            await self.bot.db.backup(self.bot_owner)
+            await self.bot.db.backup_to_s3(self.bot_owner)
         else:
             print("No bot owner set, cannot backup")
 

@@ -5,23 +5,25 @@ description = "A discord bot for daily dice roller game"
 authors = ["Vegard Bjørsvik <vegardbjr@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "roller_bot"}]
+packages = [{ include = "roller_bot" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 "discord.py" = "^2.1.0"
 SQLAlchemy = "^1.4.44"
 pydantic = "^1.10.2"
-python-dotenv = "^0.21.0"
+python-dotenv = "^0.21.1"
 click = "^8.1.3"
+boto3 = "^1.26.54"
 
 [tool.poetry.scripts]
 migrate = "roller_bot.main:migrate"
 bot = "roller_bot.main:main"
-dev = "roller_bot.main:dev"
+backup = "roller_bot.main:backup_db"
+download-backup = "roller_bot.main:download_latest_db"
 
 [tool.poetry.group.dev.dependencies]
-black = {version = "^22.10.0", allow-prereleases = true}
+black = { version = "^22.10.0", allow-prereleases = true }
 autopep8 = "^2.0.0"
 
 [build-system]
