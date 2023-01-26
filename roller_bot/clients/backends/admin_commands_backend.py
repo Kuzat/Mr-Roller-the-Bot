@@ -15,6 +15,20 @@ from roller_bot.utils.list_helpers import split
 class AdminCommandsBackend:
 
     @staticmethod
+    async def change_luck(interaction: discord.Interaction, user: User, amount: float, hidden: bool = False) -> None:
+        user.luck_bonus += amount
+        if user.luck_bonus < 0:
+            user.luck_bonus = 0
+        await interaction.response.send_message(f"Changed luck for {user.mention} by {amount} to {user.luck_bonus}", ephemeral=hidden)
+        message = await interaction.original_response()
+        await message.add_reaction('🎲')
+        if amount > 0:
+            await message.add_reaction('📈')
+        elif amount < 0:
+            await message.add_reaction('📉')
+        await message.add_reaction('🍀')
+
+    @staticmethod
     async def add_item(
             interaction: discord.Interaction,
             user: User,

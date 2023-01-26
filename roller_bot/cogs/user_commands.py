@@ -46,6 +46,24 @@ class UserCommands(commands.GroupCog, name="user"):
     async def items(self, interaction: discord.Interaction) -> None:
         await UserCommandsBackend.display_user_items(interaction, self.bot)
 
+    @app_commands.command(
+        description="Displays the amount of luck for the user"
+    )
+    async def luck(self, interaction: discord.Interaction) -> None:
+        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
+
+        await interaction.response.send_message(f'Your luck is {user.luck_bonus}x')
+        message = await interaction.original_response()
+        if user.luck_bonus >= 1:
+            await message.add_reaction('🍀')
+            await message.add_reaction('🎲')
+        if user.luck_bonus < 1:
+            await message.add_reaction('💀')
+        if user.luck_bonus >= 1.2:
+            await message.add_reaction('🧧')
+
+
+
 
 async def setup(bot: DatabaseBot) -> None:
     await bot.add_cog(UserCommands(bot))

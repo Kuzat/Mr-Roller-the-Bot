@@ -17,6 +17,7 @@ class Admin(commands.GroupCog, name="admin"):
 
     item = app_commands.Group(name="item", description="Admin item commands")
     credit = app_commands.Group(name="credit", description="Admin credit commands")
+    luck = app_commands.Group(name="luck", description="Admin luck commands")
 
     async def cog_app_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
         await interaction.response.send_message(f"Error: {str(error)}", ephemeral=True, delete_after=60)
@@ -79,6 +80,30 @@ class Admin(commands.GroupCog, name="admin"):
             return
 
         await AdminCommandsBackend.user_info(interaction, user, hidden)
+        self.bot.db.commit()
+
+    @luck.command()
+    @AdminChecks.is_bot_owner()
+    async def add(self, interaction: discord.Interaction, discord_user: discord.User, quantity: float, hidden: Optional[bool] = False) -> None:
+        user = self.bot.db.get_user(requested_user=discord_user)
+
+        if user is None:
+            await interaction.response.send_message('Not a valid user.', ephemeral=hidden)
+            return
+
+        await AdminCommandsBackend.change_luck(interaction, user, quantity, hidden)
+        self.bot.db.commit()
+
+    @luck.command()
+    @AdminChecks.is_bot_owner()
+    async def remove(self, interaction: discord.Interaction, discord_user: discord.User, quantity: float, hidden: Optional[bool] = False) -> None:
+        user = self.bot.db.get_user(requested_user=discord_user)
+
+        if user is None:
+            await interaction.response.send_message('Not a valid user.', ephemeral=hidden)
+            return
+
+        await AdminCommandsBackend.change_luck(interaction, user, -quantity, hidden)
         self.bot.db.commit()
 
 
