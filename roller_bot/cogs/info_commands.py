@@ -19,6 +19,13 @@ class InfoCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(
+            description="Get started playing the daily dice bot. This will create a user for you and give you a free dice."
+    )
+    @app_commands.guilds(DatabaseBot.home_guild_id())
+    async def start(self, interaction: discord.Interaction) -> None:
+        await InfoCommandsBackend.start(interaction, self.bot)
+
+    @app_commands.command(
             description="Get the rolls for users on a specific date. Date format is YYYY-MM-DD",
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
@@ -52,7 +59,7 @@ class InfoCommands(commands.Cog):
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def tomorrow(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message("The dice gods have decided that @Ryzomster will get the worst roll")
+        await interaction.response.send_message("The dice gods have decided that @Ryzomster will get the worst base_value")
 
     @app_commands.command(
             description="Remind users that have not rolled today"
@@ -63,7 +70,7 @@ class InfoCommands(commands.Cog):
                 self.bot.db.session, datetime.now().date()
         )
         if len(users) == 0:
-            await interaction.response.send_message('Everyone has rolled today! If you have not rolled before, roll with /roll.')
+            await interaction.response.send_message('Everyone has rolled today! If you have not rolled before, base_value with /base_value.')
         else:
             user_mentions = [self.bot.get_user(user.id) for user in users]  # type: ignore
             await interaction.response.send_message(

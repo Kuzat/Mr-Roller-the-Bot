@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Date, ForeignKey, Integer
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from roller_bot.models.base import Base
 
@@ -12,7 +13,7 @@ class Bonus(Base):
     user_id: Column = Column(Integer, ForeignKey('users.id'))
     item_id: Column = Column(Integer, nullable=False)
     bonus_value: Column = Column(Integer, nullable=False, default=0)
-    started_at: Column = Column(Date, nullable=False)
+    started_at: Column = Column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="bonuses")
 

@@ -26,7 +26,7 @@ def migrate():
 
     # # print the results
     # for row in result:
-    #     print(f"id: {row['id']}, user_id: {row['user_id']}, date: {row['date']}, roll: {row['roll']}")
+    #     print(f"id: {row['id']}, user_id: {row['user_id']}, date: {row['date']}, base_value: {row['base_value']}")
 
     unique_users = old_session.execute('SELECT DISTINCT user_id FROM rolls')
 
@@ -41,12 +41,12 @@ def migrate():
         user_rolls = old_session.execute(f'SELECT * FROM rolls WHERE user_id = {row["user_id"]} ORDER BY id')
         # Then convert old rolls to new rolls and add them
         for row in user_rolls:
-            print(f"id: {row['id']}, user_id: {row['user_id']}, date: {row['date']}, roll: {row['roll']}")
+            print(f"id: {row['id']}, user_id: {row['user_id']}, date: {row['date']}, base_value: {row['base_value']}")
             roll_date = datetime.strptime(row['date'], '%Y-%m-%d').date()
-            roll = Roll(id=row['id'], user_id=row['user_id'], date=roll_date, roll=row['roll'])
+            roll = Roll(id=row['id'], user_id=row['user_id'], date=roll_date, roll=row['base_value'])
             user.rolls.append(roll)
 
-        # Need to find date of first roll
+        # Need to find date of first base_value
         first_roll_date = user.rolls[0].date
         user.created_at = first_roll_date
 
@@ -60,7 +60,7 @@ def migrate():
         longest_streak = 0
         current_streak = 0
         for roll in user.rolls:
-            if roll.roll != 6:
+            if roll.base_value != 6:
                 current_streak = 0
             else:
                 current_streak += 1

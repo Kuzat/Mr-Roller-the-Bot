@@ -24,17 +24,17 @@ class RerollToken(Item):
         return f'RerollToken(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
     async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot) -> ResponseMessage:
-        response = ResponseMessage()
+        response = ResponseMessage(interaction, self)
         # Get item from user
         item = user.get_item(self.id)
         if item is None:
             response.send("You don't have a Reroll Token in your inventory.")
-            return response
+            return await response.send_interaction(ephemeral=True, delete_after=60)
 
         # Check if we already have a reroll active
         if user.can_roll_again:
             response.send("You already have a reroll active.")
-            return response
+            return await response.send_interaction(ephemeral=True, delete_after=60)
 
         # Remove the health from the item
         item.health -= self.use_cost
@@ -47,8 +47,8 @@ class RerollToken(Item):
             # remove quantity and reset health to start_health
             item.quantity -= 1
             item.health = self.start_health
-            response.send("Your Reroll Token broke and was removed from your inventory. You can now roll again")
-            return response
+            response.send("Your Reroll Token broke and was removed from your inventory. You can now base_value again")
+            return await response.send_interaction()
 
-        response.send("You can now roll again")
-        return response
+        response.send("You can now base_value again")
+        return await response.send_interaction()

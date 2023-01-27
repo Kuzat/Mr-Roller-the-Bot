@@ -1,19 +1,17 @@
 import discord
 from discord import Embed
 
-from roller_bot.utils.discord import ResponseMessage
+from roller_bot.items.models.item import Item
 
 
 class UseResultEmbed(Embed):
     def __init__(
             self,
-            message: ResponseMessage,
-            author: discord.User,
+            message: str,
+            item: Item,
     ):
         super().__init__(
-                title="Result",
                 description=str(message),
-                color=discord.Color.gold()
+                color=discord.Color.blue()
         )
-        self.set_author(name=author.display_name, icon_url=author.display_avatar)
-
+        self.set_author(name=item.name)  # TODO: Add image for items

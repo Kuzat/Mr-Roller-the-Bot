@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 import discord
 from discord import app_commands
@@ -7,6 +7,7 @@ from discord.ext import commands
 from roller_bot.checks.admin import AdminChecks
 from roller_bot.clients.backends.admin_commands_backend import AdminCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.items.utils import item_data
 
 
 @app_commands.guilds(DatabaseBot.home_guild_id())
@@ -33,6 +34,18 @@ class Admin(commands.GroupCog, name="admin"):
         await AdminCommandsBackend.add_item(interaction, user, item_id, quantity, hidden)
         self.bot.db.commit()
 
+    @add.autocomplete("item_id")
+    async def admin_add_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
+        items = item_data.values()
+
+        # Filter out items that match the current string
+        items = filter(lambda item: current.lower() in item.name.lower(), items)
+
+        return [
+            app_commands.Choice(name=item.name, value=item.id)
+            for item in items
+        ]
+
     @item.command()
     @AdminChecks.is_bot_owner()
     async def remove(self, interaction: discord.Interaction, discord_user: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
@@ -44,6 +57,18 @@ class Admin(commands.GroupCog, name="admin"):
 
         await AdminCommandsBackend.remove_item(interaction, user, item_id, quantity, hidden)
         self.bot.db.commit()
+
+    @remove.autocomplete("item_id")
+    async def admin_remove_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
+        items = item_data.values()
+
+        # Filter out items that match the current string
+        items = filter(lambda item: current.lower() in item.name.lower(), items)
+
+        return [
+            app_commands.Choice(name=item.name, value=item.id)
+            for item in items
+        ]
 
     @credit.command()
     @AdminChecks.is_bot_owner()

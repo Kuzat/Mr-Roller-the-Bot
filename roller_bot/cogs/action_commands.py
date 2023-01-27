@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 import discord
 from discord import app_commands
@@ -56,8 +56,8 @@ class ActionCommands(commands.Cog):
             description="Uses an item from your inventory. See your items with /user items"
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
-    async def use(self, interaction: discord.Interaction, item_id: int, user_guess: Optional[int] = None) -> None:
-        await ActionCommandsBackend.use_item(interaction, self.bot, item_id, user_guess)
+    async def use(self, interaction: discord.Interaction, item_id: int) -> None:
+        await ActionCommandsBackend.use_item(interaction, self.bot, item_id)
 
     @use.autocomplete("item_id")
     async def use_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
@@ -85,8 +85,8 @@ class ActionCommands(commands.Cog):
             description="Rolls you equipped dice. See your items with /user items"
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
-    async def roll(self, interaction: discord.Interaction, user_guess: Optional[int] = None) -> None:
-        await ActionCommandsBackend.roll_active_dice(interaction, self.bot, user_guess)
+    async def roll(self, interaction: discord.Interaction) -> None:
+        await ActionCommandsBackend.roll_active_dice(interaction, self.bot)
 
     @app_commands.command(
             description="Open a trade with another user. You must specify the user and item."

@@ -17,13 +17,13 @@ class ShopCommands(commands.GroupCog, name="shop"):
         super().__init__()
 
     @app_commands.command(
-            description="Displays the shop. You can buy items with roll credits."
+            description="Displays the shop. You can buy items with base_value credits."
     )
     async def items(self, interaction: discord.Interaction) -> None:
         await ShopCommandsBackend.display_shop_items(interaction, self.bot)
 
     @app_commands.command(
-            description="Buys an item from the shop. You can buy items with roll credits."
+            description="Buys an item from the shop. You can buy items with base_value credits."
     )
     async def buy(
             self,

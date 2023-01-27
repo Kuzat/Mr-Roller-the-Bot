@@ -31,7 +31,7 @@ class UserCommandsBackend:
         user = bot.db.get_user(discord_user)
 
         if user is None:
-            await interaction.response.send_message('You have not rolled before.', ephemeral=True, delete_after=60)
+            await interaction.response.send_message('You have not rolled before. Get started with `/start`', ephemeral=True, delete_after=60)
             raise NoUserException(discord_user)
 
         return user

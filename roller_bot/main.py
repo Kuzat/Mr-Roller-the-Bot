@@ -14,7 +14,7 @@ import logging
 from roller_bot.database import RollDatabase
 from roller_bot.utils.asyncs import coro
 
-CURRENT_DB_VERSION = 4
+CURRENT_DB_VERSION = 5
 
 
 class DatabaseBackup(BaseModel):

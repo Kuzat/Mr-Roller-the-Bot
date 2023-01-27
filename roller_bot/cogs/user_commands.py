@@ -33,12 +33,12 @@ class UserCommands(commands.GroupCog, name="user"):
         await interaction.response.send_message(f'Your longest streak of 6s is {user.streak}.', ephemeral=True)
 
     @app_commands.command(
-            description="Displays the amount of roll credits you have. Used to buy items."
+            description="Displays the amount of base_value credits you have. Used to buy items."
     )
     async def credits(self, interaction: discord.Interaction) -> None:
         user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
 
-        await interaction.response.send_message(f'You have {user.roll_credit} roll credits.', ephemeral=True)
+        await interaction.response.send_message(f'You have {user.roll_credit} base_value credits.', ephemeral=True)
 
     @app_commands.command(
             description="Displays all your items. Can also be used to check other users."

@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import List
 
 import discord
@@ -9,6 +9,14 @@ from roller_bot.utils.enrichments import add_discord_mention
 
 
 class InfoCommandsBackend:
+
+    @staticmethod
+    async def start(interaction: discord.Interaction, bot: DatabaseBot) -> None:
+        new_user = User.new_user(interaction.user.id, datetime.now())
+        bot.db.add_user(new_user)
+        await interaction.response.send_message(f"Welcome to the daily dice bot, {new_user.mention}! "
+                                                f"You have been given a free dice to get started with."
+                                                f"Use `/roll` to roll your dice and `/help` to see all the commands.",)
 
     @staticmethod
     async def rolls(interaction: discord.Interaction, rolls_date: date, bot: DatabaseBot) -> None:

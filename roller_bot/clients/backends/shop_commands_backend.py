@@ -65,7 +65,7 @@ class ShopCommandsBackend:
             return
 
         if user.roll_credit < (item.cost * quantity):
-            await interaction.response.send_message('You do not have enough roll credits to buy this item.', ephemeral=True, delete_after=60)
+            await interaction.response.send_message('You do not have enough base_value credits to buy this item.', ephemeral=True, delete_after=60)
             return
 
         # Add new item to user if they do not already own it
@@ -80,12 +80,12 @@ class ShopCommandsBackend:
             # If they can own multiple of the same item, increment the quantity
             user_owned_item.quantity += quantity
 
-        # Remove the cost of the item from the user's roll credits
+        # Remove the cost of the item from the user's base_value credits
         user.roll_credit -= (item.cost * quantity)
         bot.db.commit()
 
         await interaction.response.send_message(
-                f'You purchased {quantity} {item.name} ({item.id}) for {item.cost * quantity} roll credits. See your items with /user items.'
+                f'You purchased {quantity} {item.name} ({item.id}) for {item.cost * quantity} base_value credits. See your items with /user items.'
         )
 
     @staticmethod
@@ -124,10 +124,10 @@ class ShopCommandsBackend:
         # Remove the item from the user's items
         user_owned_item.quantity -= quantity
 
-        # Add the cost of the item to the user's roll credits
+        # Add the cost of the item to the user's base_value credits
         user.roll_credit += (item.sell_cost * quantity)
         bot.db.commit()
 
         await interaction.response.send_message(
-                f'You sold {quantity} {item.name} ({item.id}) for {item.sell_cost * quantity} roll credits. See your items with /user items.'
+                f'You sold {quantity} {item.name} ({item.id}) for {item.sell_cost * quantity} base_value credits. See your items with /user items.'
         )

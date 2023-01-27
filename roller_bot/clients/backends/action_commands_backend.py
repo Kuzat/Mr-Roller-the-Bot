@@ -1,4 +1,3 @@
-from typing import Optional
 
 import discord
 from discord.ext import commands
@@ -7,7 +6,6 @@ from roller_bot.checks.trade import TradeChecks
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.trade_embed import TradeEmbed
-from roller_bot.embeds.use_result_embed import UseResultEmbed
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import dice_from_id, item_from_id
@@ -42,7 +40,7 @@ class ActionCommandsBackend:
         await interaction.response.send_message(f'You have equipped {dice.name}.')
 
     @staticmethod
-    async def use_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int, user_guess: Optional[int] = None) -> None:
+    async def use_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int) -> None:
         user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         item = item_from_id(item_id)
@@ -57,19 +55,11 @@ class ActionCommandsBackend:
             return
 
         # Use the item
-        if isinstance(item, Dice):
-            message = await item.use(user, interaction, bot, user_guess)
-            user_result_embed = UseResultEmbed(message, interaction.user)
-            bot.db.commit()
-            await interaction.response.send_message(embed=user_result_embed)
-        else:
-            message = await item.use(user, interaction, bot)
-            user_result_embed = UseResultEmbed(message, interaction.user)
-            bot.db.commit()
-            await interaction.response.send_message(embed=user_result_embed)
+        await item.use(user, interaction, bot)
+        bot.db.commit()
 
     @staticmethod
-    async def roll_active_dice(interaction: discord.Interaction, bot: DatabaseBot, user_guess: Optional[int] = None) -> None:
+    async def roll_active_dice(interaction: discord.Interaction, bot: DatabaseBot) -> None:
         user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
         # Get the users active dice
@@ -79,12 +69,8 @@ class ActionCommandsBackend:
             raise commands.errors.UserInputError
 
         # Use the dice
-        message = await active_dice.use(user, interaction, bot, user_guess)
+        await active_dice.use(user, interaction, bot)
         bot.db.commit()
-        user_result_embed = UseResultEmbed(message, interaction.user)
-
-        # Send the roll to the user
-        await interaction.response.send_message(embed=user_result_embed)
 
     @staticmethod
     async def trade_item(
