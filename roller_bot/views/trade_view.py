@@ -43,7 +43,7 @@ async def complete_trade(
     bot.db.commit()
 
 
-class AcceptView(View):
+class TradeView(View):
     def __init__(self, bot: DatabaseBot, user: discord.User, other_user: discord.User, item: Item, quantity: int, price: int):
         super().__init__()
         self.bot = bot

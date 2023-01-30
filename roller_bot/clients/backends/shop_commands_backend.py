@@ -5,9 +5,11 @@ import discord
 
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.embeds.shop_embed import ShopEmbed
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_data, item_from_id
 from roller_bot.models.items import Items
+from roller_bot.views.buy_item_view import BuyItemView
 
 
 class ShopCommandsBackend:
@@ -31,9 +33,9 @@ class ShopCommandsBackend:
         # Filter out the dice that the user already owns and are not buyable
         buyable_items = await ShopCommandsBackend.get_shop_items(interaction, bot)
 
-        items_string = '\n'.join(map(lambda items: items.shop_str(), buyable_items))
+        shop_embeds = ShopEmbed(buyable_items)
 
-        await interaction.response.send_message('Shop:\n```' + items_string + '\n\nUse the !buy {item_id} command to buy an item.```', ephemeral=True)
+        await interaction.response.send_message(embed=shop_embeds, view=BuyItemView(bot, buyable_items))
 
     @staticmethod
     async def buy_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int, quantity: Optional[int] = 1) -> None:
@@ -65,7 +67,7 @@ class ShopCommandsBackend:
             return
 
         if user.roll_credit < (item.cost * quantity):
-            await interaction.response.send_message('You do not have enough base_value credits to buy this item.', ephemeral=True, delete_after=60)
+            await interaction.response.send_message('You do not have enough credits to buy this item.', ephemeral=True, delete_after=60)
             return
 
         # Add new item to user if they do not already own it
@@ -85,7 +87,7 @@ class ShopCommandsBackend:
         bot.db.commit()
 
         await interaction.response.send_message(
-                f'You purchased {quantity} {item.name} ({item.id}) for {item.cost * quantity} base_value credits. See your items with /user items.'
+                f'You purchased {quantity} {item.name} ({item.id}) for {item.cost * quantity} credits. See your items with /user items.'
         )
 
     @staticmethod
@@ -129,5 +131,5 @@ class ShopCommandsBackend:
         bot.db.commit()
 
         await interaction.response.send_message(
-                f'You sold {quantity} {item.name} ({item.id}) for {item.sell_cost * quantity} base_value credits. See your items with /user items.'
+                f'You sold {quantity} {item.name} ({item.id}) for {item.sell_cost * quantity} credits. See your items with /user items.'
         )

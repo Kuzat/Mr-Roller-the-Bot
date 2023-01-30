@@ -31,9 +31,9 @@ class TradeChecks:
             raise FailedTradeCheck('User does not exist')
 
         # Check if the user is trading with themselves
-        if self_user.id == other_user.id:
-            await interaction.response.send_message('You cannot trade with yourself.', ephemeral=True, delete_after=60)
-            raise FailedTradeCheck('User is trading with themselves')
+        # if self_user.id == other_user.id:
+        #     await interaction.response.send_message('You cannot trade with yourself.', ephemeral=True, delete_after=60)
+        #     raise FailedTradeCheck('User is trading with themselves')
 
         return other_user
 

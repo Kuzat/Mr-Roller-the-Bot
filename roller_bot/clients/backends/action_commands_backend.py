@@ -9,7 +9,7 @@ from roller_bot.embeds.trade_embed import TradeEmbed
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import dice_from_id, item_from_id
-from roller_bot.views.accept_view import AcceptView
+from roller_bot.views.trade_view import TradeView
 
 
 class ActionCommandsBackend:
@@ -100,7 +100,7 @@ class ActionCommandsBackend:
         embed = TradeEmbed(user, other_user, item, quantity, price, author=interaction.user)
 
         # Send a discord view to the other user to accept the trade
-        view = AcceptView(
+        view = TradeView(
                 bot=bot,
                 user=interaction.user,
                 other_user=discord_user,

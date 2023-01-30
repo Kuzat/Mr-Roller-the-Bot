@@ -120,6 +120,13 @@ class User(Base):
     def get_bonus_values_for_item(self, item_id: int) -> List[Bonus]:
         return list(filter(lambda bonus_value: bonus_value.item_id == item_id, self.bonus_values))
 
+    def can_roll(self) -> bool:
+        return (
+                self.can_daily_roll or
+                self.latest_roll.can_roll_again or
+                self.can_roll_again
+        )
+
     @classmethod
     def new_user(cls, user_id: int, created_at: datetime):
         user = User(id=user_id, created_at=created_at)

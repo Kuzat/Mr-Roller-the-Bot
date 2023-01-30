@@ -3,6 +3,7 @@ from typing import List
 
 import discord
 
+from roller_bot.clients.backends.user_commands_backend import NoUserException, UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.models.user import User
 from roller_bot.utils.enrichments import add_discord_mention
@@ -12,9 +13,14 @@ class InfoCommandsBackend:
 
     @staticmethod
     async def start(interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        new_user = User.new_user(interaction.user.id, datetime.now())
-        bot.db.add_user(new_user)
-        await interaction.response.send_message(f"Welcome to the daily dice bot, {new_user.mention}! "
+        # Check if they already have a user
+        try:
+            user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
+            return await interaction.response.send_message(f'You already have a user. Your user ID is {user.id}.', ephemeral=True, delete_after=60)
+        except NoUserException:
+            new_user = User.new_user(interaction.user.id, datetime.now())
+            bot.db.add_user(new_user)
+            await interaction.response.send_message(f"Welcome to the daily dice bot, {new_user.mention}! "
                                                 f"You have been given a free dice to get started with."
                                                 f"Use `/roll` to roll your dice and `/help` to see all the commands.",)
 

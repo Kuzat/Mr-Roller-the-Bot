@@ -65,11 +65,7 @@ class Dice(Item):
             return await response.send_interaction(ephemeral=True, delete_after=60)
 
         # Check if we can roll again
-        if (
-                not user.can_daily_roll and
-                not user.latest_roll.can_roll_again and
-                not user.can_roll_again
-        ):
+        if not user.can_roll():
             response.send(
                     f'You already rolled a {user.latest_roll.base_value} today. Your total amount rolled is'
                     f' {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
@@ -116,7 +112,7 @@ class Dice(Item):
         # Add the base_value to the user
         user.add_roll(roll)
 
-        # Reset user can base_value again if it was used
+        # Reset user can roll again if it was used
         if (
                 not user.can_daily_roll and
                 not user.latest_roll.can_roll_again and
@@ -147,3 +143,8 @@ class Dice(Item):
 
         # Send the response with the embeds from the dice and bonus items
         await response.send_interaction(embeds=embeds)
+        message = await interaction.original_response()
+
+        # Add a emoji if the user can reroll
+        if roll.can_roll_again:
+            await message.add_reaction('🎲')
