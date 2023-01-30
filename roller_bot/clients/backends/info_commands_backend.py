@@ -3,10 +3,8 @@ from typing import List
 
 import discord
 
-from roller_bot.clients.backends.user_commands_backend import NoUserException, UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.models.user import User
-from roller_bot.utils.enrichments import add_discord_mention
 
 
 class InfoCommandsBackend:

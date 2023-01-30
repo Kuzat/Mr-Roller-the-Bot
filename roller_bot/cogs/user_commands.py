@@ -6,8 +6,7 @@ from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 
 
-@app_commands.guilds(DatabaseBot.home_guild_id())
-class UserCommands(commands.GroupCog, name="user"):
+class UserCommands(commands.Cog):
     """
     User commands with information about the different attributes of the user.
     """
@@ -17,52 +16,11 @@ class UserCommands(commands.GroupCog, name="user"):
         super().__init__()
 
     @app_commands.command(
-            description="Displays your total amount rolled"
+            description="Displays your current inventory and stats."
     )
-    async def total(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
-
-        await interaction.response.send_message(f'Your total amount rolled is {user.total_rolls}.', ephemeral=True)
-
-    @app_commands.command(
-            description="Displays your longest streak of 6s"
-    )
-    async def streak(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
-
-        await interaction.response.send_message(f'Your longest streak of 6s is {user.streak}.', ephemeral=True)
-
-    @app_commands.command(
-            description="Displays the amount of base_value credits you have. Used to buy items."
-    )
-    async def credits(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
-
-        await interaction.response.send_message(f'You have {user.roll_credit} base_value credits.', ephemeral=True)
-
-    @app_commands.command(
-            description="Displays all your items. Can also be used to check other users."
-    )
-    async def items(self, interaction: discord.Interaction) -> None:
-        await UserCommandsBackend.display_user_items(interaction, self.bot)
-
-    @app_commands.command(
-        description="Displays the amount of luck for the user"
-    )
-    async def luck(self, interaction: discord.Interaction) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, self.bot)
-
-        await interaction.response.send_message(f'Your luck is {user.luck_bonus}x')
-        message = await interaction.original_response()
-        if user.luck_bonus >= 1:
-            await message.add_reaction('🍀')
-            await message.add_reaction('🎲')
-        if user.luck_bonus < 1:
-            await message.add_reaction('💀')
-        if user.luck_bonus >= 1.2:
-            await message.add_reaction('🧧')
-
-
+    @app_commands.guilds(DatabaseBot.home_guild_id())
+    async def inventory(self, interaction: discord.Interaction) -> None:
+        await UserCommandsBackend.display_user_inventory(interaction, self.bot)
 
 
 async def setup(bot: DatabaseBot) -> None:

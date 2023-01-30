@@ -3,10 +3,9 @@ import discord
 from discord.ext import commands
 
 from roller_bot.checks.trade import TradeChecks
-from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
+from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.trade_embed import TradeEmbed
-from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import dice_from_id, item_from_id
 from roller_bot.views.trade_view import TradeView
@@ -15,33 +14,8 @@ from roller_bot.views.trade_view import TradeView
 class ActionCommandsBackend:
 
     @staticmethod
-    async def equip_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
-
-        # Check if the user owns the item with that item id
-        if not user.has_item(item_id):
-            await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
-            return
-
-        # Check if the item is a die
-        dice = dice_from_id(item_id)
-        if not isinstance(dice, Dice):
-            await interaction.response.send_message('You can only equip dice.', ephemeral=True, delete_after=60)
-            return
-
-        if user.active_dice == dice.id:
-            await interaction.response.send_message('You already have that dice equipped.', ephemeral=True, delete_after=60)
-            return
-
-        # Equip the dice
-        user.active_dice = dice.id
-        bot.db.commit()
-
-        await interaction.response.send_message(f'You have equipped {dice.name}.')
-
-    @staticmethod
     async def use_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
+        user = await UserVerificationBackend.verify_interaction_user(interaction, bot)
 
         item = item_from_id(item_id)
         if item is None:
@@ -60,7 +34,7 @@ class ActionCommandsBackend:
 
     @staticmethod
     async def roll_active_dice(interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
+        user = await UserVerificationBackend.verify_interaction_user(interaction, bot)
 
         # Get the users active dice
         active_dice = dice_from_id(user.active_dice)  # type: ignore
@@ -81,7 +55,7 @@ class ActionCommandsBackend:
             price: int,
             quantity: int = 1
     ) -> None:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
+        user = await UserVerificationBackend.verify_interaction_user(interaction, bot)
         other_user = await TradeChecks.verify_other_use(interaction, bot, discord_user, user)
 
         # Check quantity is larger than 0

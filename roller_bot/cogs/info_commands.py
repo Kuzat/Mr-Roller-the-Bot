@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 from typing import List
 
@@ -59,7 +60,10 @@ class InfoCommands(commands.Cog):
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def tomorrow(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message("The dice gods have decided that @Ryzomster will get the worst base_value")
+        # Get a random user
+        users = self.bot.db.get_all_users()
+        random_user = random.choice(users)
+        await interaction.response.send_message(f"The dice gods have decided that {random_user.mention} will get the worst base_value")
 
     @app_commands.command(
             description="Remind users that have not rolled today"

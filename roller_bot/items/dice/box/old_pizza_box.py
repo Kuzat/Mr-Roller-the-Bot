@@ -15,7 +15,7 @@ class OldPizzaBox(Box):
         super().__init__()
         self.name = "Old Pizza Box"
         self.description = "A old pizza box that used to have pizza in it"
-        self.cost = 10
+        self.cost = 20
 
         self.box_items = [
             BoxItem(
