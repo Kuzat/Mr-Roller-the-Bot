@@ -34,7 +34,6 @@ class RollDatabase:
             user = self.session.query(User).get(requested_user)
         else:
             user = self.session.query(User).get(requested_user.id)
-            # user.mention = requested_user.mention
 
         return user
 

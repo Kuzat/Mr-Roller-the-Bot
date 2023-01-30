@@ -17,7 +17,7 @@ class ShopEmbed(Embed):
         self.set_author(name="Shop")
         for item in items:
             self.add_field(
-                    name=f'({item.id}) {item.name} - {item.cost} coins',
+                    name=f'{item.name} - {item.cost} credits',
                     value=item.description,
                     inline=False
             )

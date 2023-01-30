@@ -6,7 +6,7 @@ from discord.app_commands import AppCommandError
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
-from roller_bot.items.utils import item_from_id
+from roller_bot.items.utils import item_data, item_from_id
 from roller_bot.models.items import Items
 from roller_bot.models.user import User
 from roller_bot.utils.list_helpers import split
@@ -71,3 +71,17 @@ class UserCommandsBackend:
                          f'```{items_string}```') if items_string else ''
 
         await interaction.response.send_message(message_dice + message_items, ephemeral=True)
+
+    @staticmethod
+    async def get_user_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> List[Item]:
+        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
+
+        all_items = item_data.values()
+
+        # Filter out the dice that the user already owns and are not buyable
+        buyable_items = filter(
+                lambda item: (not user.has_item(item.id) or item.own_multiple) and item.buyable,  # type: ignore
+                all_items
+        )
+
+        return list(buyable_items)

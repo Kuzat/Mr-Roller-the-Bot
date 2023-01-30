@@ -1,93 +1,31 @@
-from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 import discord
 
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.shop_embed import ShopEmbed
-from roller_bot.items.models.item import Item
-from roller_bot.items.utils import item_data, item_from_id
-from roller_bot.models.items import Items
+from roller_bot.embeds.user_info_embed import UserInfoEmbed
+from roller_bot.items.utils import item_from_id
 from roller_bot.views.buy_item_view import BuyItemView
 
 
 class ShopCommandsBackend:
 
     @staticmethod
-    async def get_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> List[Item]:
-        user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
-
-        all_items = item_data.values()
-
-        # Filter out the dice that the user already owns and are not buyable
-        buyable_items = filter(
-                lambda x: not user.has_item(x) and x.buyable,  # type: ignore
-                all_items
-        )
-
-        return list(buyable_items)
-
-    @staticmethod
     async def display_shop_items(interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        # Filter out the dice that the user already owns and are not buyable
-        buyable_items = await ShopCommandsBackend.get_shop_items(interaction, bot)
-
-        shop_embeds = ShopEmbed(buyable_items)
-
-        await interaction.response.send_message(embed=shop_embeds, view=BuyItemView(bot, buyable_items))
-
-    @staticmethod
-    async def buy_item(interaction: discord.Interaction, bot: DatabaseBot, item_id: int, quantity: Optional[int] = 1) -> None:
         user = await UserCommandsBackend.verify_interaction_user(interaction, bot)
 
-        item = item_from_id(item_id)
-        if item is None:
-            await interaction.response.send_message('That item does not exist.', ephemeral=True, delete_after=60)
-            return
-
-        # Check if the item is buyable
-        if not item.buyable:
-            await interaction.response.send_message('You cannot buy that item.', ephemeral=True, delete_after=60)
-            return
-
-        if quantity < 1:
-            await interaction.response.send_message('You cannot buy a negative amount of items.', ephemeral=True, delete_after=60)
-            return
-
-        # Check if the user does not already own the item unless you can own multiple of the same item
-        user_owned_item = user.get_item(item_id)
-        if not item.own_multiple and user_owned_item:
-            await interaction.response.send_message('You already own that item and cannot own multiple of that item.', ephemeral=True, delete_after=60)
-            return
-
-        # Check if we can buy multiple of this item
-        if not item.own_multiple and quantity > 1:
-            await interaction.response.send_message('You cannot buy multiple of that item.', ephemeral=True, delete_after=60)
-            return
-
-        if user.roll_credit < (item.cost * quantity):
-            await interaction.response.send_message('You do not have enough credits to buy this item.', ephemeral=True, delete_after=60)
-            return
-
-        # Add new item to user if they do not already own it
-        if not user_owned_item:
-            user.items.append(
-                    Items(
-                            item_id=item.id, user_id=user.id,
-                            quantity=quantity, purchased_at=datetime.now()
-                    )
-            )
-        elif item.own_multiple and user_owned_item:
-            # If they can own multiple of the same item, increment the quantity
-            user_owned_item.quantity += quantity
-
-        # Remove the cost of the item from the user's base_value credits
-        user.roll_credit -= (item.cost * quantity)
-        bot.db.commit()
+        # Filter out the dice that the user already owns and are not buyable
+        buyable_items = await UserCommandsBackend.get_user_shop_items(interaction, bot)
+        # Show an embed with info about the users credits
+        shop_embeds = ShopEmbed(buyable_items)
+        credit_info_embed = UserInfoEmbed(interaction.user, f'{user.roll_credit} credits')
 
         await interaction.response.send_message(
-                f'You purchased {quantity} {item.name} ({item.id}) for {item.cost * quantity} credits. See your items with /user items.'
+                embeds=[credit_info_embed, shop_embeds],
+                view=BuyItemView(buyable_items, bot, user),
+                delete_after=600
         )
 
     @staticmethod
