@@ -22,6 +22,7 @@ class UserCommandsBackend:
         inventory_view = InventoryView(EmbedsBackend.get_user_items(user), bot, user)
 
         await interaction.response.send_message(
+                file=user_embeds[0].thumbnail_file,
                 embeds=user_embeds,
                 view=inventory_view,
                 delete_after=600

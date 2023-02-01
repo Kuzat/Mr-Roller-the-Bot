@@ -4,6 +4,7 @@ import discord
 from discord import Embed
 
 from roller_bot.models.user import User
+from roller_bot.utils.assets_resolvers import AssetsResolvers, Trophies
 
 
 class StatsEmbed(Embed):
@@ -33,7 +34,8 @@ class StatsEmbed(Embed):
         )
 
         if position is not None:
-            pass
-            # Resolve trophy emoji based on position
+            self.thumbnail_file = AssetsResolvers.resolve_trophy_asset(Trophies(position))
+            self.set_thumbnail(url=f'attachment://{self.thumbnail_file.filename}')
         else:
-            self.set_thumbnail(url="https://em-content.zobj.net/thumbs/120/apple/325/trophy_1f3c6.png")
+            self.thumbnail_file = AssetsResolvers.resolve_trophy_asset(Trophies.first)
+            self.set_thumbnail(url=f'attachment://{self.thumbnail_file.filename}')

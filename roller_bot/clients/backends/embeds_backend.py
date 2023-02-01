@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import discord
 
@@ -23,13 +23,14 @@ class EmbedsBackend:
         return user_item_definitions
 
     @staticmethod
-    def get_user_embeds(interaction: discord.Interaction, user: User):
+    def get_user_embeds(interaction: discord.Interaction, user: User) -> Tuple[StatsEmbed, InventoryEmbed]:
         # Show stats embed
         stats_embed = StatsEmbed(interaction.user, user)
+        # noinspection PyTypeChecker
         inventory_embeds = InventoryEmbed(
                 EmbedsBackend.get_user_items(user),
                 user.roll_credit,
                 user.luck_bonus,
                 user.active_dice
         )
-        return [stats_embed, inventory_embeds]
+        return stats_embed, inventory_embeds
