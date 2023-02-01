@@ -6,14 +6,17 @@ import discord
 from discord import Embed
 from discord.ext import commands
 
+from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.bonus_embeds import BonusEmbed
 from roller_bot.items.bonus_data import bonus_item_from_id
 from roller_bot.items.models.item import Item
 from roller_bot.models.bonus_value import BonusValue
+from roller_bot.models.items import Items
 from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.roll import Roll
 from roller_bot.models.user import User
 from roller_bot.utils.discord import ResponseMessage
+from roller_bot.views.modals.user_input import UserInputModal
 
 
 class Dice(Item):
@@ -54,9 +57,8 @@ class Dice(Item):
             await ctx.send('You did not enter a number or took too long. Try again.')
             raise commands.errors.UserInputError
 
-    async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot) -> None:
+    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
         response = ResponseMessage(interaction, self)
-        embeds: List[Embed] = []
 
         # Get item from user
         item = user.get_item(self.id)
@@ -73,8 +75,34 @@ class Dice(Item):
             return await response.send_interaction(ephemeral=True, delete_after=60)
 
         # get the base_value
-        # TODO: Respond with a view to get the user input if needed
-        dice_roll: DiceRoll = self.roll(0)
+        if self.user_input:
+            # Create a modal to get the user input
+            user_input_modal = UserInputModal(self, bot=bot, on_valid_input=self.post_use)
+            await interaction.response.send_modal(user_input_modal)
+        else:
+            await self.post_use(
+                    interaction=interaction,
+                    item=item,
+                    user=user,
+                    response=response,
+                    user_input=None
+            )
+
+    async def post_use(
+            self,
+            interaction: discord.Interaction,
+            item: Items,
+            user: User,
+            response: ResponseMessage,
+            user_input: Optional[int] = None
+    ) -> None:
+        embeds: List[Embed] = []
+
+        if self.user_input:
+            dice_roll: DiceRoll = self.roll(user_input)
+        else:
+            dice_roll: DiceRoll = self.roll()
+
         roll = Roll(
                 user_id=user.id,
                 item_id=self.id,
