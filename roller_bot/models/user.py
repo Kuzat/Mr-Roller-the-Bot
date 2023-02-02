@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from functools import cached_property
 from typing import Dict, List, Optional
 from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
@@ -6,8 +7,8 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.hybrid import hybrid_property
 from roller_bot.models.base import Base
 from roller_bot.models.bonus import Bonus
+from roller_bot.models.bonus_value import BonusValue
 from roller_bot.models.items import Items
-from roller_bot.models.pydantic.dice_roll import DiceRoll
 from roller_bot.models.roll import Roll
 
 
@@ -26,8 +27,7 @@ class User(Base):
             "Roll", order_by=Roll.id, back_populates="user"
     )
     bonuses: Dict[int, Bonus] = relationship("Bonus", collection_class=attribute_mapped_collection("item_id"), back_populates="user")
-
-    mention: Optional[str] = None
+    bonus_values: List[BonusValue] = relationship("BonusValue", order_by=BonusValue.id, back_populates="user")
 
     def __repr__(self) -> str:
         return f'User(id={self.id}, streak={self.streak}, roll_credit={self.roll_credit}, created_at={self.created_at}, luck_bonus={self.luck_bonus}, active_dice={self.active_dice})'
@@ -35,23 +35,20 @@ class User(Base):
     def __str__(self) -> str:
         return f'{self.mention if self.mention else self.id}: {self.total_rolls} Score, {len(self.rolls)} {"Rolls" if len(self.rolls) > 1 else "Roll"}, {self.average_rolls:.2f} Average, {self.streak} Streak'
 
-    def add_roll(self, user_roll: DiceRoll) -> None:
-        roll: Roll = Roll(
-                user_id=self.id,
-                date=datetime.now().date(),
-                roll=user_roll.total,
-                can_roll_again=user_roll.can_roll_again
-        )
+    @cached_property
+    def mention(self) -> str:
+        return f'<@{self.id}>'
 
+    def add_roll(self, roll: Roll) -> None:
         # increase roll credit by roll value
-        self.roll_credit += user_roll.total  # type: ignore
+        self.roll_credit += roll.total_value  # type: ignore
 
         self.rolls.append(roll)
 
         # check current streak
         current_streak = 0
         for roll in self.rolls[::-1]:
-            if roll.roll == 6:
+            if roll.base_value == 6:
                 current_streak += 1
             else:
                 break
@@ -76,21 +73,21 @@ class User(Base):
 
     def get_roll_on_date(self, roll_date: date) -> Optional[Roll]:
         for roll in self.rolls:
-            if roll.date == roll_date:
+            if roll.roll_time.date() == roll_date:
                 return roll
         return None
 
     def get_all_rolls(self, roll_date: date) -> List[Roll]:
-        return [roll for roll in self.rolls if roll.date == roll_date]
+        return [roll for roll in self.rolls if roll.roll_time.date() == roll_date]
 
     @hybrid_property
     def total_rolls(self) -> int:  # type: ignore
-        return sum([roll.roll for roll in self.rolls])  # type: ignore
+        return sum([roll.base_value for roll in self.rolls])  # type: ignore
 
     @total_rolls.expression
     def total_rolls(cls):
         return (
-            select([func.sum(Roll.roll)]).
+            select([func.sum(Roll.base_value)]).
             where(Roll.user_id == cls.id).
             label('total_rolls')
         )
@@ -102,14 +99,14 @@ class User(Base):
     @average_rolls.expression
     def average_rolls(cls):
         return (
-            select([func.avg(Roll.roll)]).
+            select([func.avg(Roll.base_value)]).
             where(Roll.user_id == cls.id).
             label('average_rolls')
         )
 
     @property
     def can_daily_roll(self) -> bool:
-        return self.latest_roll.date != datetime.now().date() if self.latest_roll else True
+        return self.latest_roll.roll_time.date() != datetime.now().date() if self.latest_roll else True
 
     def has_item(self, item_id: int) -> bool:
         return any([item.item_id == item_id for item in self.items])
@@ -120,13 +117,23 @@ class User(Base):
                 return item
         return None
 
-    @staticmethod
-    def new_user(user_id: int, date: datetime):
-        user = User(id=user_id, created_at=date)
+    def get_bonus_values_for_item(self, item_id: int) -> List[Bonus]:
+        return list(filter(lambda bonus_value: bonus_value.item_id == item_id, self.bonus_values))
+
+    def can_roll(self) -> bool:
+        return (
+                self.can_daily_roll or
+                self.latest_roll.can_roll_again or
+                self.can_roll_again
+        )
+
+    @classmethod
+    def new_user(cls, user_id: int, created_at: datetime):
+        user = User(id=user_id, created_at=created_at)
         # Add a default dice to the user's items
         dice_id = 0
         user.items.append(
-                Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=date)
+                Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=created_at)
         )
         user.active_dice = dice_id  # type: ignore
         return user

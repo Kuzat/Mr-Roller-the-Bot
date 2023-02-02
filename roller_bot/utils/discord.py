@@ -1,10 +1,18 @@
-from typing import Optional
+from typing import List, Optional
+
+import discord
+from discord import Embed
+
+from roller_bot.embeds.use_result_embed import UseResultEmbed
+from roller_bot.items.models.item import Item
 
 
 class ResponseMessage:
 
-    def __init__(self, message: Optional[str] = None):
+    def __init__(self, interaction: discord.Interaction, item: Item, message: Optional[str] = None):
         self.message = message if message is not None else ""
+        self.interaction = interaction
+        self.item = item
 
     def __str__(self):
         return self.message
@@ -14,3 +22,10 @@ class ResponseMessage:
 
     def send(self, message: str):
         self.append(message)
+
+    async def send_interaction(self, embeds: Optional[List[Embed]] = None, ephemeral: bool = False, delete_after: Optional[int] = None):
+        if embeds is None:
+            embeds = []
+        embeds.append(UseResultEmbed(str(self), self.item))
+
+        await self.interaction.response.send_message(embeds=embeds, ephemeral=ephemeral, delete_after=delete_after)

@@ -12,8 +12,8 @@ class DonatorDice(Dice):
         super().__init__()
         self.name: str = "Donator Dice"
         self.description: str = "A dice for rick donators. Rolls a number between 2 and 6."
-        self.cost: int = 200
-        self.sell_cost: int = 100
+        self.cost: int = 50
+        self.sell_cost: int = 25
         self.user_input: bool = False
 
     def __repr__(self) -> str:

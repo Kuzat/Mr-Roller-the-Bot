@@ -1,7 +1,7 @@
 import discord
 from discord.app_commands import AppCommandError
 
-from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
+from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_from_id
@@ -23,7 +23,7 @@ class TradeChecks:
             discord_user: discord.User,
             self_user: User
     ) -> User:
-        other_user = await UserCommandsBackend.verify_discord_user(interaction, bot, discord_user)
+        other_user = await UserVerificationBackend.verify_discord_user(interaction, bot, discord_user)
 
         # Check if the user is trading with a valid user
         if other_user is None:

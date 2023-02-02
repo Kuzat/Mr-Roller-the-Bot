@@ -52,12 +52,13 @@ class Box(Item):
                 k=1
         )[0]
 
-    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> ResponseMessage:
-        response = ResponseMessage()
+    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
+        response = ResponseMessage(interaction, self)
         # Get the item from the user
         item = user.get_item(self.id)
         if item is None:
-            return response.send(f"You don't have a {self.name} in your inventory.")
+            response.send(f"You don't have a {self.name} in your inventory.")
+            return await response.send_interaction(ephemeral=True, delete_after=60)
 
         # Get the box item
         box_item = self.get_box_item()
@@ -75,11 +76,11 @@ class Box(Item):
             item.quantity -= 1
             item.health = self.start_health
             response.send(f"You throw away the opened {self.name}.")
-            return response
+            return await response.send_interaction(ephemeral=True, delete_after=60)
 
         response.send("You put the {self.name} back in your inventory.")
 
         # await some time to process
         await asyncio.sleep(1)
 
-        return response
+        return await response.send_interaction(ephemeral=True, delete_after=60)

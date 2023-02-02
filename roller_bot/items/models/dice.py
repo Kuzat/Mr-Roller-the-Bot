@@ -1,15 +1,22 @@
 import random
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import List, Optional
 
 import discord
+from discord import Embed
 from discord.ext import commands
 
+from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.embeds.bonus_embeds import BonusEmbed
 from roller_bot.items.bonus_data import bonus_item_from_id
 from roller_bot.items.models.item import Item
+from roller_bot.models.bonus_value import BonusValue
+from roller_bot.models.items import Items
 from roller_bot.models.pydantic.dice_roll import DiceRoll
+from roller_bot.models.roll import Roll
 from roller_bot.models.user import User
 from roller_bot.utils.discord import ResponseMessage
+from roller_bot.views.modals.user_input import UserInputModal
 
 
 class Dice(Item):
@@ -50,28 +57,59 @@ class Dice(Item):
             await ctx.send('You did not enter a number or took too long. Try again.')
             raise commands.errors.UserInputError
 
-    async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot, user_guess: Optional[int] = None) -> ResponseMessage:
-        response = ResponseMessage()
+    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
+        response = ResponseMessage(interaction, self)
+
         # Get item from user
         item = user.get_item(self.id)
         if item is None:
             response.send(f"You don't have a {self.name} in your inventory.")
-            return response
+            return await response.send_interaction(ephemeral=True, delete_after=60)
 
-        # Check if we can roll
-        if (
-                not user.can_daily_roll and
-                not user.latest_roll.can_roll_again and
-                not user.can_roll_again
-        ):
+        # Check if we can roll again
+        if not user.can_roll():
             response.send(
-                f'You already rolled a {user.latest_roll.roll} today. Your total amount rolled is'
-                f' {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
+                    f'You already rolled a {user.latest_roll.base_value} today. Your total amount rolled is'
+                    f' {user.total_rolls}. Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.'
             )
-            return response
+            return await response.send_interaction(ephemeral=True, delete_after=60)
 
         # get the roll
-        roll = self.roll(user_guess)
+        if self.user_input:
+            # Create a modal to get the user input
+            user_input_modal = UserInputModal(self, bot=bot, on_valid_input=self.post_use)
+            await interaction.response.send_modal(user_input_modal)
+        else:
+            await self.post_use(
+                    interaction=interaction,
+                    item=item,
+                    user=user,
+                    response=response,
+                    user_input=None
+            )
+
+    async def post_use(
+            self,
+            interaction: discord.Interaction,
+            item: Items,
+            user: User,
+            response: ResponseMessage,
+            user_input: Optional[int] = None
+    ) -> None:
+        embeds: List[Embed] = []
+
+        if self.user_input:
+            dice_roll: DiceRoll = self.roll(user_input)
+        else:
+            dice_roll: DiceRoll = self.roll()
+
+        roll = Roll(
+                user_id=user.id,
+                item_id=self.id,
+                roll_time=datetime.now(),
+                base_value=dice_roll.base,
+                can_roll_again=dice_roll.can_roll_again
+        )
 
         # Check for any bonuses active for the user and add them to the roll bonus
         # copy the bonuses, so we don't change the original
@@ -81,13 +119,23 @@ class Dice(Item):
             if bonus_item is None:
                 print(f'Item with id {item_id} not found')
                 continue
-            bonus = bonus_item.bonus(user)
-            if not bonus.active:
-                response.send(bonus.message)
-                continue
+            bonus_return_value = bonus_item.bonus(user)
 
-            roll.bonus += bonus.value
-            response.send(bonus.message)
+            # Make a bonus value if we get one
+            if bonus_return_value.value is not None:
+                bonus_value = BonusValue(
+                        user_id=user.id,
+                        roll_id=roll.id,
+                        item_id=bonus_item.id,
+                        value=bonus_return_value.value,
+                        created_at=datetime.now()
+                )
+
+                # Add the bonus to the roll
+                roll.bonus_values.append(bonus_value)
+
+            # Send the message bonus message always
+            embeds.append(BonusEmbed(bonus_item, bonus_return_value.message))
 
         # Add the roll to the user
         user.add_roll(roll)
@@ -120,4 +168,11 @@ class Dice(Item):
                 f'You rolled a {roll} with the {self.name}. Your total amount rolled is {user.total_rolls}. ' +
                 (f'Roll again with /roll.' if roll.can_roll_again else f'Roll again tomorrow on {datetime.now().date() + timedelta(days=1)}.')
         )
-        return response
+
+        # Send the response with the embeds from the dice and bonus items
+        await response.send_interaction(embeds=embeds)
+        message = await interaction.original_response()
+
+        # Add a emoji if the user can reroll
+        if roll.can_roll_again:
+            await message.add_reaction('🎲')

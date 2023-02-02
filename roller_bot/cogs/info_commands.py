@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 from typing import List
 
@@ -17,6 +18,13 @@ class InfoCommands(commands.Cog):
 
     def __init__(self, bot: DatabaseBot) -> None:
         self.bot = bot
+
+    @app_commands.command(
+            description="Get started playing the daily dice bot. This will create a user for you and give you a free dice."
+    )
+    @app_commands.guilds(DatabaseBot.home_guild_id())
+    async def start(self, interaction: discord.Interaction) -> None:
+        await InfoCommandsBackend.start(interaction, self.bot)
 
     @app_commands.command(
             description="Get the rolls for users on a specific date. Date format is YYYY-MM-DD",
@@ -52,7 +60,10 @@ class InfoCommands(commands.Cog):
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def tomorrow(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message("The dice gods have decided that @Ryzomster will get the worst roll")
+        # Get a random user
+        users = self.bot.db.get_all_users()
+        random_user = random.choice(users)
+        await interaction.response.send_message(f"The dice gods have decided that {random_user.mention} will get the worst roll")
 
     @app_commands.command(
             description="Remind users that have not rolled today"
@@ -75,14 +86,7 @@ class InfoCommands(commands.Cog):
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def leaderboard(self, interaction: discord.Interaction) -> None:
-        top_rollers = User.top(self.bot.db.session, 5)
-        for user in top_rollers:
-            discord_user = self.bot.get_user(user.id)
-            if discord_user:
-                user.mention = discord_user.mention
-
-        leaderboard_str: str = '\n'.join(map(lambda x: str(x), top_rollers))
-        await interaction.response.send_message(f'Leaderboard:\n{leaderboard_str}')
+        await InfoCommandsBackend.display_leaderboard(interaction, self.bot)
 
     @app_commands.command(
             description="Displays the probabilities of items inside a box. Only works for boxes."
@@ -101,7 +105,7 @@ class InfoCommands(commands.Cog):
         await interaction.response.send_message(item.probabilities)
 
     @probabilities.autocomplete("box_id")
-    async def equip_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
+    async def probabilities_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
         boxes = [item for item in item_data.values() if isinstance(item, Box)]
 
         # Filter out items that match the current string

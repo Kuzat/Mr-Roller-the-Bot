@@ -4,14 +4,14 @@ from discord import Embed
 from roller_bot.items.models.item import Item
 
 
-class UseResultEmbed(Embed):
+class UserInfoEmbed(Embed):
     def __init__(
             self,
+            author: discord.User,
             message: str,
-            item: Item,
     ):
         super().__init__(
-                description=str(message),
+                title=message,
                 color=discord.Color.blue()
         )
-        self.set_author(name=item.name)  # TODO: Add image for items
+        self.set_author(name=author.name, icon_url=author.avatar)

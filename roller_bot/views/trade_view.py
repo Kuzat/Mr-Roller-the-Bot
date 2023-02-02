@@ -2,7 +2,7 @@ import discord
 from discord.ui import View
 
 from roller_bot.checks.trade import TradeChecks
-from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
+from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.trade_embed import AcceptedTradeEmbed, DeclinedTradeEmbed
 from roller_bot.items.models.item import Item
@@ -17,7 +17,7 @@ async def complete_trade(
         quantity: int,
         price: int
 ) -> None:
-    user = await UserCommandsBackend.verify_discord_user(interaction, bot, discord_user)
+    user = await UserVerificationBackend.verify_discord_user(interaction, bot, discord_user)
     other_user = await TradeChecks.verify_other_use(interaction, bot, discord_other_user, user)
 
     # Check quantity is larger than 0
@@ -43,7 +43,7 @@ async def complete_trade(
     bot.db.commit()
 
 
-class AcceptView(View):
+class TradeView(View):
     def __init__(self, bot: DatabaseBot, user: discord.User, other_user: discord.User, item: Item, quantity: int, price: int):
         super().__init__()
         self.bot = bot
