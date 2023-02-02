@@ -47,8 +47,8 @@ class RerollToken(Item):
             # remove quantity and reset health to start_health
             item.quantity -= 1
             item.health = self.start_health
-            response.send("Your Reroll Token broke and was removed from your inventory. You can now base_value again")
+            response.send("Your Reroll Token broke and was removed from your inventory. You can now roll again")
             return await response.send_interaction()
 
-        response.send("You can now base_value again")
+        response.send("You can now roll again")
         return await response.send_interaction()

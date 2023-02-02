@@ -93,7 +93,7 @@ class BuyItemView(View):
             # If they can own multiple of the same item, increment the quantity
             user_owned_item.quantity += quantity
 
-        # Remove the cost of the item from the user's base_value credits
+        # Remove the cost of the item from the user's roll credits
         user.roll_credit -= (item.cost * quantity)
         self.bot.db.commit()
 

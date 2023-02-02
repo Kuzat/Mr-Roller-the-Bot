@@ -40,7 +40,7 @@ class User(Base):
         return f'<@{self.id}>'
 
     def add_roll(self, roll: Roll) -> None:
-        # increase base_value credit by base_value value
+        # increase roll credit by roll value
         self.roll_credit += roll.total_value  # type: ignore
 
         self.rolls.append(roll)

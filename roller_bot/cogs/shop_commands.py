@@ -12,7 +12,7 @@ class ShopCommands(commands.Cog):
         super().__init__()
 
     @app_commands.command(
-            description="Displays the shop. You can buy items with base_value credits."
+            description="Displays the shop. You can buy items with roll credits."
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def shop(self, interaction: discord.Interaction) -> None:

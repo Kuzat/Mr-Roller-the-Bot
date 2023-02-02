@@ -81,7 +81,7 @@ class InventoryView(View):
         # Remove the item from the user's items
         user_owned_item.quantity -= quantity
 
-        # Add the cost of the item to the user's base_value credits
+        # Add the cost of the item to the user's roll credits
         user.roll_credit += (item.sell_cost * quantity)
         self.bot.db.commit()
 

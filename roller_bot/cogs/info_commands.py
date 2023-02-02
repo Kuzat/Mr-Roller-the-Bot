@@ -63,7 +63,7 @@ class InfoCommands(commands.Cog):
         # Get a random user
         users = self.bot.db.get_all_users()
         random_user = random.choice(users)
-        await interaction.response.send_message(f"The dice gods have decided that {random_user.mention} will get the worst base_value")
+        await interaction.response.send_message(f"The dice gods have decided that {random_user.mention} will get the worst roll")
 
     @app_commands.command(
             description="Remind users that have not rolled today"
@@ -74,7 +74,7 @@ class InfoCommands(commands.Cog):
                 self.bot.db.session, datetime.now().date()
         )
         if len(users) == 0:
-            await interaction.response.send_message('Everyone has rolled today! If you have not rolled before, base_value with /base_value.')
+            await interaction.response.send_message('Everyone has rolled today! If you have not rolled before, roll with /roll.')
         else:
             user_mentions = [self.bot.get_user(user.id) for user in users]  # type: ignore
             await interaction.response.send_message(

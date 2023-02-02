@@ -74,7 +74,7 @@ class Dice(Item):
             )
             return await response.send_interaction(ephemeral=True, delete_after=60)
 
-        # get the base_value
+        # get the roll
         if self.user_input:
             # Create a modal to get the user input
             user_input_modal = UserInputModal(self, bot=bot, on_valid_input=self.post_use)
@@ -111,7 +111,7 @@ class Dice(Item):
                 can_roll_again=dice_roll.can_roll_again
         )
 
-        # Check for any bonuses active for the user and add them to the base_value bonus
+        # Check for any bonuses active for the user and add them to the roll bonus
         # copy the bonuses, so we don't change the original
         bonuses = user.bonuses.copy()
         for item_id in bonuses:
@@ -137,7 +137,7 @@ class Dice(Item):
             # Send the message bonus message always
             embeds.append(BonusEmbed(bonus_item, bonus_return_value.message))
 
-        # Add the base_value to the user
+        # Add the roll to the user
         user.add_roll(roll)
 
         # Reset user can roll again if it was used
