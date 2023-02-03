@@ -70,7 +70,7 @@ resource "aws_security_group" "diceServerSg" {
 
 resource "aws_instance" "dice_server" {
   ami           = "ami-00c70b245f5354c0a"
-  instance_type = "t3.micro"
+  instance_type = "m5.large"
   key_name      = aws_key_pair.ssh_key.key_name
   security_groups = [aws_security_group.diceServerSg.name]
   iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
