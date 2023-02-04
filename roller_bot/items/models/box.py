@@ -64,7 +64,7 @@ class Box(Item):
         box_item = self.get_box_item()
 
         # Show the text of the item
-        response.send(box_item.description + " You add the item to your inventory, view it with !items.")
+        response.send(box_item.description + " You add the item to your inventory, view it with /inventory.")
 
         # Claim the box item
         await box_item.claim(user)
@@ -76,11 +76,11 @@ class Box(Item):
             item.quantity -= 1
             item.health = self.start_health
             response.send(f"You throw away the opened {self.name}.")
-            return await response.send_interaction(ephemeral=True, delete_after=60)
+            return await response.send_interaction()
 
         response.send("You put the {self.name} back in your inventory.")
 
         # await some time to process
         await asyncio.sleep(1)
 
-        return await response.send_interaction(ephemeral=True, delete_after=60)
+        return await response.send_interaction()
