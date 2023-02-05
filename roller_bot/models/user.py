@@ -80,9 +80,15 @@ class User(Base):
     def get_all_rolls(self, roll_date: date) -> List[Roll]:
         return [roll for roll in self.rolls if roll.roll_time.date() == roll_date]
 
+    @property
+    def total_bonus(self) -> int:
+        if not self.bonus_values:
+            return 0
+        return sum([bonus.value for bonus in self.bonus_values])
+
     @hybrid_property
-    def total_rolls(self) -> int:  # type: ignore
-        return sum([roll.base_value for roll in self.rolls])  # type: ignore
+    def total_rolls(self) -> int:
+        return sum([roll.base_value for roll in self.rolls]) + self.total_bonus
 
     @total_rolls.expression
     def total_rolls(cls):
