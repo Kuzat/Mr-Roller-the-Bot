@@ -78,7 +78,7 @@ def download_latest_db(db_version: int):
 
 
 @click.command()
-@click.option('--db-path', type=str, default='rolls_v4.db')
+@click.option('--db-path', type=str, default=f'rolls_v{CURRENT_DB_VERSION}.db')
 def backup_db(db_path: str):
     load_secrets()
     s3_client = boto3.client('s3')
