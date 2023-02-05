@@ -111,6 +111,19 @@ class Dice(Item):
                 can_roll_again=dice_roll.can_roll_again
         )
 
+        # Check if got a bonus
+        if dice_roll.bonus > 0:
+            bonus_value = BonusValue(
+                    user_id=user.id,
+                    roll_id=roll.id,
+                    item_id=self.id,
+                    value=dice_roll.bonus,
+                    created_at=datetime.now()
+            )
+
+            roll.bonus_values.append(bonus_value)
+            embeds.append(BonusEmbed(self, f"Your {self.name} gave you a bonus of {dice_roll.bonus}!"))
+
         # Check for any bonuses active for the user and add them to the roll bonus
         # copy the bonuses, so we don't change the original
         bonuses = user.bonuses.copy()
