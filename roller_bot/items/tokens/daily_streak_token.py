@@ -63,7 +63,7 @@ class DailyStreakToken(Item):
             return BonusReturnValue(active=True, message="You already received your bonus for today.")
 
         # Update the bonus value
-        bonus.bonus_value = min((datetime.now().date() - bonus.started_at).days, self.max_bonus_value)  # type: ignore
+        bonus.bonus_value = min((datetime.now().date() - bonus.started_at.date()).days, self.max_bonus_value)  # type: ignore
 
         # Return the bonus value
         return BonusReturnValue(value=bonus.bonus_value, active=True, message=f"You have a {bonus.bonus_value} bonus from your Daily Streak Token.")
