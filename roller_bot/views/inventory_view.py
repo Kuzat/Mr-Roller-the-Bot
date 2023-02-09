@@ -30,10 +30,13 @@ class InventoryView(View):
         shop_buy_button.callback = self.sell_selected_item
         equip_button = discord.ui.Button(label="Equip", style=discord.ButtonStyle.blurple, emoji="🎲")
         equip_button.callback = self.equip_selected_item
+        use_button = discord.ui.Button(label="Use", style=discord.ButtonStyle.blurple, emoji="🫳")
+        use_button.callback = self.use_selected_item
 
         self.add_item(shop_item_select)
         self.add_item(shop_buy_button)
         self.add_item(equip_button)
+        self.add_item(use_button)
 
     async def select_item(self, interaction: discord.Interaction, select: discord.ui.Select) -> None:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
@@ -118,6 +121,30 @@ class InventoryView(View):
         self.bot.db.commit()
 
         await interaction.response.send_message(f'You have equipped {dice.name}.')
+
+        # Update the shop view and the users credits info embed
+        updated_user_embeds = EmbedsBackend.get_user_embeds(interaction, user)
+        await interaction.message.edit(embeds=updated_user_embeds, view=self)
+
+    async def use_selected_item(self, interaction: discord.Interaction) -> None:
+        user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
+        if user != self.user:
+            return await interaction.response.send_message('You cannot use items for another user.', ephemeral=True, delete_after=60)
+
+        item = item_from_id(self.selected_item)
+        if item is None:
+            await interaction.response.send_message('That item does not exist.', ephemeral=True, delete_after=60)
+            return
+
+        # Check if the user owns the item and the quantity is greater than 0 and health greater than 0
+        user_owned_item = user.get_item(self.selected_item)
+        if not user_owned_item or user_owned_item.quantity <= 0:
+            await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
+            return
+
+        # Use the item
+        await item.use(user, interaction, self.bot)
+        self.bot.db.commit()
 
         # Update the shop view and the users credits info embed
         updated_user_embeds = EmbedsBackend.get_user_embeds(interaction, user)
