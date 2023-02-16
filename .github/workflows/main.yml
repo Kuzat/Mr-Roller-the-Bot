@@ -18,9 +18,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Deploy application
         run: |
-            echo "$SSH_KEY" > ~/.ssh/ssh_key.pem
-            chmod 600 ~/.ssh/ssh_key.pem
-            ssh -i ~/.ssh/ssh_key.pem -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "bash -s" < deploy.sh
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/ssh_key.pem
+          chmod 600 ~/.ssh/ssh_key.pem
+          ssh -i ~/.ssh/ssh_key.pem -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "bash -s" < deploy.sh
         env:
           SSH_HOST: ${{ secrets.REMOTE_HOST }}
           SSH_USER: ${{ secrets.REMOTE_USER }}
