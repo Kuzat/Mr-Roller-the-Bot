@@ -1,6 +1,7 @@
-set -e
+set -e -x
 
 # SSH into the server using the key in environment variable SSH_KEY
+eval "$(ssh-agent -s)"
 ssh-add - <<< "$SSH_KEY"
 ssh "$REMOTE_USER"@"$REMOTE_HOST"
 cd Mr-Roller-the-Bot
