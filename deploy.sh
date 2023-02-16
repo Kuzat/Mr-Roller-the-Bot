@@ -5,6 +5,4 @@ kill "$(ps -ef | grep '[r]oller_bot.main' | awk '{print $2}')"
 poetry run backup
 git pull
 poetry install
-nohup poetry run bot &
-# Exit with success code
-exit 0
+nohup poetry run bot > nohup.out 2> nohup.err < /dev/null &
