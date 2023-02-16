@@ -1,9 +1,6 @@
 import random
-from typing import Optional
 
 from roller_bot.items.models.dice import Dice
-from roller_bot.models.pydantic.dice_roll import DiceRoll
-from roller_bot.models.user import User
 
 
 class CrackedD10Dice(Dice):
@@ -12,6 +9,8 @@ class CrackedD10Dice(Dice):
     def __init__(self):
         super().__init__()
         self.name: str = "Cracked D10 Dice"
+        self.min_roll: int = 1
+        self.max_roll: int = 10
         self.description: str = "A cracked 10 sided dice that breaks easily."
         self.cost: int = 0
         self.sell_cost: int = 2
@@ -26,12 +25,3 @@ class CrackedD10Dice(Dice):
 
     def roll_again(self, last_roll: int) -> bool:
         return last_roll == 10
-
-    def roll(self, guess: Optional[int] = None, user: Optional[User] = None) -> DiceRoll:
-        # Check that we have the dice in our inventory
-        roll = random.randint(1, 10)
-        return DiceRoll(
-            base=roll,
-            bonus=0,
-            can_roll_again=self.roll_again(roll)
-        )

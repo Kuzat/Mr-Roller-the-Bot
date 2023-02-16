@@ -7,6 +7,7 @@ from discord.ui import View
 from roller_bot.clients.backends.user_commands_backend import UserCommandsBackend
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.embeds.item_embed import ItemEmbed
 from roller_bot.embeds.shop_embed import ShopEmbed
 from roller_bot.embeds.user_info_embed import UserInfoEmbed
 from roller_bot.items.models.item import Item
@@ -14,6 +15,7 @@ from roller_bot.items.utils import item_from_id
 from roller_bot.models.items import Items
 from roller_bot.models.user import User
 from roller_bot.views.items_select import ItemOption, ItemSelect
+from roller_bot.views.usable_item_view import UsableItemView
 
 
 class BuyItemView(View):
@@ -98,7 +100,7 @@ class BuyItemView(View):
         self.bot.db.commit()
 
         await interaction.response.send_message(
-                f'You purchased {quantity} {item.name} ({item.id}) for {item.cost * quantity} credits. See your items with /inventory.'
+               embed=ItemEmbed(item), view=UsableItemView(item, self.bot, user)
         )
 
         # Update the shop view and the users credits info embed

@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta
-from typing import List, Optional
+from functools import partial
+from typing import Callable, List, Optional
 
 import discord
 from discord import Embed
@@ -25,15 +26,32 @@ class Dice(Item):
     def __init__(self):
         super().__init__()
         self.user_input: bool = False
+        self.min_roll: int = 1
+        self.max_roll: int = 6
 
     def __repr__(self) -> str:
         return f'BaseDice(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
+    @staticmethod
+    def luck_roll_function(minimum: int, maximum: int, luck: float) -> int:
+        base_roll = random.randint(minimum, maximum)
+        luck_modifier = random.randint(minimum, maximum) * (luck - 1.0)
+        while base_roll + luck_modifier >= maximum:
+            # Reroll modifier if it would cause the roll to go over the maximum
+            luck_modifier = random.randint(minimum, maximum) * (luck - 1.0)
+        return int(base_roll + luck_modifier)
+
     def roll_again(self, last_roll: int) -> bool:
         return last_roll == 6
 
-    def roll(self, guess: Optional[int] = None) -> DiceRoll:
-        roll = random.randint(1, 6)
+    def roll(self, guess: Optional[int] = None, random_roll_function: Callable[[int, int], int] = random.randint) -> DiceRoll:
+        roll = random_roll_function(self.min_roll, self.max_roll)
+        if roll == guess:
+            return DiceRoll(
+                    base=roll,
+                    bonus=roll,
+                    can_roll_again=self.roll_again(roll)
+            )
         return DiceRoll(
                 base=roll,
                 bonus=0,
@@ -97,9 +115,10 @@ class Dice(Item):
             user_input: Optional[int] = None
     ) -> None:
         embeds: List[Embed] = []
+        user_luck_roll_function = partial(Dice.luck_roll_function, random_roll_function=user.luck_bonus)
 
         if self.user_input:
-            dice_roll: DiceRoll = self.roll(user_input)
+            dice_roll: DiceRoll = self.roll(user_input, random_roll_function=user_luck_roll_function)
         else:
             dice_roll: DiceRoll = self.roll()
 
