@@ -16,7 +16,7 @@ class CrackedD8Dice(Dice):
         self.cost: int = 0
         self.sell_cost: int = 2
         self.start_health: int = 100
-        self.use_cost: int = random.choice([35, 50, 100])
+        self.use_cost: int = random.choice([10, 15])
 
         self.own_multiple: bool = True
         self.buyable: bool = False
@@ -31,7 +31,7 @@ class CrackedD8Dice(Dice):
         # Check that we have the dice in our inventory
         roll = random.randint(1, 8)
         return DiceRoll(
-            base=roll,
-            bonus=0,
-            can_roll_again=self.roll_again(roll)
+                base=roll,
+                bonus=0,
+                can_roll_again=self.roll_again(roll)
         )
