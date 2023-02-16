@@ -1,0 +1,25 @@
+name: ssh-into-aws-ec2
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: pro
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+      - name: Deploy application
+        run: ./deploy.sh
+        shell: bash
+        env:
+          SSH_HOST: ${{ secrets.REMOTE_HOST }}
+          SSH_USER: ${{ secrets.REMOTE_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }} 
