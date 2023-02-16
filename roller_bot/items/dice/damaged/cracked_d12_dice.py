@@ -16,7 +16,7 @@ class CrackedD12Dice(Dice):
         self.cost: int = 0
         self.sell_cost: int = 3
         self.start_health: int = 100
-        self.use_cost: int = 100
+        self.use_cost: int = random.choice([10, 20])
 
         self.own_multiple: bool = True
         self.buyable: bool = False
