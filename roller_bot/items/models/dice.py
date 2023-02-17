@@ -115,7 +115,7 @@ class Dice(Item):
             user_input: Optional[int] = None
     ) -> None:
         embeds: List[Embed] = []
-        user_luck_roll_function = partial(Dice.luck_roll_function, random_roll_function=user.luck_bonus)
+        user_luck_roll_function = partial(Dice.luck_roll_function, luck=user.luck_bonus)
 
         if self.user_input:
             dice_roll: DiceRoll = self.roll(user_input, random_roll_function=user_luck_roll_function)
