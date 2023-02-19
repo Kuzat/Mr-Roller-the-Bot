@@ -46,7 +46,6 @@ class InfoCommands(commands.Cog):
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def today(self, interaction: discord.Interaction) -> None:
         await InfoCommandsBackend.rolls(interaction, datetime.now().date(), self.bot)
-        await interaction.response.send_message('This command is deprecated. Use /rolls instead.', ephemeral=True)
 
     @app_commands.command(
             description="Gets a list of all rolls for users that have rolled yesterday",
