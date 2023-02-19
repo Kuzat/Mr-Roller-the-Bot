@@ -14,6 +14,8 @@ import logging
 from roller_bot.database import RollDatabase
 from roller_bot.utils.asyncs import coro
 
+import sentry_sdk
+
 CURRENT_DB_VERSION = 5
 
 
@@ -119,6 +121,17 @@ async def main(debug: bool, db_version: int):
 
     # Load the environment variables from the .env file
     load_secrets()
+
+    # Start sentry sdk if not in debug mode
+    if not debug:
+        sentry_sdk.init(
+                dsn=os.getenv('SENTRY_DSN'),
+
+                # Set traces_sample_rate to 1.0 to capture 100%
+                # of transactions for performance monitoring.
+                # We recommend adjusting this value in production.
+                traces_sample_rate=1.0
+        )
 
     intents = discord.Intents.default()
     intents.message_content = True

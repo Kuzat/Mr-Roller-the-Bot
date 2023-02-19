@@ -35,8 +35,11 @@ class Dice(Item):
     @staticmethod
     def luck_roll_function(minimum: int, maximum: int, luck: float) -> int:
         base_roll = random.randint(minimum, maximum)
+        if base_roll == maximum:
+            return base_roll
+
         luck_modifier = random.randint(minimum, maximum) * (luck - 1.0)
-        while base_roll + luck_modifier >= maximum:
+        while int(base_roll + luck_modifier) > maximum:
             # Reroll modifier if it would cause the roll to go over the maximum
             luck_modifier = random.randint(minimum, maximum) * (luck - 1.0)
         return int(base_roll + luck_modifier)
