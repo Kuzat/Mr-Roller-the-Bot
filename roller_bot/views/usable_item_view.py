@@ -19,14 +19,14 @@ class UsableItemView(View):
         self.timeout = 600
 
         # Add items to the view
-        use_button = discord.ui.Button(label="Use", style=discord.ButtonStyle.green, emoji="🔨")
-        use_button.callback = self.use_item
-        equip_button = discord.ui.Button(label="Equip", style=discord.ButtonStyle.green, emoji="🎲")
-        equip_button.callback = self.equip_item
+        self.use_button = discord.ui.Button(label="Use", style=discord.ButtonStyle.green, emoji="🔨")
+        self.use_button.callback = self.use_item
+        self.equip_button = discord.ui.Button(label="Equip", style=discord.ButtonStyle.green, emoji="🎲")
+        self.equip_button.callback = self.equip_item
 
-        self.add_item(use_button)
+        self.add_item(self.use_button)
         if isinstance(item, Dice):
-            self.add_item(equip_button)
+            self.add_item(self.equip_button)
 
     async def equip_item(self, interaction: discord.Interaction) -> None:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
@@ -53,6 +53,7 @@ class UsableItemView(View):
         self.bot.db.commit()
 
         await interaction.response.send_message(f'You have equipped {dice.name}.')
+        self.equip_button.disabled = True
 
     async def use_item(self, interaction: discord.Interaction) -> None:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
@@ -73,3 +74,4 @@ class UsableItemView(View):
         # Use the item
         await item.use(user, interaction, self.bot)
         self.bot.db.commit()
+        self.use_button.disabled = True
