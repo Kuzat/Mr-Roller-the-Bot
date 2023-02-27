@@ -53,7 +53,7 @@ class UsableItemView(View):
         self.bot.db.commit()
 
         await interaction.response.send_message(f'You have equipped {dice.name}.')
-        self.equip_button.disabled = True
+        await interaction.message.edit(view=None)
 
     async def use_item(self, interaction: discord.Interaction) -> None:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
@@ -74,4 +74,4 @@ class UsableItemView(View):
         # Use the item
         await item.use(user, interaction, self.bot)
         self.bot.db.commit()
-        self.use_button.disabled = True
+        await interaction.message.edit(view=None)
