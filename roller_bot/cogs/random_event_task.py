@@ -52,7 +52,7 @@ class RandomEventTask(commands.Cog):
         )
         random_event_view = RandomEventView(
                 event_item=item_spawn,
-                event_timeout=60,
+                event_timeout=900,
                 bot=bot
         )
         random_event_view.message = await channel.send(embed=random_event_embed, view=random_event_view)
