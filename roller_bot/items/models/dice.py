@@ -79,7 +79,7 @@ class Dice(Item):
             raise commands.errors.UserInputError
 
     async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        response = ResponseMessage(interaction, self)
+        response = ResponseMessage(interaction, self, user=interaction.user)
 
         # Get item from user
         item = user.get_item(self.id)

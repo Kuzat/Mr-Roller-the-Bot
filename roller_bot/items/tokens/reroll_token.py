@@ -24,7 +24,7 @@ class RerollToken(Item):
         return f'RerollToken(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
 
     async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot) -> ResponseMessage:
-        response = ResponseMessage(interaction, self)
+        response = ResponseMessage(interaction, self, user=interaction.user)
         # Get item from user
         item = user.get_item(self.id)
         if item is None:

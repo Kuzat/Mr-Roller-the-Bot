@@ -54,4 +54,4 @@ class UserInputModal(Modal):
 
         db_item = user.get_item(self.item.id)
 
-        await self.on_valid_input(interaction, db_item, user, ResponseMessage(interaction, self.item), self.user_input)
+        await self.on_valid_input(interaction, db_item, user, ResponseMessage(interaction, self.item, user=interaction.user), self.user_input)

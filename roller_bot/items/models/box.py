@@ -53,7 +53,7 @@ class Box(Item):
         )[0]
 
     async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        response = ResponseMessage(interaction, self)
+        response = ResponseMessage(interaction, self, user=interaction.user)
         # Get the item from the user
         item = user.get_item(self.id)
         if item is None:

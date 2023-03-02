@@ -9,9 +9,12 @@ class UseResultEmbed(Embed):
             self,
             message: str,
             item: Item,
+            user: discord.User = None
     ):
         super().__init__(
+                title=item.name,
                 description=str(message),
                 color=discord.Color.blue()
         )
-        self.set_author(name=item.name)  # TODO: Add image for items
+        self.set_author(name=user.name, icon_url=user.display_avatar)  # TODO: Add image for items
+        # self.add_field(name="User", value=user_mention, inline=False)

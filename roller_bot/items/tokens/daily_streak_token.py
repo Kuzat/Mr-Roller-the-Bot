@@ -69,7 +69,7 @@ class DailyStreakToken(Item):
         return BonusReturnValue(value=bonus.bonus_value, active=True, message=f"You have a {bonus.bonus_value} bonus from your Daily Streak Token.")
 
     async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        response = ResponseMessage(interaction, self)
+        response = ResponseMessage(interaction, self, user=interaction.user)
 
         # Get item from user
         user_item = user.get_item(self.id)
