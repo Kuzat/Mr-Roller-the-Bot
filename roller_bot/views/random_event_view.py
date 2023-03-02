@@ -30,6 +30,10 @@ class RandomEventView(View):
         if self.message is None:
             raise Exception(f'View: {self} has no message to edit at timeout.')
 
+        if self.claimed_user is not None:
+            # If the item has been claimed, we don't need to do anything
+            return
+
         random_event_embed = self.message.embeds[0]
         random_event_embed.description = f'Item spawn of {self.item.name} vanished before anyone could claim it. ⚰️⏱️'
         random_event_embed.set_footer(text=f'{random_event_embed.footer.text} and event ended at {datetime.now().strftime("%H:%M:%S")}')
