@@ -107,6 +107,17 @@ class Admin(commands.GroupCog, name="admin"):
         await AdminCommandsBackend.user_info(interaction, user, hidden)
         self.bot.db.commit()
 
+    @app_commands.command()
+    @AdminChecks.is_bot_owner()
+    async def send(self, interaction: discord.Interaction, message: str, reply_message_id: Optional[str]) -> None:
+        if reply_message_id is not None:
+            reply_message = await interaction.channel.fetch_message(reply_message_id)
+            await reply_message.reply(message)
+        else:
+            await interaction.channel.send(message)
+
+        await interaction.response.send_message("Message sent", ephemeral=True)
+
     @luck.command()
     @AdminChecks.is_bot_owner()
     async def add(self, interaction: discord.Interaction, discord_user: discord.User, quantity: float, hidden: Optional[bool] = False) -> None:

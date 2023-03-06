@@ -2,11 +2,12 @@ from typing import Literal
 
 from discord.ext import commands
 
+from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.clients.check import Check
 
 
 class SyncCommands(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: DatabaseBot):
         self.bot = bot
 
     @commands.command()
@@ -17,7 +18,8 @@ class SyncCommands(commands.Cog):
             ctx: commands.Context,
             spec: Literal["guild", "global", "copy-global", "clear", "clear-global"]
     ) -> None:
-        await ctx.send("Syncing...")
+        if self.bot.debug:
+            await ctx.send("Syncing...")
         message = ""
 
         if spec == "guild":
@@ -39,8 +41,9 @@ class SyncCommands(commands.Cog):
             await ctx.bot.tree.sync()
             message = f"Cleared commands globally"
 
-        await ctx.send(message)
+        if self.bot.debug:
+            await ctx.send(message, ephemeral=True)
 
 
-async def setup(bot: commands.Bot) -> None:
+async def setup(bot: DatabaseBot) -> None:
     await bot.add_cog(SyncCommands(bot))
