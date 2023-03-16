@@ -88,3 +88,4 @@ class ActionCommandsBackend:
         # Send the trade message to the channel and mention the other user.
         # This could be done if we want to have a personal message for the creator of the trade
         view.message = await bot.home_channel.send(embed=embed, view=view)
+        await interaction.response.defer()
