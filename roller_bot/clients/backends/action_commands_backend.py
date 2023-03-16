@@ -1,4 +1,3 @@
-
 import discord
 from discord.ext import commands
 
@@ -53,7 +52,8 @@ class ActionCommandsBackend:
             discord_user: discord.User,
             item_id: int,
             price: int,
-            quantity: int = 1
+            quantity: int = 1,
+            timeout: int = 600
     ) -> None:
         user = await UserVerificationBackend.verify_interaction_user(interaction, bot)
         other_user = await TradeChecks.verify_other_use(interaction, bot, discord_user, user)
@@ -66,12 +66,12 @@ class ActionCommandsBackend:
         # Check if item exists and get the item
         item: Item = await TradeChecks.verify_item(interaction, item_id)
 
-        await TradeChecks.verify_trade_item_user(interaction, user, item_id, item, quantity)
+        user_item = await TradeChecks.verify_trade_item_user(interaction, user, item_id, item, quantity)
 
         await TradeChecks.verify_trade_item_other_user(interaction, other_user, item_id, item, quantity, price)
 
         # Make the embed
-        embed = TradeEmbed(user, other_user, item, quantity, price, author=interaction.user)
+        embed = TradeEmbed(user, other_user, item, quantity, price, author=interaction.user, trade_item=user_item)
 
         # Send a discord view to the other user to accept the trade
         view = TradeView(
@@ -80,16 +80,11 @@ class ActionCommandsBackend:
                 other_user=discord_user,
                 item=item,
                 quantity=quantity,
-                price=price
+                price=price,
+                timeout=timeout,
+                trade_item=user_item
         )
 
         # Send the trade message to the channel and mention the other user.
         # This could be done if we want to have a personal message for the creator of the trade
-        # await interaction.channel.send(view=view, content=f'{user.mention} wants to trade {quantity} {item.name} for {price} coins.')
-
-        await interaction.response.send_message(
-                content=f"{user.mention} sent a trade request to {other_user.mention}",
-                embed=embed,
-                view=view,
-        )
-
+        view.message = await bot.home_channel.send(embed=embed, view=view)

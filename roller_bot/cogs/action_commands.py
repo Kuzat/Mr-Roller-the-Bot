@@ -68,9 +68,10 @@ class ActionCommands(commands.Cog):
             discord_user: discord.User,
             item_id: int,
             price: int,
-            quantity: int = 1
+            quantity: int = 1,
+            timeout: int = 600
     ) -> None:
-        await ActionCommandsBackend.trade_item(interaction, self.bot, discord_user, item_id, price, quantity)
+        await ActionCommandsBackend.trade_item(interaction, self.bot, discord_user, item_id, price, quantity, timeout)
 
     @trade.autocomplete("item_id")
     async def trade_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
