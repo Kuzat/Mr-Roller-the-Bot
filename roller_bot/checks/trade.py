@@ -1,3 +1,5 @@
+from typing import Optional
+
 import discord
 from discord.app_commands import AppCommandError
 
@@ -83,7 +85,7 @@ class TradeChecks:
             item: Item,
             quantity: int,
             price: int
-    ) -> Items:
+    ) -> Optional[Items]:
         # Check if the other user has the item, and it is not own multiple times
         other_user_item = other_user.get_item(item_id)
         if other_user_item and other_user_item.quantity > 0 and not item.own_multiple:

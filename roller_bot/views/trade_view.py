@@ -6,6 +6,7 @@ from roller_bot.clients.backends.user_verification_backend import UserVerificati
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.trade_embed import AcceptedTradeEmbed, DeclinedTradeEmbed
 from roller_bot.items.models.item import Item
+from roller_bot.models.items import Items
 
 
 async def complete_trade(
@@ -34,7 +35,11 @@ async def complete_trade(
 
     # Trade the items
     user_item.quantity -= quantity
-    other_user_item.quantity += quantity
+    # Check if other users has the item already
+    if other_user_item:
+        other_user_item.quantity += quantity
+    else:
+        other_user.items.append(Items(item_id=item.id, quantity=quantity, user_id=other_user.id, purchased_at=user_item.purchased_at))
 
     # Move the credits
     other_user.roll_credit -= price
