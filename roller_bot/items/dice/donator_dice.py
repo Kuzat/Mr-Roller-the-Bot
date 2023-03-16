@@ -16,3 +16,6 @@ class DonatorDice(Dice):
 
     def __repr__(self) -> str:
         return f'DonatorDice(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
+
+    def roll_again(self, last_roll: int) -> bool:
+        return last_roll == 12
