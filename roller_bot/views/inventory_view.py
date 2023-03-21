@@ -67,7 +67,7 @@ class InventoryView(View):
             return
 
         # Check if the user owns the item
-        user_owned_item = user.get_item(self.selected_item)
+        user_owned_item = user.get_items(self.selected_item)
         if not user_owned_item:
             await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
             return
@@ -137,7 +137,7 @@ class InventoryView(View):
             return
 
         # Check if the user owns the item and the quantity is greater than 0 and health greater than 0
-        user_owned_item = user.get_item(self.selected_item)
+        user_owned_item = user.get_items(self.selected_item)
         if not user_owned_item or user_owned_item.quantity <= 0:
             await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
             return

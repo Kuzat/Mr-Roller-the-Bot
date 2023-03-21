@@ -19,6 +19,7 @@ class InfoCommandsBackend:
 
         new_user = User.new_user(interaction.user.id, datetime.now())
         bot.db.add_user(new_user)
+        new_user.active_dice = new_user.default_dice.id
         await interaction.response.send_message(
                 f"Welcome to the daily dice bot, {new_user.mention}! "
                 f"You have been given a free dice to get started with."

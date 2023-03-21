@@ -11,11 +11,11 @@ class Bonus(Base):
         autoincrement=True, nullable=False
         )
     user_id: Column = Column(Integer, ForeignKey('users.id'))
-    item_id: Column = Column(Integer, nullable=False)
+    item_def_id: Column = Column(Integer, nullable=False)
     bonus_value: Column = Column(Integer, nullable=False, default=0)
     started_at: Column = Column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="bonuses")
 
     def __repr__(self) -> str:
-        return f'Bonus(id={self.id}, user_id={self.user_id}, item_id={self.item_id}, bonus_value={self.bonus_value}, started_at={self.started_at})'
+        return f'Bonus(id={self.id}, user_id={self.user_id}, item_def_id={self.item_def_id}, bonus_value={self.bonus_value}, started_at={self.started_at})'

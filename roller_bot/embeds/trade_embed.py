@@ -4,7 +4,7 @@ import discord
 from discord import Embed
 
 from roller_bot.items.models.item import Item
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.user import User
 
 
@@ -21,7 +21,7 @@ class TradeEmbed(Embed):
             description: Optional[str] = None,
             color: Optional[discord.Color] = None,
             author: Optional[discord.User] = None,
-            trade_item: Optional[Items] = None,
+            trade_item: Optional[ItemData] = None,
     ):
         super().__init__(
                 title=title if title else 'Trade',
@@ -49,7 +49,7 @@ class AcceptedTradeEmbed(TradeEmbed):
             price: int,
             *,
             author: Optional[discord.User] = None,
-            trade_item: Optional[Items] = None
+            trade_item: Optional[ItemData] = None
     ) -> None:
         super().__init__(
                 user,
@@ -75,7 +75,7 @@ class DeclinedTradeEmbed(TradeEmbed):
             price: int,
             *,
             author: Optional[discord.User] = None,
-            trade_item: Optional[Items] = None
+            trade_item: Optional[ItemData] = None
     ) -> None:
         super().__init__(
                 user,
@@ -101,7 +101,7 @@ class TimedOutTradeEmbed(TradeEmbed):
             price: int,
             *,
             author: Optional[discord.User] = None,
-            trade_item: Optional[Items] = None
+            trade_item: Optional[ItemData] = None
     ) -> None:
         super().__init__(
                 user,

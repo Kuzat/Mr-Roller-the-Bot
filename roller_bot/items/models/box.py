@@ -1,15 +1,10 @@
-import asyncio
 import random
 from functools import reduce
 from typing import List
 
-import discord
 
-from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
 from roller_bot.models.pydantic.box_item import BoxItem
-from roller_bot.models.user import User
-from roller_bot.utils.discord import ResponseMessage
 
 
 class Box(Item):
@@ -51,36 +46,3 @@ class Box(Item):
                 weights=list(map(lambda x: x.weight, self.box_items)),
                 k=1
         )[0]
-
-    async def use(self, user: User, interaction: discord.Interaction, bot: DatabaseBot) -> None:
-        response = ResponseMessage(interaction, self, user=interaction.user)
-        # Get the item from the user
-        item = user.get_item(self.id)
-        if item is None:
-            response.send(f"You don't have a {self.name} in your inventory.")
-            return await response.send_interaction(ephemeral=True, delete_after=60)
-
-        # Get the box item
-        box_item = self.get_box_item()
-
-        # Show the text of the item
-        response.send(box_item.description + " You add the item to your inventory, view it with /inventory.")
-
-        # Claim the box item
-        await box_item.claim(user)
-
-        item.health -= self.use_cost
-
-        # Check and remove the item if health is 0 or less
-        if item.health <= 0:
-            item.quantity -= 1
-            item.health = self.start_health
-            response.send(f"You throw away the opened {self.name}.")
-            return await response.send_interaction()
-
-        response.send("You put the {self.name} back in your inventory.")
-
-        # await some time to process
-        await asyncio.sleep(1)
-
-        return await response.send_interaction()

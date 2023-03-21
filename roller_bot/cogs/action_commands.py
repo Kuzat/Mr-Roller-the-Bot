@@ -7,7 +7,7 @@ from discord.ext import commands
 from roller_bot.clients.backends.action_commands_backend import ActionCommandsBackend
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
-from roller_bot.items.utils import item_from_id
+from roller_bot.models.item_data import ItemData
 
 
 class ActionCommands(commands.Cog):
@@ -33,22 +33,15 @@ class ActionCommands(commands.Cog):
     async def use_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
 
-        items = []
-        # Enrich with quantity
-        for user_item in user.items:
-            item = item_from_id(user_item.item_id)  # type: ignore
-            item.quantity = user_item.quantity
-            items.append(item)
-
-        # Filter away items with quantity 0
-        items = filter(lambda item: item.quantity > 0, items)
+        items: List[ItemData] = user.items.copy()
 
         # Filter out items that match the current string
-        items = filter(lambda item: current.lower() in item.name.lower(), items)
+        items_iter = filter(lambda item_data: current.lower() in item_data.item.name.lower(), items)
 
+        # noinspection PyTypeChecker
         return [
-            app_commands.Choice(name=item.name, value=item.id)
-            for item in items
+            app_commands.Choice(name=f"{item_data.item.name} (Health: {item_data.health})", value=item_data.id)
+            for item_data in items_iter
         ]
 
     @app_commands.command(
@@ -77,22 +70,18 @@ class ActionCommands(commands.Cog):
     async def trade_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
 
-        items = []
-        # Enrich with quantity
-        for user_item in user.items:
-            item = item_from_id(user_item.item_id)  # type: ignore
-            item.quantity = user_item.quantity
-            items.append(item)
+        items: List[ItemData] = user.items.copy()
 
         # Filter away items with quantity 0 and items that are not sellable
-        items = filter(lambda item: item.quantity > 0 and item.sellable, items)
+        items_iter = filter(lambda item_data: item_data.item.sellable, items)
 
         # Filter out items that match the current string
-        items = filter(lambda item: current.lower() in item.name.lower(), items)
+        items_iter = filter(lambda item_data: current.lower() in item_data.item.name.lower(), items_iter)
 
+        # noinspection PyTypeChecker
         return [
-            app_commands.Choice(name=item.name, value=item.id)
-            for item in items
+            app_commands.Choice(name=f"{item_data.item.name} (Health: {item_data.health})", value=item_data.id)
+            for item_data in items_iter
         ]
 
 

@@ -6,7 +6,7 @@ import discord
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_from_id
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.user import User
 
 from roller_bot.utils.list_helpers import split
@@ -43,7 +43,7 @@ class AdminCommandsBackend:
             return
 
         # Check if the user already has the item unless you can own multiple
-        user_item = user.get_item(item_id)
+        user_item = user.get_items(item_id)
         if user_item and not item.own_multiple and not user_item.quantity == 0:
             await interaction.response.send_message(f"User already has item {item_id}", ephemeral=hidden)
             return
@@ -51,7 +51,7 @@ class AdminCommandsBackend:
         # Add the new item to user if the do not already own it
         if not user_item:
             user.items.append(
-                    Items(
+                    ItemData(
                             item_id=item_id,
                             user_id=user.id,
                             quantity=quantity,
@@ -81,7 +81,7 @@ class AdminCommandsBackend:
             return
 
         # Check if the user already has the item unless you can own multiple
-        user_item = user.get_item(item_id)
+        user_item = user.get_items(item_id)
         if user_item is None:
             await interaction.response.send_message(f"User does not have item {item_id}", ephemeral=hidden)
             return
@@ -129,10 +129,10 @@ class AdminCommandsBackend:
         if len(user.items) == 0:
             user_info += "```No items"
         else:
-            user_items: List[Items] = list(filter(lambda x: x.quantity > 0, user.items))
+            user_items: List[ItemData] = list(filter(lambda x: x.quantity > 0, user.items))
             user_item_definitions: List[Item] = []
             for item in user_items:
-                item_definition = item_from_id(item.item_id)  # type: ignore
+                item_definition = item_from_id(item.item_def_id)  # type: ignore
                 if item_definition is not None:
                     item_definition.quantity = item.quantity
                     user_item_definitions.append(item_definition)

@@ -66,7 +66,7 @@ class UsableItemView(View):
             return
 
         # Check if the user owns the item and the quantity is greater than 0 and health greater than 0
-        user_owned_item = user.get_item(self.item.id)
+        user_owned_item = user.get_items(self.item.id)
         if not user_owned_item or user_owned_item.quantity <= 0:
             await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
             return
