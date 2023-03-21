@@ -11,7 +11,7 @@ class BonusValue(Base):
     )
     user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
     roll_id: Column = Column(Integer, ForeignKey('rolls.id'), nullable=False)
-    item_id: Column = Column(Integer, nullable=False)
+    item_def_id: Column = Column(Integer, nullable=False)
     value: Column = Column(Integer, nullable=False, default=0)
     created_at: Column = Column(DateTime, nullable=False)
 
@@ -19,5 +19,5 @@ class BonusValue(Base):
     user = relationship("User", back_populates="bonus_values")
 
     def __repr__(self) -> str:
-        return f'BonusValue(id={self.id}, user_id={self.user_id}, roll_id={self.roll_id}, item_id={self.item_id}, value={self.value}, ' \
+        return f'BonusValue(id={self.id}, user_id={self.user_id}, roll_id={self.roll_id}, item_def_id={self.item_def_id}, value={self.value}, ' \
                f'created_at={self.created_at})'

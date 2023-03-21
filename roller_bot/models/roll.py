@@ -17,7 +17,7 @@ class Roll(Base):
     can_roll_again: Column = Column(Boolean, nullable=False, default=False)
 
     user = relationship("User", back_populates="rolls")
-    item = relationship("Items", back_populates="rolls")
+    item = relationship("ItemData", back_populates="rolls")
     bonus_values: List[BonusValue] = relationship("BonusValue", back_populates="roll")
 
     def __repr__(self) -> str:

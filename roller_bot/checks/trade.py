@@ -7,7 +7,7 @@ from roller_bot.clients.backends.user_verification_backend import UserVerificati
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_from_id
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.user import User
 
 
@@ -55,13 +55,12 @@ class TradeChecks:
     async def verify_trade_item_user(
             interaction: discord.Interaction,
             user: User,
-            item_id: int,
             item: Item,
             quantity: int
-    ) -> Items:
+    ) -> ItemData:
         # Check if the user has the item
-        user_item = user.get_item(item_id)
-        if not user_item:
+        user_item = user.get_items(item.id)
+        if not user.has_item(item.id):
             await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck('User does not own item')
 
@@ -71,7 +70,7 @@ class TradeChecks:
             raise FailedTradeCheck('Item is not sellable')
 
         # Check if the user has enough of the item
-        if user_item.quantity < quantity:
+        if user.quantity(item.id) < quantity:
             await interaction.response.send_message('You do not have enough of that item.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck('User does not have enough of item')
 
@@ -85,9 +84,9 @@ class TradeChecks:
             item: Item,
             quantity: int,
             price: int
-    ) -> Optional[Items]:
+    ) -> Optional[ItemData]:
         # Check if the other user has the item, and it is not own multiple times
-        other_user_item = other_user.get_item(item_id)
+        other_user_item = other_user.get_items(item_id)
         if other_user_item and other_user_item.quantity > 0 and not item.own_multiple:
             await interaction.response.send_message(f'{other_user.mention} already owns that item and can not own multiple.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck(f'{other_user} already owns item and can not own multiple')

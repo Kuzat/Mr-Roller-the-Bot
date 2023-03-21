@@ -10,7 +10,7 @@ from roller_bot.items.models.item import Item
 from roller_bot.items.tokens.daily_streak_token import DailyStreakToken
 from roller_bot.items.tokens.reroll_token import RerollToken
 from roller_bot.items.utils import item_from_id
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.utils.random_lists import WeightedRandomItemsList, WeightedItem
 
 
@@ -116,11 +116,11 @@ class ClaimItemEvent:
             return
 
         # Get the user's owned item
-        user_owned_item = user.get_item(item.id)
+        user_owned_item = user.get_items(item.id)
         # Add the item to the user's inventory
         if not user_owned_item:
             user.items.append(
-                    Items(
+                    ItemData(
                             item_id=item.id, user_id=user.id,
                             quantity=1, purchased_at=datetime.now()
                     )

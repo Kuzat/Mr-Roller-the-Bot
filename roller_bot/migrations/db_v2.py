@@ -4,7 +4,7 @@ import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from roller_bot.database import RollDatabase
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.roll import Roll
 from roller_bot.models.user import User
 
@@ -40,7 +40,7 @@ def migrate():
     for row in old_items:
         print(f"item: {row}")
         # Create a user for each unique user_id
-        item = Items(**row)
+        item = ItemData(**row)
         item.purchased_at = datetime.strptime(row['purchased_at'], '%Y-%m-%d').date()  # type: ignore
         item.health = 100  # new in v2
         print(item)

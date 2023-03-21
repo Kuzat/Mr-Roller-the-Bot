@@ -12,7 +12,7 @@ from roller_bot.embeds.shop_embed import ShopEmbed
 from roller_bot.embeds.user_info_embed import UserInfoEmbed
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_from_id
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.user import User
 from roller_bot.views.items_select import ItemOption, ItemSelect
 from roller_bot.views.usable_item_view import UsableItemView
@@ -69,7 +69,7 @@ class BuyItemView(View):
             return
 
         # Check if the user does not already own the item unless you can own multiple of the same item
-        user_owned_item = user.get_item(item_id)
+        user_owned_item = user.get_items(item_id)
         if not item.own_multiple and user_owned_item:
             await interaction.response.send_message('You already own that item and cannot own multiple of that item.', ephemeral=True, delete_after=60)
             return
@@ -86,7 +86,7 @@ class BuyItemView(View):
         # Add new item to user if they do not already own it
         if not user_owned_item:
             user.items.append(
-                    Items(
+                    ItemData(
                             item_id=item.id, user_id=user.id,
                             quantity=quantity, purchased_at=datetime.now()
                     )

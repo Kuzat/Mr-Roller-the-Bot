@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from functools import cached_property
 from typing import Dict, List, Optional
+
 from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
@@ -8,7 +9,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from roller_bot.models.base import Base
 from roller_bot.models.bonus import Bonus
 from roller_bot.models.bonus_value import BonusValue
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.roll import Roll
 
 
@@ -22,11 +23,11 @@ class User(Base):
     active_dice: Column = Column(Integer, nullable=False, default=0)
     can_roll_again: Column = Column(Boolean, nullable=False, default=False)
 
-    items: List[Items] = relationship("Items", back_populates="user")
+    items: List[ItemData] = relationship("ItemData", back_populates="user")
     rolls: List[Roll] = relationship(
             "Roll", order_by=Roll.id, back_populates="user"
     )
-    bonuses: Dict[int, Bonus] = relationship("Bonus", collection_class=attribute_mapped_collection("item_id"), back_populates="user")
+    bonuses: Dict[int, Bonus] = relationship("Bonus", collection_class=attribute_mapped_collection("item_def_id"), back_populates="user")
     bonus_values: List[BonusValue] = relationship("BonusValue", order_by=BonusValue.id, back_populates="user")
 
     def __repr__(self) -> str:
@@ -114,17 +115,28 @@ class User(Base):
     def can_daily_roll(self) -> bool:
         return self.latest_roll.roll_time.date() != datetime.now().date() if self.latest_roll else True
 
-    def has_item(self, item_id: int) -> bool:
-        return any([item.item_id == item_id for item in self.items])
+    def has_item(self, item_def_id: int) -> bool:
+        return self.get_items(item_def_id) != []
 
-    def get_item(self, item_id: int) -> Optional[Items]:
-        for item in self.items:
-            if item.item_id == item_id:
-                return item
-        return None
+    def get_items(self, item_def_id: int) -> Optional[List[ItemData]]:
+        return [item for item in self.items if item.item_def_id == item_def_id]
+
+    def get_item_data(self, item_id: int) -> Optional[ItemData]:
+        return next((item for item in self.items if item.id == item_id), None)
+
+    def add_item(self, item: ItemData) -> None:
+        self.items.append(item)
+
+    def remove_item(self, item_id: int) -> None:
+        item = self.get_item_data(item_id)
+        if item:
+            self.items.remove(item)
+
+    def quantity(self, item_def_id: int) -> int:
+        return len(self.get_items(item_def_id))
 
     def get_bonus_values_for_item(self, item_id: int) -> List[Bonus]:
-        return list(filter(lambda bonus_value: bonus_value.item_id == item_id, self.bonus_values))
+        return list(filter(lambda bonus_value: bonus_value.item_def_id == item_id, self.bonus_values))
 
     def can_roll(self) -> bool:
         return (
@@ -133,15 +145,17 @@ class User(Base):
                 self.can_roll_again
         )
 
+    @property
+    def default_dice(self) -> ItemData:
+        # default dice will be the first dice in the list
+        return self.items[0]
+
     @classmethod
     def new_user(cls, user_id: int, created_at: datetime):
         user = User(id=user_id, created_at=created_at)
         # Add a default dice to the user's items
-        dice_id = 0
-        user.items.append(
-                Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=created_at)
-        )
-        user.active_dice = dice_id  # type: ignore
+        dice_def_id = 0
+        user.add_item(ItemData(user_id=user.id, item_def_id=dice_def_id, purchased_at=created_at))
         return user
 
     @staticmethod
