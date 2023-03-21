@@ -22,7 +22,7 @@ class GambleDice(Dice):
                 placeholder="1-6",
                 min_length=1,
                 max_length=1,
-                user_input_condition=lambda x: x.isdigit() and 1 <= int(x) <= 6
+                user_input_condition=lambda x: 1 <= int(x) <= 6
         )
 
     def __repr__(self) -> str:

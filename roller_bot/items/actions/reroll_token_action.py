@@ -9,12 +9,12 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
     item = item_data.item
     response = ResponseMessage(interaction, item.name, user=interaction.user)
     # Get item from user
-    if user.has_item(item.id):
+    if not user.has_item(item.id):
         response.send("You don't have a Reroll Token in your inventory.")
         return await response.send_interaction(ephemeral=True, delete_after=60)
 
     # Check if we already have a reroll active
-    if user.can_roll_again:
+    if user.can_roll():
         response.send("You already have a reroll active.")
         return await response.send_interaction(ephemeral=True, delete_after=60)
 
@@ -25,7 +25,7 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
     user.can_roll_again = True
 
     # Check and remove the item if health is 0 or less
-    if item.health <= 0:
+    if item_data.health <= 0:
         # remove quantity and reset health to start_health
         # noinspection PyTypeChecker
         user.remove_item(item_data.id)

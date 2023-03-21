@@ -14,7 +14,7 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
     item = item_data.item
     response = ResponseMessage(interaction, item.name, user=interaction.user)
     # Get the item from the user
-    if user.has_item(item.id):
+    if not user.has_item(item.id):
         response.send(f"You don't have a {item.name} in your inventory.")
         return await response.send_interaction(ephemeral=True, delete_after=60)
 

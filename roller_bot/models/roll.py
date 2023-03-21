@@ -12,7 +12,7 @@ class Roll(Base):
         Integer, primary_key=True,
         autoincrement=True, nullable=False
         )
-    user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id: Column = Column(Integer, ForeignKey('users.id'))
     item_id: Column = Column(Integer, ForeignKey('items.id'), nullable=False)
     roll_time: Column = Column(DateTime, nullable=False)
     base_value: Column = Column(Integer, nullable=False)

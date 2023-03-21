@@ -7,14 +7,14 @@ from roller_bot.clients.backends.embeds_backend import EmbedsBackend
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.dice import Dice
-from roller_bot.items.models.item import Item
 from roller_bot.items.utils import dice_from_id, item_from_id
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.user import User
 from roller_bot.views.items_select import ItemOption, ItemSelect
 
 
 class InventoryView(View):
-    def __init__(self, items: List[Item], bot: DatabaseBot, user: User):
+    def __init__(self, items: List[ItemData], bot: DatabaseBot, user: User):
         super().__init__()
         self.bot = bot
         self.user = user
@@ -24,7 +24,13 @@ class InventoryView(View):
         self.selected_item: Optional[int] = None
 
         # Add items to the view
-        item_options = [ItemOption(item, label=f"{item.name}" + f"- {item.sell_cost} credits" if item.sellable else "") for item in items]
+        item_options = [
+            ItemOption(
+                    item_data,
+                    label=f"{item_data.item.name} (Health: {item_data.health})" + f"- {item_data.item.sell_cost} credits" if item_data.item.sellable else ""
+            )
+            for item_data in items
+        ]
         shop_item_select = ItemSelect(item_options, self.select_item, placeholder="Select an item")
         shop_buy_button = discord.ui.Button(label="Sell", style=discord.ButtonStyle.green, emoji="💰")
         shop_buy_button.callback = self.sell_selected_item

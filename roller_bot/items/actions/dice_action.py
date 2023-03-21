@@ -61,7 +61,7 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction,
     # get the roll
     if dice.user_input:
         # Create a modal to get the user input
-        user_input_modal = UserInputModal(dice, bot=bot, on_valid_input=post_use)
+        user_input_modal = UserInputModal(item_data, bot=bot, on_valid_input=post_use)
         await interaction.response.send_modal(user_input_modal)
     else:
         await post_use(

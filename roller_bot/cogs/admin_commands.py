@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from roller_bot.checks.admin import AdminChecks
 from roller_bot.clients.backends.admin_commands_backend import AdminCommandsBackend
+from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.utils import item_data
 
@@ -25,17 +26,17 @@ class Admin(commands.GroupCog, name="admin"):
 
     @item.command()
     @AdminChecks.is_bot_owner()
-    async def add(self, interaction: discord.Interaction, discord_user: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
+    async def add(self, interaction: discord.Interaction, discord_user: discord.User, item_def_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 
         if user is None:
             await interaction.response.send_message('Not a valid user.', ephemeral=hidden)
             return
 
-        await AdminCommandsBackend.add_item(interaction, user, item_id, quantity, hidden)
+        await AdminCommandsBackend.add_item(interaction, user, item_def_id, quantity, hidden)
         self.bot.db.commit()
 
-    @add.autocomplete("item_id")
+    @add.autocomplete("item_def_id")
     async def admin_add_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
         items = item_data.values()
 
@@ -61,15 +62,17 @@ class Admin(commands.GroupCog, name="admin"):
 
     @remove.autocomplete("item_id")
     async def admin_remove_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
-        items = item_data.values()
+        # TODO: Need to get the user we want to remove items from here.
+        ...
+        # items = user.items.copy()
+        #
+        # # Filter out items that match the current string
+        # items = filter(lambda item: current.lower() in item.name.lower(), items)
 
-        # Filter out items that match the current string
-        items = filter(lambda item: current.lower() in item.name.lower(), items)
-
-        return [
-            app_commands.Choice(name=item.name, value=item.id)
-            for item in items
-        ]
+        # return [
+        #     app_commands.Choice(name=item.name, value=item.id)
+        #     for item in items
+        # ]
 
     @credit.command()
     @AdminChecks.is_bot_owner()

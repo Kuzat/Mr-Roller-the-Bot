@@ -9,7 +9,7 @@ class BonusValue(Base):
             Integer, primary_key=True,
             autoincrement=True, nullable=False
     )
-    user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id: Column = Column(Integer, ForeignKey('users.id'))
     roll_id: Column = Column(Integer, ForeignKey('rolls.id'), nullable=False)
     item_def_id: Column = Column(Integer, nullable=False)
     value: Column = Column(Integer, nullable=False, default=0)

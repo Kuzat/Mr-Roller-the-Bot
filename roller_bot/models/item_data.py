@@ -14,7 +14,7 @@ class ItemData(Base):
             Integer, primary_key=True,
             autoincrement=True, nullable=False
     )
-    user_id: Column = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id: Column = Column(Integer, ForeignKey('users.id'))
     item_def_id: Column = Column(Integer, nullable=False)
     health: Column = Column(Integer, nullable=False, default=100)
     purchased_at: Column = Column(DateTime, nullable=False)
