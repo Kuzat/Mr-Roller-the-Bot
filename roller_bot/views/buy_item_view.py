@@ -51,11 +51,11 @@ class BuyItemView(View):
             return await interaction.response.send_message('You cannot buy items for another user.', ephemeral=True, delete_after=60)
 
         quantity = 1
-        item_id = self.selected_item
-        if item_id is None:
+        item_def_id = self.selected_item
+        if item_def_id is None:
             return await interaction.response.send_message('You must select an item to buy.', ephemeral=True, delete_after=60)
 
-        item = item_from_id(item_id)
+        item = item_from_id(item_def_id)
         if item is None:
             return await interaction.response.send_message('That item does not exist.', ephemeral=True, delete_after=60)
 
@@ -69,8 +69,8 @@ class BuyItemView(View):
             return
 
         # Check if the user does not already own the item unless you can own multiple of the same item
-        user_owned_item = user.get_items(item_id)
-        if not item.own_multiple and user_owned_item:
+        user_owned_item = user.get_items(item_def_id)
+        if not item.own_multiple and user.has_item(item_def_id):
             await interaction.response.send_message('You already own that item and cannot own multiple of that item.', ephemeral=True, delete_after=60)
             return
 
@@ -83,24 +83,22 @@ class BuyItemView(View):
             await interaction.response.send_message('You do not have enough credits to buy this item.', ephemeral=True, delete_after=60)
             return
 
-        # Add new item to user if they do not already own it
-        if not user_owned_item:
-            user.items.append(
-                    ItemData(
-                            item_id=item.id, user_id=user.id,
-                            quantity=quantity, purchased_at=datetime.now()
-                    )
-            )
-        elif item.own_multiple and user_owned_item:
-            # If they can own multiple of the same item, increment the quantity
-            user_owned_item.quantity += quantity
+        # Add the item
+        user.add_item(
+                ItemData(
+                        user_id=user.id,
+                        item_def_id=item.id,
+                        health=item.start_health,
+                        purchased_at=datetime.now()
+                )
+        )
 
         # Remove the cost of the item from the user's roll credits
         user.roll_credit -= (item.cost * quantity)
         self.bot.db.commit()
 
         await interaction.response.send_message(
-               embed=ItemEmbed(item), view=UsableItemView(item, self.bot, user)
+                embed=ItemEmbed(item), view=UsableItemView(item, self.bot, user)
         )
 
         # Update the shop view and the users credits info embed

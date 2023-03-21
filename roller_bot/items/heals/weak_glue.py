@@ -5,7 +5,6 @@ import discord
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
 from roller_bot.models.bonus import Bonus
-from roller_bot.models.pydantic.bonus_return_value import BonusReturnValue
 from roller_bot.models.user import User
 from roller_bot.utils.discord import ResponseMessage
 
@@ -50,7 +49,7 @@ class WeakGlue(Item):
         # Add the bonus to the user
         daily_bonus = Bonus(
                 user_id=user.id,
-                item_id=self.id,
+                item_def_id=self.id,
                 bonus_value=self.start_bonus_value,
                 started_at=datetime.now().date(),
         )

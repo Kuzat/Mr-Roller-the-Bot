@@ -52,7 +52,7 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
     response = ResponseMessage(interaction, item_data.item.name, user=interaction.user)
 
     # Get item from user
-    if user.has_item(item.id):
+    if not user.has_item(item.id):
         response.send(f"You don't have a {item.name} in your inventory.")
         return await response.send_interaction(ephemeral=True, delete_after=60)
 
@@ -64,7 +64,7 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
     # Add the bonus to the user
     daily_bonus = Bonus(
             user_id=user.id,
-            item_id=item.id,
+            item_def_id=item.id,
             bonus_value=item.start_bonus_value,
             started_at=datetime.now().date(),
     )

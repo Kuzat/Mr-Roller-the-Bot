@@ -50,7 +50,7 @@ class SuperGlue(Item):
         # Add the bonus to the user
         daily_bonus = Bonus(
                 user_id=user.id,
-                item_id=self.id,
+                item_def_id=self.id,
                 bonus_value=self.start_bonus_value,
                 started_at=datetime.now().date(),
         )

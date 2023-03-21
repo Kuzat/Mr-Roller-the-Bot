@@ -8,6 +8,6 @@ from roller_bot.models.user import User
 def bonus_action(item_def: Bonus, user: User) -> BonusReturnValue:
     match item_def.id:
         case DailyStreakToken.id:
-            return daily_streak_action.bonus_action(item_def, user)
+            return daily_streak_token_action.bonus_action(item_def, user)
         case _:
             raise NotImplementedError(f"Bonus action for item {item_def} not implemented")

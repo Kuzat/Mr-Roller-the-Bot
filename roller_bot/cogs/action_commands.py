@@ -1,4 +1,5 @@
-from typing import List
+from dataclasses import dataclass
+from typing import Iterable, List
 
 import discord
 from discord import app_commands
@@ -36,12 +37,30 @@ class ActionCommands(commands.Cog):
         items: List[ItemData] = user.items.copy()
 
         # Filter out items that match the current string
-        items_iter = filter(lambda item_data: current.lower() in item_data.item.name.lower(), items)
+        items_iter: Iterable[ItemData] = filter(lambda item_data: current.lower() in item_data.item.name.lower(), items)
 
+        @dataclass(slots=True)
+        class UniqueItemData:
+            item_data: ItemData
+            quantity: int
+
+        unique_items: dict[str, UniqueItemData] = {}
+        for item in items_iter:
+            item_unique_value = f"{item.item.name} (Health: {item.health})"
+            print(item_unique_value)
+            if unique_items.get(item_unique_value) is None:
+                unique_items[item_unique_value] = UniqueItemData(item_data=item, quantity=1)
+            else:
+                unique_items[item_unique_value].item_data = item
+                unique_items[item_unique_value].quantity += 1
+                
         # noinspection PyTypeChecker
         return [
-            app_commands.Choice(name=f"{item_data.item.name} (Health: {item_data.health})", value=item_data.id)
-            for item_data in items_iter
+            app_commands.Choice(
+                    name=f"{unique_item_data.item_data.item.name} (Health: {unique_item_data.item_data.health}) | Quantity = {unique_item_data.quantity}",
+                    value=unique_item_data.item_data.id
+            )
+            for unique_item_data in unique_items.values()
         ]
 
     @app_commands.command(
