@@ -1,5 +1,3 @@
-from typing import Optional
-
 import discord
 from discord.ui import View
 
@@ -7,7 +5,6 @@ from roller_bot.checks.trade import TradeChecks
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.trade_embed import AcceptedTradeEmbed, DeclinedTradeEmbed, TimedOutTradeEmbed
-from roller_bot.items.models.item import Item
 from roller_bot.models.item_data import ItemData
 
 
@@ -16,32 +13,20 @@ async def complete_trade(
         bot: DatabaseBot,
         discord_user: discord.User,
         discord_other_user: discord.User,
-        item_id: int,
-        quantity: int,
+        item_data: ItemData,
         price: int
 ) -> None:
     user = await UserVerificationBackend.verify_discord_user(interaction, bot, discord_user)
     other_user = await TradeChecks.verify_other_use(interaction, bot, discord_other_user, user)
 
-    # Check quantity is larger than 0
-    if quantity <= 0:
-        await interaction.response.send_message('Quantity must be larger than 0 to trade.', ephemeral=True, delete_after=60)
-        return
-
     # Check if item exists and get the item
-    item: Item = await TradeChecks.verify_item(interaction, item_id)
+    # noinspection PyTypeChecker
+    user_owned_item = await TradeChecks.verify_trade_item_user(interaction, user, item_data.id)
 
-    user_item = await TradeChecks.verify_trade_item_user(interaction, user, item, quantity)
-
-    other_user_item = await TradeChecks.verify_trade_item_other_user(interaction, other_user, item_id, item, quantity, price)
+    other_user_item = await TradeChecks.verify_trade_item_other_user(interaction, other_user, user_owned_item.item, price)
 
     # Trade the items
-    user_item.quantity -= quantity
-    # Check if other users has the item already
-    if other_user_item:
-        other_user_item.quantity += quantity
-    else:
-        other_user.items.append(ItemData(item_id=item.id, quantity=quantity, user_id=other_user.id, purchased_at=user_item.purchased_at))
+    user_owned_item.user_id = other_user.id
 
     # Move the credits
     other_user.roll_credit -= price
@@ -52,16 +37,19 @@ async def complete_trade(
 
 class TradeView(View):
     def __init__(
-            self, bot: DatabaseBot, user: discord.User, other_user: discord.User, item: Item, quantity: int, price: int, timeout: int, *,
-            trade_item: Optional[ItemData] = None
+            self,
+            bot: DatabaseBot,
+            user: discord.User,
+            other_user: discord.User,
+            item_data: ItemData,
+            price: int,
+            timeout: int,
     ):
         super().__init__()
         self.bot = bot
         self.user = user
         self.other_user = other_user
-        self.item = item
-        self.trade_item = trade_item
-        self.quantity = quantity
+        self.item_data = item_data
         self.price = price
 
         self.timeout = timeout
@@ -71,7 +59,7 @@ class TradeView(View):
         if self.message is None:
             raise Exception(f'View: {self} has no message to edit')
 
-        embed = TimedOutTradeEmbed(self.user, self.other_user, self.item, self.quantity, self.price, author=self.user, trade_item=self.trade_item)
+        embed = TimedOutTradeEmbed(self.user, self.other_user, self.item_data, self.price, author=self.user)
         await self.message.edit(embed=embed, view=None)
 
     @discord.ui.button(label='Accept', style=discord.ButtonStyle.green)
@@ -82,10 +70,10 @@ class TradeView(View):
             return
 
         # Call function to complete the trade
-        await complete_trade(interaction, self.bot, self.user, self.other_user, self.item.id, self.quantity, self.price)
+        await complete_trade(interaction, self.bot, self.user, self.other_user, self.item_data, self.price)
 
         # Make an embed with the trade information
-        embed = AcceptedTradeEmbed(self.user, self.other_user, self.item, self.quantity, self.price, author=self.user, trade_item=self.trade_item)
+        embed = AcceptedTradeEmbed(self.user, self.other_user, self.item_data, self.price, author=self.user)
 
         await interaction.message.edit(embed=embed, view=None)
 
@@ -97,6 +85,6 @@ class TradeView(View):
             return
 
         # Make an embed with the trade declined information
-        embed = DeclinedTradeEmbed(self.user, self.other_user, self.item, self.quantity, self.price, author=self.user, trade_item=self.trade_item)
+        embed = DeclinedTradeEmbed(self.user, self.other_user, self.item_data, self.price, author=self.user)
 
         await interaction.message.edit(embed=embed, view=None)

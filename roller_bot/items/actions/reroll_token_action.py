@@ -26,7 +26,6 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
 
     # Check and remove the item if health is 0 or less
     if item_data.health <= 0:
-        # remove quantity and reset health to start_health
         # noinspection PyTypeChecker
         user.remove_item(item_data.id)
         response.send("Your Reroll Token broke and was removed from your inventory. You can now roll again")

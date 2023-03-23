@@ -21,10 +21,4 @@ class Item:
         self.user_input_options: Optional[UserInputOptions] = None
 
     def __str__(self) -> str:
-        return f'Item(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
-
-    def inventory_str(self, active: bool = False, quantity: int = 1) -> str:
-        return f'({self.id}) - {self.name}: {self.description} {"(ACTIVE)" if active else ""} - Quantity: {quantity} - Sell Price: {self.sell_cost}'
-
-    def shop_str(self) -> str:
-        return f'({self.id}) - {self.name}: {self.description} - Cost: {self.cost}'
+        return f'{self.name}(id={self.id}, cost={self.cost}, sell_cost={self.sell_cost}, start_health={self.start_health})'
