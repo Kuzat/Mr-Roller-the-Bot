@@ -10,6 +10,7 @@ from roller_bot.models.base import Base
 from roller_bot.models.bonus import Bonus
 from roller_bot.models.bonus_value import BonusValue
 from roller_bot.models.item_data import ItemData
+from roller_bot.models.pydantic.stacked_item import StackedItem
 from roller_bot.models.roll import Roll
 
 
@@ -120,6 +121,10 @@ class User(Base):
 
     def get_items(self, item_def_id: int) -> Optional[List[ItemData]]:
         return [item for item in self.items if item.item_def_id == item_def_id]
+
+    @property
+    def stacked_items(self) -> List[StackedItem]:
+        return StackedItem.from_item_data(self.items)
 
     def get_item_data(self, item_id: int) -> Optional[ItemData]:
         return next((item for item in self.items if item.id == item_id), None)
