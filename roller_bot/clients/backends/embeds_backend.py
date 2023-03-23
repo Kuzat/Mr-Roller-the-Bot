@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Tuple
 
 import discord
 
@@ -14,7 +14,7 @@ class EmbedsBackend:
         stats_embed = StatsEmbed(interaction.user, user)
         # noinspection PyTypeChecker
         inventory_embeds = InventoryEmbed(
-                user.items.copy(),
+                user.stacked_items,
                 user.roll_credit,
                 user.luck_bonus,
                 user.active_dice
