@@ -30,9 +30,11 @@ class InfoCommands(commands.Cog):
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def remind(self, interaction: discord.Interaction) -> None:
-        users: List[User] = User.users_not_rolled_today(
-                self.bot.db.session, datetime.now().date()
-        )
+        users: List[User] = []
+        for user in self.bot.db.get_all_users():
+            if user.latest_roll.roll_time.date() != datetime.now().date():
+                users.append(user)
+
         if len(users) == 0:
             await interaction.response.send_message('Everyone has rolled today! If you have not rolled before, roll with /roll.')
         else:

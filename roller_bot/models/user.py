@@ -59,19 +59,9 @@ class User(Base):
         if current_streak > self.streak:
             self.streak = current_streak  # type: ignore
 
-    @hybrid_property
+    @property
     def latest_roll(self) -> Optional[Roll]:  # type: ignore
         return self.rolls[-1] if self.rolls else None
-
-    @latest_roll.expression
-    def latest_roll(cls):
-        return (
-            select([Roll.date]).
-            where(Roll.user_id == cls.id).
-            order_by(Roll.id.desc()).
-            limit(1).
-            label('latest_roll')
-        )
 
     def get_roll_on_date(self, roll_date: date) -> Optional[Roll]:
         for roll in self.rolls:
@@ -163,10 +153,6 @@ class User(Base):
         dice_def_id = 0
         user.add_item(ItemData(user_id=user.id, item_def_id=dice_def_id, purchased_at=created_at))
         return user
-
-    @staticmethod
-    def users_not_rolled_today(session, roll_date: date):
-        return session.query(User).filter(User.latest_roll != roll_date).all()
 
     @staticmethod
     def top(session, top_number: int):
