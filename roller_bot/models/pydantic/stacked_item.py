@@ -26,17 +26,16 @@ class StackedItem(BaseModel):
             item_data_iterator: Iterator[ItemData],
             stack_property: Callable[[ItemData], Hashable]
     ) -> List['StackedItem']:
-        stacked_items = []
-        for stack_property, group in groupby(item_data_iterator, key=stack_property):
-            group_list = list(group)
-            stacked_items.append(
-                StackedItem(
-                        item_data=group_list[-1],
-                        count=len(group_list)
-                )
-            )
+        stack_hash: dict[Hashable, StackedItem] = {}
+        for item_data in item_data_iterator:
+            stack_hash_key = stack_property(item_data)
+            if stack_hash_key in stack_hash:
+                stack_hash[stack_hash_key].count += 1
+                stack_hash[stack_hash_key].item_data = item_data
+            else:
+                stack_hash[stack_hash_key] = StackedItem(item_data=item_data, count=1)
 
-        return stacked_items
+        return list(stack_hash.values())
 
     @classmethod
     def from_item_data(cls, item_data_iterator: Iterator[ItemData]) -> List['StackedItem']:

@@ -106,7 +106,7 @@ class ClaimItemEvent:
             return
 
         # Check that the item is able to be owned multiple times
-        if not item.own_multiple:
+        if user.has_item(item.id) and not item.own_multiple:
             await interaction.response.send_message('You cannot own multiple of that item.', ephemeral=True, delete_after=60)
             return
 
@@ -115,21 +115,15 @@ class ClaimItemEvent:
             await interaction.response.send_message('This item has already been claimed.', ephemeral=True, delete_after=60)
             return
 
-        # Get the user's owned item
-        user_owned_item = user.get_items(item.id)
         # Add the item to the user's inventory
-        if not user_owned_item:
-            user.items.append(
-                    ItemData(
-                            item_id=item.id, user_id=user.id,
-                            quantity=1, purchased_at=datetime.now()
-                    )
-            )
-        elif item.own_multiple and user_owned_item:
-            # If they can own multiple of the same item, increment the quantity
-            user_owned_item.quantity += 1
-        else:
-            raise Exception(f'Could not add or increase item quantity for item {item.id} for user {user.id}')
+        user.add_item(
+                ItemData(
+                        user_id=user.id,
+                        item_def_id=item.id,
+                        health=item.start_health,
+                        purchased_at=datetime.now()
+                )
+        )
 
         # Commit the changes to the database
         self.bot.db.commit()

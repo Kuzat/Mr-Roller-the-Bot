@@ -129,8 +129,9 @@ class User(Base):
     def get_item_data(self, item_id: int) -> Optional[ItemData]:
         return next((item for item in self.items if item.id == item_id), None)
 
-    def add_item(self, item: ItemData) -> None:
+    def add_item(self, item: ItemData) -> ItemData:
         self.items.append(item)
+        return item
 
     def remove_item(self, item_id: int) -> None:
         item = self.get_item_data(item_id)

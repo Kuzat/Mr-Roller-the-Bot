@@ -50,14 +50,14 @@ class Admin(commands.GroupCog, name="admin"):
 
     @item.command()
     @AdminChecks.is_bot_owner()
-    async def remove(self, interaction: discord.Interaction, discord_user: discord.User, item_id: int, quantity: int, hidden: Optional[bool] = False) -> None:
+    async def remove(self, interaction: discord.Interaction, discord_user: discord.User, item_id: int, hidden: Optional[bool] = False) -> None:
         user = self.bot.db.get_user(requested_user=discord_user)
 
         if user is None:
             await interaction.response.send('Not a valid user.', ephemeral=hidden)
             return
 
-        await AdminCommandsBackend.remove_item(interaction, user, item_id, quantity, hidden)
+        await AdminCommandsBackend.remove_item(interaction, user, item_id, hidden)
         self.bot.db.commit()
 
     @remove.autocomplete("item_id")

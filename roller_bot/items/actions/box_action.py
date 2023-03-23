@@ -31,7 +31,7 @@ async def use(item_data: ItemData, user: User, interaction: discord.Interaction)
     item_data.health -= item.use_cost
 
     # Check and remove the item if health is 0 or less
-    if item.health <= 0:
+    if item_data.health <= 0:
         # noinspection PyTypeChecker
         user.remove_item(item_data.id)
         response.send(f"You throw away the opened {item.name}.")

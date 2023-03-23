@@ -84,7 +84,7 @@ class BuyItemView(View):
             return
 
         # Add the item
-        user.add_item(
+        new_user_owned_item = user.add_item(
                 ItemData(
                         user_id=user.id,
                         item_def_id=item.id,
@@ -98,7 +98,7 @@ class BuyItemView(View):
         self.bot.db.commit()
 
         await interaction.response.send_message(
-                embed=ItemEmbed(item), view=UsableItemView(item, self.bot, user)
+                embed=ItemEmbed(item), view=UsableItemView(new_user_owned_item, self.bot, user)
         )
 
         # Update the shop view and the users credits info embed

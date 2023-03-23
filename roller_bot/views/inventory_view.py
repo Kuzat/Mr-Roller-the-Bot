@@ -24,6 +24,22 @@ class InventoryView(View):
         self.selected_item: Optional[int] = None
 
         # Add items to the view
+        self.set_item_select(stacked_items)
+        self.set_buttons()
+
+    def set_buttons(self):
+        shop_buy_button = discord.ui.Button(label="Sell", style=discord.ButtonStyle.green, emoji="💰")
+        shop_buy_button.callback = self.sell_selected_item
+        equip_button = discord.ui.Button(label="Equip", style=discord.ButtonStyle.blurple, emoji="🎲")
+        equip_button.callback = self.equip_selected_item
+        use_button = discord.ui.Button(label="Use", style=discord.ButtonStyle.blurple, emoji="🫳")
+        use_button.callback = self.use_selected_item
+
+        self.add_item(shop_buy_button)
+        self.add_item(equip_button)
+        self.add_item(use_button)
+
+    def set_item_select(self, stacked_items: List[StackedItem]) -> None:
         item_options = [
             ItemOption(
                     stacked_item.item_data,
@@ -33,17 +49,9 @@ class InventoryView(View):
             for stacked_item in stacked_items
         ]
         shop_item_select = ItemSelect(item_options, self.select_item, placeholder="Select an item")
-        shop_buy_button = discord.ui.Button(label="Sell", style=discord.ButtonStyle.green, emoji="💰")
-        shop_buy_button.callback = self.sell_selected_item
-        equip_button = discord.ui.Button(label="Equip", style=discord.ButtonStyle.blurple, emoji="🎲")
-        equip_button.callback = self.equip_selected_item
-        use_button = discord.ui.Button(label="Use", style=discord.ButtonStyle.blurple, emoji="🫳")
-        use_button.callback = self.use_selected_item
 
+        # Check if we already have a select item
         self.add_item(shop_item_select)
-        self.add_item(shop_buy_button)
-        self.add_item(equip_button)
-        self.add_item(use_button)
 
     async def select_item(self, interaction: discord.Interaction, select: discord.ui.Select) -> None:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
@@ -123,7 +131,7 @@ class InventoryView(View):
         if user != self.user:
             return await interaction.response.send_message('You cannot use items for another user.', ephemeral=True, delete_after=60)
 
-        # Check if the user owns the item and the quantity is greater than 0 and health greater than 0
+        # Check if the user owns the item
         user_owned_item = user.get_item_data(self.selected_item)
         if not user_owned_item:
             await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
@@ -135,4 +143,8 @@ class InventoryView(View):
 
         # Update the shop view and the users credits info embed
         updated_user_embeds = EmbedsBackend.get_user_embeds(interaction, user)
+        # Update item select
+        self.clear_items()
+        self.set_item_select(user.stacked_items)
+        self.set_buttons()
         await interaction.message.edit(embeds=updated_user_embeds, view=self)

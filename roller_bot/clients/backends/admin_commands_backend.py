@@ -68,7 +68,6 @@ class AdminCommandsBackend:
             interaction: discord.Interaction,
             user: User,
             item_id: int,
-            quantity: int,
             hidden: bool = False
     ) -> None:
         # Check if the item exists
