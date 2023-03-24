@@ -23,7 +23,7 @@ class ItemData(Base):
     rolls: List[Roll] = relationship("Roll",  order_by=Roll.id, back_populates="item")
 
     def __repr__(self) -> str:
-        return f'Items(id={self.id}, user_id={self.user_id}, item_def_id={self.item_def_id}, health={self.health}, purchased_at={self.purchased_at})'
+        return f'ItemData(id={self.id}, user_id={self.user_id}, item_def_id={self.item_def_id}, health={self.health}, purchased_at={self.purchased_at})'
 
     @property
     def item(self):

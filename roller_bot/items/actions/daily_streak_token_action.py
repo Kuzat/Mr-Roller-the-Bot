@@ -41,10 +41,10 @@ def bonus_action(bonus_data: BonusData, user: User) -> BonusReturnValue:
         return BonusReturnValue(active=True, message="You already received your bonus for today.")
 
     # Update the bonus value
-    bonus_action.bonus_value = min((datetime.now().date() - bonus_action.started_at.date()).days, bonus_data.max_bonus_value)  # type: ignore
+    bonus_item.bonus_value = min((datetime.now().date() - bonus_item.started_at.date()).days, bonus_data.max_bonus_value)  # type: ignore
 
     # Return the bonus value
-    return BonusReturnValue(value=bonus_action.bonus_value, active=True, message=f"You have a {bonus_action.bonus_value} bonus from your Daily Streak Token.")
+    return BonusReturnValue(value=bonus_item.bonus_value, active=True, message=f"You have a {bonus_item.bonus_value} bonus from your Daily Streak Token.")
 
 
 async def use(item_data: ItemData, user: User, interaction: discord.Interaction) -> None:
