@@ -14,3 +14,16 @@ You should then be able to run the bot using the command: `poetry run bot`
 5. `git pull`
 6. `poetry install`
 7. `nohup poetry run bot &`
+
+
+## TODO
+- [ ] Fix the glue items
+- [ ] Fix the mirror die
+- [ ] Add an item that destroys all daily streak bonuses
+- [ ] Add an new box
+- [ ] New random event that adds the new box to the shop for a limited time
+- [ ] New die that rolls a random number between 1 and 100 once based on your position in the leaderboard
+- [ ] Add an item that makes random event more common for an interval
+- [ ] Add a die also let you remove your roll value from another player
+- [ ] Add a die that let you steal a random item from another player
+- [ ] New item that let you half another players roll for the next day

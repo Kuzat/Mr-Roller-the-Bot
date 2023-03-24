@@ -3,6 +3,7 @@ from typing import List
 
 import discord
 
+from roller_bot.clients.backends.embeds_backend import EmbedsBackend
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
 from roller_bot.items.utils import item_from_id
@@ -112,5 +113,11 @@ class AdminCommandsBackend:
             user: User,
             hidden: bool = False
     ) -> None:
-        # TODO: Should just print the user inventory as it shows all the info
-        ...
+        user_embed = EmbedsBackend.get_user_embeds(interaction, user)
+
+        await interaction.response.send_message(
+                file=user_embed[0].thumbnail_file,
+                embed=user_embed,
+                delete_after=300,
+                ephemeral=hidden
+        )
