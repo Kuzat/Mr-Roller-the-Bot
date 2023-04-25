@@ -5,7 +5,8 @@ cd Mr-Roller-the-Bot
 BOT_PID="$(ps -ef | grep '[r]oller_bot.main' | awk '{print $2}')"
 if [ -n "$BOT_PID" ]; then
   kill "$BOT_PID"
-  poetry run backup
+  # No backup for now
+  #poetry run backup
 fi
 
 git pull
