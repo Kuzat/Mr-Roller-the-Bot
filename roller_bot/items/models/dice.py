@@ -38,11 +38,16 @@ class Dice(Item):
         if base_roll == maximum:
             return base_roll
 
-        luck_modifier = random.randint(minimum, maximum) * (luck - 1.0)
-        while int(base_roll + luck_modifier) > maximum:
-            # Reroll modifier if it would cause the roll to go over the maximum
-            luck_modifier = random.randint(minimum, maximum) * (luck - 1.0)
-        return int(base_roll + luck_modifier)
+        all_rolls = [base_roll]
+        current_luck = luck
+        while current_luck > 1.0:
+            if random.random() < current_luck:
+                # Roll again and add to all rolls
+                all_rolls.append(random.randint(minimum, maximum))
+            current_luck -= 1.0
+
+        # Return the highest roll
+        return max(all_rolls)
 
     def roll_again(self, last_roll: int) -> bool:
         return last_roll == 6
