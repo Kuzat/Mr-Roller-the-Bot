@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e -x
 
 cd Mr-Roller-the-Bot
