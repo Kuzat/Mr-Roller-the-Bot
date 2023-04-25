@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 set -e -x
-# Source bashrc
-. ~/.bashrc
 
 cd Mr-Roller-the-Bot
 BOT_PID="$(ps -ef | grep '[r]oller_bot.main' | awk '{print $2}')"
