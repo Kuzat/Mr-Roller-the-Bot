@@ -6,16 +6,20 @@ from discord.ext import commands, tasks
 
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.random_event_embed import RandomEventEmbed
+from roller_bot.items.random_events.big_dice_event import BigDiceEventCreator
 from roller_bot.items.random_events.claim_item_event import ClaimItemEventCreator
 from roller_bot.items.random_events.user_luck_event import UserLuckEventCreator
-from roller_bot.utils.random_lists import RandomItemsList, WeightedItem, WeightedRandomItemsList
+from roller_bot.utils.random_lists import (
+    RandomItemsList,
+    WeightedItem,
+    WeightedRandomItemsList,
+)
 from roller_bot.views.random_event_view import RandomEventView
 
 
 def random_chance(probability: float) -> bool:
     """Random chance given the probability True if it should occur False otherwise"""
     random_value = random.random()
-    print(random_value, probability)
     return random_value <= probability
 
 
@@ -43,8 +47,9 @@ class RandomEventTask(commands.Cog):
         self.check_random_event.start()
         self.random_event_creators: RandomItemsList[RandomEventCreator[RandomEvent]] = WeightedRandomItemsList(
                 items=[
-                    WeightedItem(item=ClaimItemEventCreator(self.bot), weight=3),
-                    WeightedItem(item=UserLuckEventCreator(self.bot), weight=1),
+                    WeightedItem(item=ClaimItemEventCreator(self.bot), weight=4),
+                    WeightedItem(item=UserLuckEventCreator(self.bot), weight=2),
+                    WeightedItem(item=BigDiceEventCreator(self.bot), weight=1),
                 ]
         )
 
