@@ -16,11 +16,22 @@ class ItemData(Base):
     )
     user_id: Column = Column(Integer, ForeignKey('users.id'))
     item_def_id: Column = Column(Integer, nullable=False)
-    health: Column = Column(Integer, nullable=False, default=100)
+    _health: Column = Column(Integer, nullable=False, default=100)
     purchased_at: Column = Column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="items")
-    rolls: List[Roll] = relationship("Roll",  order_by=Roll.id, back_populates="item")
+    rolls: List[Roll] = relationship("Roll", order_by=Roll.id, back_populates="item")
+
+    # custom setter for health
+    @property
+    def health(self):
+        return self._health
+
+    @health.setter
+    def health(self, value):
+        self._health = value
+        if self._health <= 0:
+            self.user.items.remove(self)
 
     def __repr__(self) -> str:
         return f'ItemData(id={self.id}, user_id={self.user_id}, item_def_id={self.item_def_id}, health={self.health}, purchased_at={self.purchased_at})'

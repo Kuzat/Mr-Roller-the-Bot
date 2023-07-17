@@ -1,6 +1,4 @@
-from typing import Any, Callable, Coroutine
-
-from discord import ButtonStyle, Embed, Interaction
+from discord import ButtonStyle, Color, Embed, Interaction
 from discord.ui import Button
 
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
@@ -24,7 +22,7 @@ async def use(item_data: ItemData, user: User, interaction: Interaction, bot: Da
 
     # Send a glue embed and view message
     info_embed = Embed(description=f"You are about to use a {item.name}. {item.description}. Select a item to glue!")
-    info_embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar)
+    info_embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
 
     # Make positive button
     positive_button = Button(
@@ -54,6 +52,7 @@ async def use(item_data: ItemData, user: User, interaction: Interaction, bot: Da
 
         # Update the glue select view
         info_embed.description = f"You have glued a {item_to_glue.item.name} with a {item.name}. Health: {old_health} -> {item_to_glue.health}"
+        info_embed.color = Color.green()
         await bot.home_channel.send(embed=info_embed)
         await callback_interaction.response.defer()
 
@@ -61,9 +60,10 @@ async def use(item_data: ItemData, user: User, interaction: Interaction, bot: Da
     select_item_view = SelectItemView(
             user,
             bot,
+            SelectItemView.stacked_user_items_options,
             positive_button,
             positive_callback,
-            timeout=300,
+            timeout=30,
     )
 
-    await interaction.response.send_message(embed=info_embed, view=select_item_view, ephemeral=True, delete_after=300)
+    await interaction.response.send_message(embed=info_embed, view=select_item_view, ephemeral=True, delete_after=30)

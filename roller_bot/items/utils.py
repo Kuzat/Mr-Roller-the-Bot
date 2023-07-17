@@ -7,6 +7,7 @@ from roller_bot.items.dice.damaged.cracked_d20_dice import CrackedD20Dice
 from roller_bot.items.dice.damaged.cracked_d25_dice import CrackedD25Dice
 from roller_bot.items.dice.damaged.cracked_d8_dice import CrackedD8Dice
 from roller_bot.items.dice.regular_dice import RegularDice
+from roller_bot.items.dice.traps.mirror_dice import MirrorDice
 from roller_bot.items.heals.strong_glue import StrongGlue
 from roller_bot.items.heals.super_glue import SuperGlue
 from roller_bot.items.heals.weak_glue import WeakGlue
@@ -27,7 +28,8 @@ dice_data: Dict[int, Dice] = {
     CrackedD12Dice.id: CrackedD12Dice(),
     CrackedD10Dice.id: CrackedD10Dice(),
     CrackedD8Dice.id: CrackedD8Dice(),
-    CrackedD25Dice.id: CrackedD25Dice()
+    CrackedD25Dice.id: CrackedD25Dice(),
+    MirrorDice.id: MirrorDice(),
 }
 
 item_data: Dict[int, Item] = {
