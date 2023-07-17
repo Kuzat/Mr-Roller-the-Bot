@@ -147,7 +147,7 @@ class BigDiceEvent:
                         item_id=-2,  # TODO: Add item id for big dice
                         roll_time=datetime.now(),
                         base_value=dice_roll,
-                        can_roll_again=True,
+                        can_roll_again=user.can_daily_roll(),
                     )
                     user.add_roll(roll)
                 self.bot.db.commit()
