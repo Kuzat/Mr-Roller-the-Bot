@@ -5,9 +5,8 @@ from typing import List, Optional
 
 import discord
 
-from roller_bot.clients.backends.user_verification_backend import (
-    UserVerificationBackend,
-)
+from roller_bot.clients.backends.user_verification_backend import \
+    UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.message_embed import MessageEmbed
 from roller_bot.embeds.random_event_embed import RandomEventEmbed
@@ -148,7 +147,7 @@ class BigDiceEvent:
                         item_id=-2,  # TODO: Add item id for big dice
                         roll_time=datetime.now(),
                         base_value=dice_roll,
-                        can_roll_again=False,
+                        can_roll_again=True,
                     )
                     user.add_roll(roll)
                 self.bot.db.commit()
