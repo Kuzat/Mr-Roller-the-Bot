@@ -49,7 +49,7 @@ class RandomEventTask(commands.Cog):
                 items=[
                     WeightedItem(item=ClaimItemEventCreator(self.bot), weight=4),
                     WeightedItem(item=UserLuckEventCreator(self.bot), weight=2),
-                    WeightedItem(item=BigDiceEventCreator(self.bot), weight=1),
+                    WeightedItem(item=BigDiceEventCreator(self.bot), weight=4),
                 ]
         )
 

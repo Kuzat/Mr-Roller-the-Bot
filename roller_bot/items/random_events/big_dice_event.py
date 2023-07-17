@@ -9,6 +9,7 @@ from roller_bot.clients.backends.user_verification_backend import (
     UserVerificationBackend,
 )
 from roller_bot.clients.bots.database_bot import DatabaseBot
+from roller_bot.embeds.message_embed import MessageEmbed
 from roller_bot.embeds.random_event_embed import RandomEventEmbed
 from roller_bot.models.roll import Roll
 from roller_bot.models.user import User
@@ -64,6 +65,7 @@ class BigDiceEvent:
         self.bot = bot
         self.required_people = required_people
         self.event_timeout = 1200
+        self.completed = False
 
         self.users_entered: List[User] = []
 
@@ -86,6 +88,9 @@ class BigDiceEvent:
     async def on_timeout(self) -> None:
         if self.message is None:
             raise Exception(f"View: {self} has no message to edit at timeout.")
+
+        if self.completed:
+            return
 
         random_event_embed = self.message.embeds[0]
         random_event_embed.description = (
@@ -118,12 +123,16 @@ class BigDiceEvent:
                 return
             case CompareValue.LOWER:
                 await interaction.response.send_message(
-                    (
-                        "You have now entered the event, but the dice is really big "
-                        "and heavy so you are not able to roll it yet. "
-                        "More people need to enter the event before the dice"
-                        "will be rolled. You can see that the dice has a min roll of "
-                        f"`{min_roll}` and a max roll of `{max_roll}`."
+                    embed=MessageEmbed(
+                        author=user,
+                        title="Big Dice Event",
+                        message=(
+                            "You have now entered the event, but the dice is really big "
+                            "and heavy so you are not able to roll it yet. "
+                            "More people need to enter the event before the dice"
+                            "will be rolled. You can see that the dice has a min roll of "
+                            f"`{min_roll}` and a max roll of `{max_roll}`."
+                        ),
                     ),
                 )
                 self.users_entered.append(user)
@@ -155,8 +164,12 @@ class BigDiceEvent:
 
                 # Send interaction response to the final user that entered the event
                 await interaction.response.send_message(
-                    (
-                        f"You have now entered the event, and the amount of people that have entered is {len(self.users_entered)}. "
-                        f"You are now enough people to roll the dice. {user} all help roll the dice and it lands on {dice_roll}."
+                    embed=MessageEmbed(
+                        author=user,
+                        title="Big Dice Event",
+                        message=(
+                            f"You have now entered the event, and the amount of people that have entered is {len(self.users_entered)}. "
+                            f"You are now enough people to roll the dice. {users} all help roll the dice and it lands on {dice_roll}."
+                        ),
                     ),
                 )
