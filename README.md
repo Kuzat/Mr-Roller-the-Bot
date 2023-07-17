@@ -17,13 +17,17 @@ You should then be able to run the bot using the command: `poetry run bot`
 
 
 ## TODO
-- [ ] Fix the glue items
-- [ ] Fix the mirror die
-- [ ] Add an item that destroys all daily streak bonuses
-- [ ] Add an new box
-- [ ] New random event that adds the new box to the shop for a limited time
-- [ ] New die that rolls a random number between 1 and 100 once based on your position in the leaderboard
-- [ ] Add an item that makes random event more common for an interval
-- [ ] Add a die also let you remove your roll value from another player
-- [ ] Add a die that let you steal a random item from another player
-- [ ] New item that let you half another players roll for the next day
+- [x] Fix the glue items - Box 2
+- [ ] Fix the mirror die - Shop limited
+- [ ] Add an item that destroys all of a type of Bonus - Shop limited
+- [ ] New damaged die that rolls a random number between 1 and 100 once based on your position in the leaderboard - Box 2
+- [ ] Add a damaged die that let you steal a random item from another player if you hit the reroll - box 2
+- [ ] New damaged die that roll between -6 and +30 - Box 3 
+- [ ] New damaged d25 dice that roll between 1 and 25 - Box 3
+- [ ] New item that let you half another players roll for the next day - box 3
+- [ ] Add an item that makes random event more common for an interval - Box 3
+- [ ] New item that gives you a bonus to roll twice a day - Box 3
+- [ ] New random event that adds a new item to the shop for a limited time
+- [ ] New random event TODO
+- [ ] Add a damaged die also let you remove your roll value from another player
+- [ ] new random event that lets you start a limited tournament where everyone roll a 1 to 100 dice twice, the pot is split between the top 3. Every player that enter contribute to the pot depending on their position in the leaderboard. 

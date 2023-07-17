@@ -8,7 +8,7 @@ from discord import Embed
 
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.bonus_embeds import BonusEmbed
-from roller_bot.items.actions.daily_streak_token_action import bonus_action
+from roller_bot.items.actions.bonus_action import bonus_action
 from roller_bot.items.bonus_data import bonus_item_from_id
 from roller_bot.items.models.bonus import Bonus
 from roller_bot.items.models.dice import Dice

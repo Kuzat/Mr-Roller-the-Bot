@@ -3,6 +3,7 @@ from typing import List, Optional
 import discord
 from discord import Embed
 
+from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.embeds.use_result_embed import UseResultEmbed
 from roller_bot.items.models.item import Item
 
@@ -23,6 +24,13 @@ class ResponseMessage:
 
     def send(self, message: str):
         self.append(message)
+
+    async def send_home_channel(self, bot: DatabaseBot, embeds: Optional[List[Embed]] = None):
+        if embeds is None:
+            embeds = []
+        embeds.append(UseResultEmbed(str(self), self.item_name, self.user))
+
+        await bot.home_channel.send(embeds=embeds)
 
     async def send_interaction(self, embeds: Optional[List[Embed]] = None, ephemeral: bool = False, delete_after: Optional[int] = None):
         if embeds is None:

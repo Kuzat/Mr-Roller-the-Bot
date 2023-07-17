@@ -1,8 +1,9 @@
 import discord
 
 from roller_bot.clients.bots.database_bot import DatabaseBot
-from roller_bot.items.actions import box_action, daily_streak_token_action, dice_action, glue_action, reroll_token_action
+from roller_bot.items.actions import box_action, daily_streak_token_action, dice_action, glue_action, mirror_dice_action, reroll_token_action
 from roller_bot.items.dice.box.old_pizza_box import OldPizzaBox
+from roller_bot.items.dice.traps.mirror_dice import MirrorDice
 from roller_bot.items.heals.strong_glue import StrongGlue
 from roller_bot.items.heals.super_glue import SuperGlue
 from roller_bot.items.heals.weak_glue import WeakGlue
@@ -26,5 +27,7 @@ async def item_action(item_data: ItemData, user: User, interaction: discord.Inte
             await glue_action.use(item_data, user, interaction, bot)
         case SuperGlue.id:
             await glue_action.use(item_data, user, interaction, bot)
+        case MirrorDice.id:
+            await mirror_dice_action.use(item_data, user, interaction, bot)
         case _:
             await dice_action.use(item_data, user, interaction, bot)
