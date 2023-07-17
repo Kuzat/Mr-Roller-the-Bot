@@ -34,7 +34,7 @@ class BigDiceEventCreator:
         self.bot = bot
 
     def create(self) -> "BigDiceEvent":
-        requried_people = random.randint(2, 4)
+        requried_people = random.randint(2, 3)
 
         return BigDiceEvent(requried_people, self.bot)
 
