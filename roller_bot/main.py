@@ -151,7 +151,7 @@ async def main(debug: bool, db_version: int):
     await bot.load_extension('roller_bot.cogs.random_event_task')
     # Load backup task if not in debug mode
     if not debug:
-        await bot.load_extension('roller_bot.cogs.backup_task')
+        # await bot.load_extension('roller_bot.cogs.backup_task')
 
     # Run the discord bot
     token: str | None = os.getenv('DISCORD_TOKEN')
