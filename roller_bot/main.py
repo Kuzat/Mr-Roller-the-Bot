@@ -111,7 +111,7 @@ def migrate(db_version: int):
 async def main(debug: bool, db_version: int):
     print('Debug mode:', debug)
     # enable sqlalchemy logging in debug mode
-    db_path = f'rolls_v{db_version}.db'
+    db_path = f'db/rolls_v{db_version}.db'
     if debug:
         logging.basicConfig()
         logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
