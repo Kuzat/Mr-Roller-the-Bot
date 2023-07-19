@@ -123,7 +123,7 @@ class BigDiceEvent:
             case CompareValue.LOWER:
                 await interaction.response.send_message(
                     embed=MessageEmbed(
-                        author=user,
+                        author=self.bot.get_user(user.id),
                         title="Big Dice Event",
                         message=(
                             "You have now entered the event, but the dice is really big "
@@ -164,7 +164,7 @@ class BigDiceEvent:
                 # Send interaction response to the final user that entered the event
                 await interaction.response.send_message(
                     embed=MessageEmbed(
-                        author=user,
+                        author=self.bot.get_user(user.id),
                         title="Big Dice Event",
                         message=(
                             f"You have now entered the event, and the amount of people that have entered is {len(self.users_entered)}. "
