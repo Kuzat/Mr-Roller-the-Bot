@@ -11,6 +11,7 @@ COPY ./poetry.lock ./pyproject.toml /app/
 
 COPY ./roller_bot /app/roller_bot/
 COPY ./assets /app/assets/
+COPY README.md /app/
 
 RUN poetry install --no-interaction --no-ansi --no-cache
 
