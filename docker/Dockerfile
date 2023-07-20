@@ -10,7 +10,7 @@ WORKDIR /app
 COPY ./poetry.lock ./pyproject.toml /app/
 
 COPY ./roller_bot /app/roller_bot/
-COPY README.md /app/
+COPY ./assets /app/assets/
 
 RUN poetry install --no-interaction --no-ansi --no-cache
 
