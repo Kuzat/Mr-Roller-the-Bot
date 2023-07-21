@@ -61,6 +61,8 @@ class Admin(commands.GroupCog, name="admin"):
             self.bot.home_channel, self.bot, random_event, None
         )
 
+        await interaction.response.defer()
+
     @start.autocomplete("event_id")
     async def admin_start_event_id_autocomplete(
         self, interaction: discord.Interaction, current: str
