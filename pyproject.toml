@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mr-roller-the-bot"
-version = "0.11.7"
+version = "0.11.8"
 description = "A discord bot for daily dice roller game"
 authors = ["Vegard Bjørsvik <vegardbjr@gmail.com>"]
 license = "MIT"

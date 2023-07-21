@@ -114,6 +114,8 @@ class BigDiceEvent:
                 "You have already entered the event.", ephemeral=True
             )
             return
+        else:
+            self.users_entered.append(user)
 
         match compare_match(len(self.users_entered), self.required_people):
             case CompareValue.HIGHER:
@@ -135,11 +137,8 @@ class BigDiceEvent:
                         ),
                     ),
                 )
-                self.users_entered.append(user)
                 return
             case CompareValue.EQUAL:
-                self.users_entered.append(user)
-
                 # Roll the dice and store the result for each user
                 dice_roll = random.randint(min_roll, max_roll)
                 for user in self.users_entered:
