@@ -9,6 +9,8 @@ from roller_bot.embeds.random_event_embed import RandomEventEmbed
 from roller_bot.items.random_events.big_dice_event import BigDiceEventCreator
 from roller_bot.items.random_events.claim_item_event import ClaimItemEventCreator
 from roller_bot.items.random_events.user_luck_event import UserLuckEventCreator
+from roller_bot.protocols.random_event import RandomEvent
+from roller_bot.protocols.random_event_creator import RandomEventCreator
 from roller_bot.utils.random_lists import (
     RandomItemsList,
     WeightedItem,
@@ -23,34 +25,18 @@ def random_chance(probability: float) -> bool:
     return random_value <= probability
 
 
-class RandomEvent(Protocol):
-    action_items: List[discord.ui.Item]
-    event_timeout: int
-    embed: RandomEventEmbed
-    message: Optional[discord.Message]
-
-    async def on_timeout(self) -> None:
-        ...
-
-
-T = TypeVar("T", bound=RandomEvent)
-
-
-class RandomEventCreator(Protocol[T]):
-    def create(self) -> T:
-        ...
-
-
 class RandomEventTask(commands.Cog):
     def __init__(self, bot: DatabaseBot) -> None:
         self.bot = bot
         self.check_random_event.start()
-        self.random_event_creators: RandomItemsList[RandomEventCreator[RandomEvent]] = WeightedRandomItemsList(
-                items=[
-                    WeightedItem(item=ClaimItemEventCreator(self.bot), weight=4),
-                    WeightedItem(item=UserLuckEventCreator(self.bot), weight=2),
-                    WeightedItem(item=BigDiceEventCreator(self.bot), weight=4),
-                ]
+        self.random_event_creators: RandomItemsList[
+            RandomEventCreator[RandomEvent]
+        ] = WeightedRandomItemsList(
+            items=[
+                WeightedItem(item=ClaimItemEventCreator(self.bot), weight=4),
+                WeightedItem(item=UserLuckEventCreator(self.bot), weight=2),
+                WeightedItem(item=BigDiceEventCreator(self.bot), weight=4),
+            ]
         )
 
     def cog_unload(self):
@@ -65,11 +51,29 @@ class RandomEventTask(commands.Cog):
             # Do the random event
             await self.do_random_event(self.bot.home_channel, self.bot)
 
-    async def do_random_event(self, channel: discord.TextChannel, bot: DatabaseBot) -> None:
+    async def do_random_event(
+        self, channel: discord.TextChannel, bot: DatabaseBot
+    ) -> None:
         # Send an embed and view to the channel depending on the random event definition
         event_creator = self.random_event_creators.get_random_item()
         random_event = event_creator.create()
-        random_event.message = await channel.send(embed=random_event.embed, view=RandomEventView(random_event))
+        random_event.message = await channel.send(
+            embed=random_event.embed, view=RandomEventView(random_event)
+        )
+
+    @staticmethod
+    async def do_custom_random_event(
+        channel: discord.TextChannel,
+        bot: DatabaseBot,
+        random_event: RandomEvent,
+        embed: Optional[RandomEventEmbed] = None,
+    ) -> None:
+        # Send an embed and view to the channel depending on the random event definition
+        if embed is None:
+            embed = random_event.embed
+        random_event.message = await channel.send(
+            embed=embed, view=RandomEventView(random_event)
+        )
 
 
 async def setup(bot: DatabaseBot):
