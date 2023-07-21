@@ -18,6 +18,7 @@ class Roll(Base):
 
     user = relationship("User", back_populates="rolls")
     item = relationship("ItemData", back_populates="rolls")
+    item = relationship("ItemData", back_populates="rolls")
     bonus_values: List[BonusValue] = relationship("BonusValue", back_populates="roll")
 
     def __repr__(self) -> str:
