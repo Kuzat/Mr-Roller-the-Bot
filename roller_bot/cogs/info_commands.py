@@ -1,5 +1,4 @@
-import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List
 
 import discord
@@ -27,51 +26,15 @@ class InfoCommands(commands.Cog):
         await InfoCommandsBackend.start(interaction, self.bot)
 
     @app_commands.command(
-            description="Get the rolls for users on a specific date. Date format is YYYY-MM-DD",
-    )
-    @app_commands.guilds(DatabaseBot.home_guild_id())
-    async def rolls(self, interaction: discord.Interaction, rolls_date: str) -> None:
-        # parse the date string
-        try:
-            rolls_date = datetime.strptime(rolls_date, '%d-%m-%Y').date()
-        except ValueError:
-            await interaction.response.send_message('Invalid date format. Use DD-MM-YYYY', ephemeral=True)
-            return
-
-        await InfoCommandsBackend.rolls(interaction, rolls_date, self.bot)
-
-    @app_commands.command(
-            description="Gets a list of all rolls for users that have rolled today",
-    )
-    @app_commands.guilds(DatabaseBot.home_guild_id())
-    async def today(self, interaction: discord.Interaction) -> None:
-        await InfoCommandsBackend.rolls(interaction, datetime.now().date(), self.bot)
-
-    @app_commands.command(
-            description="Gets a list of all rolls for users that have rolled yesterday",
-    )
-    @app_commands.guilds(DatabaseBot.home_guild_id())
-    async def yesterday(self, interaction: discord.Interaction) -> None:
-        await InfoCommandsBackend.rolls(interaction, datetime.now().date() - timedelta(days=1), self.bot)
-
-    @app_commands.command(
-            description="Gets a list of all rolls for users that have rolled tomorrow"
-    )
-    @app_commands.guilds(DatabaseBot.home_guild_id())
-    async def tomorrow(self, interaction: discord.Interaction) -> None:
-        # Get a random user
-        users = self.bot.db.get_all_users()
-        random_user = random.choice(users)
-        await interaction.response.send_message(f"The dice gods have decided that {random_user.mention} will get the worst roll")
-
-    @app_commands.command(
             description="Remind users that have not rolled today"
     )
     @app_commands.guilds(DatabaseBot.home_guild_id())
     async def remind(self, interaction: discord.Interaction) -> None:
-        users: List[User] = User.users_not_rolled_today(
-                self.bot.db.session, datetime.now().date()
-        )
+        users: List[User] = []
+        for user in self.bot.db.get_all_users():
+            if user.latest_roll.roll_time.date() != datetime.now().date():
+                users.append(user)
+
         if len(users) == 0:
             await interaction.response.send_message('Everyone has rolled today! If you have not rolled before, roll with /roll.')
         else:

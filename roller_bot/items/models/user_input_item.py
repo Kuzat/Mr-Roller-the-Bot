@@ -1,7 +1,9 @@
+from dataclasses import dataclass
 from typing import Any, Callable
 
 
-class UserInputItem:
+@dataclass
+class UserInputOptions:
     input_description: str
     placeholder: str
     min_length: int

@@ -1,4 +1,5 @@
-from typing import List
+from dataclasses import dataclass
+from typing import Iterable, List
 
 import discord
 from discord import app_commands
@@ -7,7 +8,8 @@ from discord.ext import commands
 from roller_bot.clients.backends.action_commands_backend import ActionCommandsBackend
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
-from roller_bot.items.utils import item_from_id
+from roller_bot.models.item_data import ItemData
+from roller_bot.models.pydantic.stacked_item import StackedItem
 
 
 class ActionCommands(commands.Cog):
@@ -33,22 +35,18 @@ class ActionCommands(commands.Cog):
     async def use_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
 
-        items = []
-        # Enrich with quantity
-        for user_item in user.items:
-            item = item_from_id(user_item.item_id)  # type: ignore
-            item.quantity = user_item.quantity
-            items.append(item)
-
-        # Filter away items with quantity 0
-        items = filter(lambda item: item.quantity > 0, items)
+        items: List[StackedItem] = user.stacked_items
 
         # Filter out items that match the current string
-        items = filter(lambda item: current.lower() in item.name.lower(), items)
+        items_iter: Iterable[StackedItem] = filter(lambda stacked_item: current.lower() in str(stacked_item).lower(), items)
 
+        # noinspection PyTypeChecker
         return [
-            app_commands.Choice(name=item.name, value=item.id)
-            for item in items
+            app_commands.Choice(
+                    name=str(stacked_item),
+                    value=stacked_item.item_data.id
+            )
+            for stacked_item in items_iter
         ]
 
     @app_commands.command(
@@ -68,31 +66,26 @@ class ActionCommands(commands.Cog):
             discord_user: discord.User,
             item_id: int,
             price: int,
-            quantity: int = 1,
             timeout: int = 600
     ) -> None:
-        await ActionCommandsBackend.trade_item(interaction, self.bot, discord_user, item_id, price, quantity, timeout)
+        await ActionCommandsBackend.trade_item(interaction, self.bot, discord_user, item_id, price, timeout)
 
     @trade.autocomplete("item_id")
     async def trade_item_id_autocomplete(self, interaction: discord.Interaction, current: str) -> List[app_commands.Choice[int]]:
         user = await UserVerificationBackend.verify_interaction_user(interaction, self.bot)
 
-        items = []
-        # Enrich with quantity
-        for user_item in user.items:
-            item = item_from_id(user_item.item_id)  # type: ignore
-            item.quantity = user_item.quantity
-            items.append(item)
+        items: List[StackedItem] = user.stacked_items
 
-        # Filter away items with quantity 0 and items that are not sellable
-        items = filter(lambda item: item.quantity > 0 and item.sellable, items)
+        # Filter away items that are not sellable
+        items_iter = filter(lambda stacked_item: stacked_item.item_data.item.sellable, items)
 
         # Filter out items that match the current string
-        items = filter(lambda item: current.lower() in item.name.lower(), items)
+        items_iter = filter(lambda stacked_item: current.lower() in str(stacked_item).lower(), items_iter)
 
+        # noinspection PyTypeChecker
         return [
-            app_commands.Choice(name=item.name, value=item.id)
-            for item in items
+            app_commands.Choice(name=str(stacked_item), value=stacked_item.item_data.id)
+            for stacked_item in items_iter
         ]
 
 

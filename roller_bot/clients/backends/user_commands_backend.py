@@ -19,7 +19,7 @@ class UserCommandsBackend:
         user_embeds = EmbedsBackend.get_user_embeds(interaction, user)
 
         # Add view to sell items in inventory
-        inventory_view = InventoryView(EmbedsBackend.get_user_items(user), bot, user)
+        inventory_view = InventoryView(user.stacked_items, bot, user)
 
         await interaction.response.send_message(
                 file=user_embeds[0].thumbnail_file,

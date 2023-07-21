@@ -1,7 +1,6 @@
-import discord
-from discord.ext import commands
-from roller_bot.models.pydantic.bonus_return_value import BonusReturnValue
-from roller_bot.models.user import User
+from typing import Optional
+
+from roller_bot.items.models.user_input_item import UserInputOptions
 
 
 class Item:
@@ -19,37 +18,7 @@ class Item:
         self.buyable: bool = True
         self.sellable: bool = True
 
-        self.quantity: int = 1
+        self.user_input_options: Optional[UserInputOptions] = None
 
     def __str__(self) -> str:
-        return f'Item(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
-
-    def inventory_str(self, active: bool = False, quantity: int = 1) -> str:
-        return f'({self.id}) - {self.name}: {self.description} {"(ACTIVE)" if active else ""} - Quantity: {quantity} - Sell Price: {self.sell_cost}'
-
-    def shop_str(self) -> str:
-        return f'({self.id}) - {self.name}: {self.description} - Cost: {self.cost}'
-
-    def bonus(self, user: User) -> BonusReturnValue:
-        """
-        !!Need to commit the db session after this as it might have side effects
-        Calculates the bonus value and check if the bonus is still active
-
-        :param user: a user
-        :return: a BonusValue
-        """
-        return BonusReturnValue(value=0, active=False, message="Items has no bonus")
-
-    async def use(self, user: User, interaction: discord.Interaction, bot: commands.Bot) -> None:
-        """
-        !!Need to commit the db session after this as it might have side effects
-
-        Check if health is less or equal to 0 and if so, remove it from the inventory
-        and return a message
-
-        :param bot: The discord bot
-        :param interaction: The discord context
-        :param user: a user
-        :return: a message
-        """
-        return
+        return f'{self.name}(id={self.id}, cost={self.cost}, sell_cost={self.sell_cost}, start_health={self.start_health})'

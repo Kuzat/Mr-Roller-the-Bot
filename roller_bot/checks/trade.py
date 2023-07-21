@@ -1,4 +1,3 @@
-from typing import Optional
 
 import discord
 from discord.app_commands import AppCommandError
@@ -6,8 +5,7 @@ from discord.app_commands import AppCommandError
 from roller_bot.clients.backends.user_verification_backend import UserVerificationBackend
 from roller_bot.clients.bots.database_bot import DatabaseBot
 from roller_bot.items.models.item import Item
-from roller_bot.items.utils import item_from_id
-from roller_bot.models.items import Items
+from roller_bot.models.item_data import ItemData
 from roller_bot.models.user import User
 
 
@@ -40,68 +38,52 @@ class TradeChecks:
         return other_user
 
     @staticmethod
-    async def verify_item(
-            interaction: discord.Interaction,
-            item_id: int,
-    ) -> Item:
-        item = item_from_id(item_id)
-        if item is None:
-            await interaction.response.send_message('That item does not exist.', ephemeral=True, delete_after=60)
-            raise FailedTradeCheck('Item does not exist')
-
-        return item
+    # async def verify_item(
+    #         interaction: discord.Interaction,
+    #         item_id: int,
+    # ) -> Item:
+    #     item = item_from_id(item_id)
+    #     if item is None:
+    #         await interaction.response.send_message('That item does not exist.', ephemeral=True, delete_after=60)
+    #         raise FailedTradeCheck('Item does not exist')
+    #
+    #     return item
 
     @staticmethod
     async def verify_trade_item_user(
             interaction: discord.Interaction,
             user: User,
             item_id: int,
-            item: Item,
-            quantity: int
-    ) -> Items:
+    ) -> ItemData:
         # Check if the user has the item
-        user_item = user.get_item(item_id)
-        if not user_item:
+        user_owned_item = user.get_item_data(item_id)
+        if not user_owned_item:
             await interaction.response.send_message('You do not own that item.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck('User does not own item')
+
+        item = user_owned_item.item
 
         # check if the item is sellable
         if not item.sellable:
             await interaction.response.send_message('You cannot trade that item.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck('Item is not sellable')
 
-        # Check if the user has enough of the item
-        if user_item.quantity < quantity:
-            await interaction.response.send_message('You do not have enough of that item.', ephemeral=True, delete_after=60)
-            raise FailedTradeCheck('User does not have enough of item')
-
-        return user_item
+        return user_owned_item
 
     @staticmethod
     async def verify_trade_item_other_user(
             interaction: discord.Interaction,
             other_user: User,
-            item_id: int,
             item: Item,
-            quantity: int,
             price: int
-    ) -> Optional[Items]:
+    ) -> None:
         # Check if the other user has the item, and it is not own multiple times
-        other_user_item = other_user.get_item(item_id)
-        if other_user_item and other_user_item.quantity > 0 and not item.own_multiple:
+        if other_user.has_item(item.id) and not item.own_multiple:
             await interaction.response.send_message(f'{other_user.mention} already owns that item and can not own multiple.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck(f'{other_user} already owns item and can not own multiple')
-
-        # Check not trading quantity more than 1 for an item that can only be owned once
-        if not item.own_multiple and quantity > 1:
-            await interaction.response.send_message(f'{other_user.mention} can only own one of that item. Quantity to large', ephemeral=True, delete_after=60)
-            raise FailedTradeCheck(f'{other_user} can only own one of item')
 
         # Check if the other user has enough credits to do the trade
         if other_user.roll_credit < price:
             await interaction.response.send_message(f'{other_user.mention} does not have enough credits to trade.', ephemeral=True, delete_after=60)
             raise FailedTradeCheck(f'{other_user} does not have enough credits')
-
-        return other_user_item
-
 
