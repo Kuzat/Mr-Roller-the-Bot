@@ -21,8 +21,6 @@ psycopg2-binary = "^2.9.6"
 [tool.poetry.scripts]
 migrate = "roller_bot.main:migrate"
 bot = "roller_bot.main:main"
-backup = "roller_bot.main:backup_db"
-download-backup = "roller_bot.main:download_latest_db"
 
 [tool.poetry.group.dev.dependencies]
 black = { version = "^22.10.0", allow-prereleases = true }
