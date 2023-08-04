@@ -30,7 +30,7 @@ class Dice(Item):
         self.max_roll: int = 6
 
     def __repr__(self) -> str:
-        return f'BaseDice(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
+        return f'BaseDice(id={str(self.id)}, name={self.name}, description={self.description}, cost={self.cost})'
 
     @staticmethod
     def luck_roll_function(minimum: int, maximum: int, luck: float) -> int:
@@ -87,7 +87,7 @@ class Dice(Item):
         response = ResponseMessage(interaction, self, user=interaction.user)
 
         # Get item from user
-        item = user.get_item(self.id)
+        item = user.get_item(str(self.id))
         if item is None:
             response.send(f"You don't have a {self.name} in your inventory.")
             return await response.send_interaction(ephemeral=True, delete_after=60)
@@ -132,7 +132,7 @@ class Dice(Item):
 
         roll = Roll(
                 user_id=user.id,
-                item_id=self.id,
+                item_id=str(self.id),
                 roll_time=datetime.now(),
                 base_value=dice_roll.base,
                 can_roll_again=dice_roll.can_roll_again
