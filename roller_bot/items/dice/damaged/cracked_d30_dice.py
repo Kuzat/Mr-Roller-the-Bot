@@ -13,6 +13,6 @@ class CrackedD30Dice(Dice):
     own_multiple = True
     buyable = True
 
-    def roll_again(self):
+    def roll_again(self, last_roll):
         # Override the roll_again method to implement the behavior of the cracked D30 dice
-        pass
+        return last_roll == self.max_roll
