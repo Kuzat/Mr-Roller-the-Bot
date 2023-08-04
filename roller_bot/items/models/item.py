@@ -4,8 +4,10 @@ from roller_bot.models.pydantic.bonus_return_value import BonusReturnValue
 from roller_bot.models.user import User
 
 
+import uuid
+
 class Item:
-    id: int = -1
+    id: uuid.UUID = uuid.uuid4()
 
     def __init__(self) -> None:
         self.name: str = ""
@@ -22,13 +24,13 @@ class Item:
         self.quantity: int = 1
 
     def __str__(self) -> str:
-        return f'Item(id={self.id}, name={self.name}, description={self.description}, cost={self.cost})'
+        return f'Item(id={str(self.id)}, name={self.name}, description={self.description}, cost={self.cost})'
 
     def inventory_str(self, active: bool = False, quantity: int = 1) -> str:
-        return f'({self.id}) - {self.name}: {self.description} {"(ACTIVE)" if active else ""} - Quantity: {quantity} - Sell Price: {self.sell_cost}'
+        return f'({str(self.id)}) - {self.name}: {self.description} {"(ACTIVE)" if active else ""} - Quantity: {quantity} - Sell Price: {self.sell_cost}'
 
     def shop_str(self) -> str:
-        return f'({self.id}) - {self.name}: {self.description} - Cost: {self.cost}'
+        return f'({str(self.id)}) - {self.name}: {self.description} - Cost: {self.cost}'
 
     def bonus(self, user: User) -> BonusReturnValue:
         """
