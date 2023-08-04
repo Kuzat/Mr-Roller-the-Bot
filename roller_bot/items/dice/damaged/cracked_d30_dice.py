@@ -7,7 +7,7 @@ class CrackedD30Dice(Dice):
     max_roll = 30
     description = "A cracked D30 dice. It's a bit unreliable..."
     cost = 300
-    sell_cost = 150
+    sell_cost = 20
     start_health = 100
     use_cost = 10
     own_multiple = True
