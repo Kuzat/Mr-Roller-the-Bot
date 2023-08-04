@@ -6,6 +6,7 @@ from roller_bot.items.dice.damaged.cracked_d12_dice import CrackedD12Dice
 from roller_bot.items.dice.damaged.cracked_d20_dice import CrackedD20Dice
 from roller_bot.items.dice.damaged.cracked_d25_dice import CrackedD25Dice
 from roller_bot.items.dice.damaged.cracked_d8_dice import CrackedD8Dice
+from roller_bot.items.dice.damaged.cracked_d30_dice import CrackedD30Dice
 from roller_bot.items.dice.regular_dice import RegularDice
 from roller_bot.items.models.dice import Dice
 from roller_bot.items.models.item import Item
@@ -24,7 +25,8 @@ dice_data: Dict[int, Dice] = {
     CrackedD12Dice.id: CrackedD12Dice(),
     CrackedD10Dice.id: CrackedD10Dice(),
     CrackedD8Dice.id: CrackedD8Dice(),
-    CrackedD25Dice.id: CrackedD25Dice()
+    CrackedD25Dice.id: CrackedD25Dice(),
+    CrackedD30Dice.id: CrackedD30Dice()
 }
 
 item_data: Dict[int, Item] = {
