@@ -11,7 +11,7 @@ class CrackedD30Dice(Dice):
     start_health = 100
     use_cost = 10
     own_multiple = True
-    buyable = True
+    buyable = False
 
     def roll_again(self, last_roll):
         # Override the roll_again method to implement the behavior of the cracked D30 dice
