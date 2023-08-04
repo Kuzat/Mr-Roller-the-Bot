@@ -1,7 +1,7 @@
 from roller_bot.items.models.dice import Dice
 
 class CrackedD30Dice(Dice):
-    id = 9
+    id = 10
     name = "Cracked D30 Dice"
     min_roll = 1
     max_roll = 30
