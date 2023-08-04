@@ -32,7 +32,7 @@ class AdminCommandsBackend:
     async def add_item(
             interaction: discord.Interaction,
             user: User,
-            item_id: int,
+            item_id: str,
             quantity: int,
             hidden: bool = False
     ) -> None:
@@ -50,14 +50,14 @@ class AdminCommandsBackend:
 
         # Add the new item to user if the do not already own it
         if not user_item:
-            user.items.append(
-                    Items(
-                            item_id=item_id,
-                            user_id=user.id,
-                            quantity=quantity,
-                            purchased_at=datetime.now()
-                    )
-            )
+        user.items.append(
+                Items(
+                        item_id=item_id,
+                        user_id=user.id,
+                        quantity=quantity,
+                        purchased_at=datetime.now()
+                )
+        )
         else:
             user_item.quantity += quantity
 
@@ -70,7 +70,7 @@ class AdminCommandsBackend:
     async def remove_item(
             interaction: discord.Interaction,
             user: User,
-            item_id: int,
+            item_id: str,
             quantity: int,
             hidden: bool = False
     ) -> None:
@@ -114,7 +114,7 @@ class AdminCommandsBackend:
         user.roll_credit -= amount
         if user.roll_credit < 0:
             user.roll_credit = 0
-        await interaction.response.send_message(f"Removed {amount} credits from user {user.mention} ({user.id})", ephemeral=hidden)
+        await interaction.response.send_message(f"Removed {quantity} of item {item.name} ({item_id}) from user {user.mention} ({user.id})", ephemeral=hidden)
 
     @staticmethod
     async def user_info(
@@ -131,8 +131,8 @@ class AdminCommandsBackend:
         else:
             user_items: List[Items] = list(filter(lambda x: x.quantity > 0, user.items))
             user_item_definitions: List[Item] = []
-            for item in user_items:
-                item_definition = item_from_id(item.item_id)  # type: ignore
+        for item in user_items:
+            item_definition = item_from_id(str(item.item_id))  # type: ignore
                 if item_definition is not None:
                     item_definition.quantity = item.quantity
                     user_item_definitions.append(item_definition)
