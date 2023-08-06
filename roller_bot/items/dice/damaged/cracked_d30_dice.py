@@ -13,6 +13,7 @@ class CrackedD30Dice(Dice):
         self.use_cost = 10
         self.own_multiple = True
         self.buyable = False
+        self.sellable: bool = True
 
     def roll_again(self, last_roll):
         # Override the roll_again method to implement the behavior of the cracked D30 dice
