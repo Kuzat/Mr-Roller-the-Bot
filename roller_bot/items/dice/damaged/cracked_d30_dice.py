@@ -3,6 +3,7 @@ from roller_bot.items.models.dice import Dice
 class CrackedD30Dice(Dice):
     id = 102
     def __init__(self):
+        super().__init__()
         self.name = "Cracked D30 Dice"
         self.min_roll = 1
         self.max_roll = 30
