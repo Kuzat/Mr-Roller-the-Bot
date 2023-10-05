@@ -9,6 +9,7 @@ from roller_bot.embeds.random_event_embed import RandomEventEmbed
 from roller_bot.items.models.item import Item
 from roller_bot.items.tokens.daily_streak_token import DailyStreakToken
 from roller_bot.items.tokens.reroll_token import RerollToken
+from roller_bot.items.dice.damaged.cracked_d30_dice import CrackedD30Dice
 from roller_bot.items.utils import item_from_id
 from roller_bot.models.items import Items
 from roller_bot.utils.random_lists import WeightedRandomItemsList, WeightedItem
@@ -21,6 +22,7 @@ class ClaimItemEventCreator:
                 items=[
                     WeightedItem(item=RerollToken(), weight=10),
                     WeightedItem(item=DailyStreakToken(), weight=1),
+                    WeightedItem(item=CrackedD30Dice(), weight=5),
                 ]
 
         )
