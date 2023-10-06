@@ -114,28 +114,28 @@ class User(Base):
     def can_daily_roll(self) -> bool:
         return self.latest_roll.roll_time.date() != datetime.now().date() if self.latest_roll else True
 
-    def has_item(self, item_id: int) -> bool:
+    def has_item(self, item_id: str) -> bool:
         return any([item.item_id == item_id for item in self.items])
 
-    def get_item(self, item_id: int) -> Optional[Items]:
+    def get_item(self, item_id: str) -> Optional[Items]:
         for item in self.items:
             if item.item_id == item_id:
                 return item
         return None
 
-    def get_bonus_values_for_item(self, item_id: int) -> List[Bonus]:
+    def get_bonus_values_for_item(self, item_id: str) -> List[Bonus]:
         return list(filter(lambda bonus_value: bonus_value.item_id == item_id, self.bonus_values))
-
-    def can_roll(self) -> bool:
-        return (
-                self.can_daily_roll or
-                self.latest_roll.can_roll_again or
-                self.can_roll_again
-        )
 
     @classmethod
     def new_user(cls, user_id: int, created_at: datetime):
         user = User(id=user_id, created_at=created_at)
+        # Add a default dice to the user's items
+        dice_id = str(uuid.uuid4())
+        user.items.append(
+                Items(user_id=user.id, item_id=dice_id, quantity=1, purchased_at=created_at)
+        )
+        user.active_dice = dice_id  # type: ignore
+        return user
         # Add a default dice to the user's items
         dice_id = 0
         user.items.append(
