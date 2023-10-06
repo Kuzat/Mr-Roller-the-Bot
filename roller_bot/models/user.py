@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from functools import cached_property
 from typing import Dict, List, Optional
-from sqlalchemy import Column, DateTime, Float, Integer, BigInteger, Boolean, func, select
+from sqlalchemy import Column, DateTime, Float, Integer, Boolean, func, select
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -14,7 +14,7 @@ from roller_bot.models.roll import Roll
 
 class User(Base):
     __tablename__: str = 'users'
-    id: Column = Column(BigInteger, primary_key=True, nullable=False)
+    id: Column = Column(Integer, primary_key=True, nullable=False)
     streak: Column = Column(Integer, nullable=False, default=0)
     roll_credit: Column = Column(Integer, nullable=False, default=0)
     created_at: Column = Column(DateTime, nullable=False)
